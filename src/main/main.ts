@@ -10,7 +10,7 @@ app.on('ready', function() {
   let mainWindow: BrowserWindow | null = new BrowserWindow({width: 800, height: 600});
   const url = isDevelopment
     ? `http://localhost:${process.env.ELECTRON_WEBPACK_WDS_PORT}`
-    : 'file://' + __dirname + '/build/index.html';
+    : 'file://' + __dirname + '/index.html';
   mainWindow.loadURL(url);
 
   mainWindow.on('closed', function() {
