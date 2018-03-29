@@ -1,5 +1,5 @@
 .App {
-  text-align: center;
+  /* text-align: center; */
 }
 
 .App-logo {
@@ -14,10 +14,6 @@
   color: white;
 }
 
-.App-title {
-  font-size: 1.5em;
-}
-
 .App-intro {
   font-size: large;
 }
@@ -25,4 +21,24 @@
 @keyframes App-logo-spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
+}
+
+span .label {
+  background: red
+}
+
+div .ui-tab-head {
+  display: flex;
+  flex-direction: row;
+}
+
+div .ui-tab-tab {
+  min-width: 80px;
+  padding-left: 0.5rem;
+  padding-right: 0.5rem;
+}
+
+div .ui-content-list-container {
+  display: flex;
+  flex-direction: row;
 }
