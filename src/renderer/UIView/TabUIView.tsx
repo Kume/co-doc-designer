@@ -22,10 +22,10 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
     return (
       <div>
         <div className="ui-tab-head">
-          {this.props.model.contents.map(content => {
+          {this.props.model.contents.map((content, index) => {
             return (
               <div
-                className="ui-tab-tab"
+                className={'ui-tab-tab' + (index === this.currentTabIndex ? ' selected' : '')}
                 key={content!.key.getMapKey}
                 onClick={() => this.props.onSetEditContext(new EditContext({path: new DataPath(content!.key)}))}
               >
@@ -34,7 +34,7 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
             );
           })}
         </div>
-        <div>
+        <div className="ui-tab-content">
           <CurrentComponent
             model={currentModel}
             data={this._currentData()}

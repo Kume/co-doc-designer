@@ -42,4 +42,14 @@ export default class CollectionDataModelUtil {
       return index;
     }
   }
+
+  public static indexesEqual (a?: CollectionIndex, b?: CollectionIndex): boolean {
+    if (a instanceof ScalarDataModel) {
+      if (b instanceof ScalarDataModel) {
+        return a.equals(b);
+      }
+      return false;
+    }
+    return a === b;
+  }
 }

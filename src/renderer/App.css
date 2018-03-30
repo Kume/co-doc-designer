@@ -27,18 +27,84 @@ span .label {
   background: red
 }
 
-div .ui-tab-head {
+/* Tab */
+div.ui-tab-head {
   display: flex;
   flex-direction: row;
 }
 
-div .ui-tab-tab {
+div.ui-tab-tab {
   min-width: 80px;
   padding-left: 0.5rem;
   padding-right: 0.5rem;
+  margin-left: 0.2rem;
+  border: 1px solid gray;
+  background-color: lightgray;
+  position: relative;
+  bottom: -1px;
 }
 
-div .ui-content-list-container {
+div.ui-tab-tab.selected {
+  background-color: white;
+  border-bottom: 0;
+}
+
+div.ui-tab-content {
+  padding: 8px;
+  border-top: 1px solid gray;
+}
+
+/* Content List */
+div.ui-content-list-container {
   display: flex;
   flex-direction: row;
+}
+
+input.ui-content-list--search-input {
+  margin-right: 10px;
+  width: 120px;
+}
+
+ul.ui-content-list--list {
+  border: 1px solid gray;
+  margin-top: 0;
+  margin-right: 10px;
+  padding: 0;
+  width: 120px;
+}
+
+ul.ui-content-list--list li {
+  border-bottom: 1px solid gray;
+  padding-left: 0.2rem;
+  list-style: none;
+}
+
+ul.ui-content-list--list li:last-child {
+  border-bottom: 0;
+}
+
+ul.ui-content-list--list li.selected {
+  background-color: lightblue;
+}
+
+/* Form */
+div.ui-form--row {
+  display: flex;
+  flex-direction: row;
+}
+
+div.ui-form--row-label {
+  width: 100px;
+  text-align: right;
+  padding-right: 0.5rem;
+  background-color: #dddddd;
+  padding-top: 5px;
+  padding-bottom: 5px;
+  margin-bottom: 2px;
+}
+
+div.ui-form--row-content {
+  padding-left: 0.5rem;
+  padding-top: 5px;
+  padding-bottom: 5px;
 }

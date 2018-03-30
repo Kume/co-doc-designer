@@ -28,11 +28,11 @@ export default class FormUIView extends UIViewBase<Props, UIViewBaseState> {
             data = this.props.data.valueForKey(contentModel!.key.getMapKey);
           }
           return (
-            <div className="ui-form-container" key={contentModel!.key.toString()}>
-              <div>
+            <div className="ui-form--row" key={contentModel!.key.toString()}>
+              <div className="ui-form--row-label">
                 {contentModel!.title}
               </div>
-              <div>
+              <div className="ui-form--row-content">
                 <ContentComponent
                   model={contentModel!}
                   data={data}

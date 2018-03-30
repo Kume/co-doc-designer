@@ -22,20 +22,24 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
 
     return (
       <div className="ui-content-list-container">
-        <ul>
-          {
-            this.props.model.getIndexes(this.props.data).map((index: ContentListIndex) => {
-              return (
-                <li
-                  key={collectionIndexToKey(index.index)}
-                  onClick={() => this.onEditContextChanged(index.index)}
-                >
-                  {index.title}
-                </li>
-              );
-            })
-          }
-        </ul>
+        <div>
+          <input type="text" className="ui-content-list--search-input" />
+          <ul className="ui-content-list--list">
+            {
+              this.props.model.getIndexes(this.props.data, this.currentIndex).map((index: ContentListIndex) => {
+                return (
+                  <li
+                    key={collectionIndexToKey(index.index)}
+                    onClick={() => this.onEditContextChanged(index.index)}
+                    className={index.isSelected ? 'selected' : ''}
+                  >
+                    {index.title}
+                  </li>
+                );
+              })
+            }
+          </ul>
+        </div>
         <div>
           {
             this.currentIndex && (
