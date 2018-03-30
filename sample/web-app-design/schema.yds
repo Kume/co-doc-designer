@@ -1,0 +1,52 @@
+fileMap:
+  fileName: index.yml
+  children:
+  - type: map
+    path: tables
+    directory: tables
+  - type: single
+    path: messages
+    fileName: messages.yml
+
+uiRoot:
+  type: tab
+  contents:
+  - type: contentList
+    key: tables
+    title: テーブル設計
+    listIndexKey: $key
+    content:
+      type: form
+      contents:
+      - type: text
+        key: $key
+        title: 物理名
+      - type: text
+        key: label
+        title: 論理名
+      - type: table
+        key: columns
+        title: カラム
+        contents:
+        - type: text
+          key: name
+          title: 物理名
+        - type: text
+          key: label
+          title: 論理名
+        - type: checkbox
+          key: nullable
+          title: Null許可
+  - type: table
+    key: messages
+    title: メッセージ
+    contents:
+    - type: text
+      key: category
+      title: カテゴリー
+    - type: text
+      key: key
+      title: キー
+    - type: text
+      key: message
+      title: メッセージ

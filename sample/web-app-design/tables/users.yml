@@ -1,0 +1,13 @@
+label: ユーザー
+columns:
+  - name: id
+    label: ID
+    type: integer
+    length: 11
+    nullable: false
+    autoIncrement: true
+  - name: last_name
+    label: 姓
+    type: varchar
+    length: 255
+    nullable: false

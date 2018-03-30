@@ -1,0 +1,22 @@
+label: タスク
+columns:
+  - name: id
+    label: ID
+    type: integer
+    length: 11
+    nullable: false
+    autoIncrement: true
+  - name: title
+    label: タイトル
+    type: varchar
+    length: 255
+    nullable: true
+  - name: content
+    label: 内容
+    type: longtext
+    length: 255
+    nullable: true
+  - name: create_user_id
+    label: 作成者ID
+    type: integer
+    nullable: false

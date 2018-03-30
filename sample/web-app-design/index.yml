@@ -1,0 +1,4 @@
+tables:
+  tasks: tables/tasks.yml
+  users: tables/users.yml
+messages: messages.yml

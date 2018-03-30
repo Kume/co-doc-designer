@@ -1,0 +1,6 @@
+- category: 共通
+  key: system-error
+  message: 原因不明のエラーが発生しました。システム管理者にお問い合わせください。
+- category: 共通
+  key: network-offline
+  message: インターネットに接続できません。
