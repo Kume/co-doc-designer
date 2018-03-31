@@ -21,7 +21,7 @@ export default class RootUIView extends React.Component<Props, State> {
     super(props, context);
     this.state = {
       model: UIModelFactory.create(sampleUIConfig),
-      data: DataModelFactory.createDataModel(sampleDataForUIConfig),
+      data: DataModelFactory.create(sampleDataForUIConfig),
       editContext: new EditContext(),
       modalContent: undefined
     };
@@ -37,8 +37,7 @@ export default class RootUIView extends React.Component<Props, State> {
     if (model === undefined || data === undefined) {
       return <div />;
     } else {
-      const factory = new UIViewFactory();
-      const CurrentComponent = factory.createUIView(model);
+      const CurrentComponent = UIViewFactory.createUIView(model);
       return (
         <div>
           <CurrentComponent

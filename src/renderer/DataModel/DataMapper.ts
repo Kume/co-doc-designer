@@ -122,7 +122,7 @@ class MapMappingNode extends MappingNode {
         const path = basePath.push(mapElement.key.value);
         const source = await storage.loadAsync(directoryPath.concat([filename]));
         const formated = formatter.parse(source);
-        const loaded = DataModelFactory.createDataModel(formated);
+        const loaded = DataModelFactory.create(formated);
         data = data.setValue(path, loaded);
         data = await this.loadChildrenAsync(
           data, storage, formatter, path, directoryPath.concat([key]));
@@ -185,7 +185,7 @@ export class SingleMappingNode extends MappingNode {
       const source = await storage.loadAsync(
         parentDirectory.concat(this._directoryPath).concat([this._fileName]));
       const formated = formatter.parse(source);
-      const loaded = DataModelFactory.createDataModel(formated);
+      const loaded = DataModelFactory.create(formated);
       return data.setValue(path, loaded);
     } else {
       return data;
@@ -254,7 +254,7 @@ export default class DataMapper extends MappingNodeBase {
   public async loadAsync(): Promise<DataModelBase> {
     const source = await this.storage.loadAsync(['index.yml']);
     const formated = this.formatter.parse(source);
-    let loaded = DataModelFactory.createDataModel(formated);
+    let loaded = DataModelFactory.create(formated);
     loaded = await this.loadChildrenAsync(loaded, this.storage, this.formatter, this.path, []);
     return loaded;
   }

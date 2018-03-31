@@ -5,9 +5,8 @@ import UIViewFactory from './UIViewFactory';
 import DataModelBase, { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
 import DataPath from '../DataModel/DataPath';
 import EditContext from './EditContext';
-import { default as CollectionDataModelUtil, collectionIndexToKey } from '../DataModel/CollectionDataModelUtil';
 import DataPathElement from '../DataModel/DataPathElement';
-import ScalarDataModel, { ScalarDataModelType } from "../DataModel/ScalarDataModel";
+import { StringDataModel } from "../DataModel/ScalarDataModel";
 import UIViewModal from "./UIViewModal";
 import MapDataModel from "../DataModel/MapDataModel";
 import ListDataModel from "../DataModel/ListDataModel";
@@ -28,8 +27,7 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
   }
 
   public render(): React.ReactNode {
-    const factory = new UIViewFactory();
-    const ContentComponent = factory.createUIView(this.props.model.content);
+    const ContentComponent = UIViewFactory.createUIView(this.props.model.content);
 
     return (
       <div className="ui-content-list--container">
@@ -40,7 +38,7 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
               this.props.model.getIndexes(this.props.data, this.currentIndex).map((index: ContentListIndex) => {
                 return (
                   <li
-                    key={collectionIndexToKey(index.index)}
+                    key={index.index}
                     onClick={() => this.onEditContextChanged(index.index)}
                     className={index.isSelected ? 'selected' : ''}
                   >
@@ -100,14 +98,23 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
     );
   }
 
+  // private moveUpForIndex(index: CollectionIndex) {
+  //   if (this.props.data instanceof MapDataModel) {
+  //     if (index instanceof ScalarDataModel) {
+  //       const currentIndex = this.props.data.indexForKey(index.value);
+  //
+  //     }
+  //   }
+  // }
+
   private onUpdate(path: DataPath, value: DataModelBase): void {
     const index = this.currentIndexPathElement;
     if (index !== undefined) {
       this.props.onUpdate(path.unshift(index), value);
     }
     if (path.pointsKey && path.elements.isEmpty()) {
-      if (value instanceof ScalarDataModel && value.type === ScalarDataModelType.String) {
-        this.onEditContextChanged(value);
+      if (value instanceof StringDataModel) {
+        this.onEditContextChanged(value.value);
       } else {
         throw new Error('Cant set value as key');
       }
@@ -116,7 +123,7 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
 
   private onEditContextChanged(index: CollectionIndex) {
     this.props.onSetEditContext(new EditContext({
-      path: new DataPath(CollectionDataModelUtil.indexToPathElement(index))
+      path: new DataPath(index)
     }));
   }
 
@@ -129,7 +136,7 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
 
   private get currentIndexPathElement(): DataPathElement | undefined {
     const index = this.currentIndex;
-    return index === undefined ? undefined : CollectionDataModelUtil.indexToPathElement(index);
+    return index === undefined ? undefined : DataPathElement.create(index);
   }
 
   private get currentIndex(): CollectionIndex | undefined {

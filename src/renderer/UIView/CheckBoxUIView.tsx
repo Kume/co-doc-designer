@@ -1,7 +1,7 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
-import ScalarDataModel from '../DataModel/ScalarDataModel';
+import ScalarDataModel, { BooleanDataModel } from '../DataModel/ScalarDataModel';
 import DataPath from '../DataModel/DataPath';
 
 interface Props extends UIViewBaseProps {
@@ -25,6 +25,6 @@ export default class CheckBoxUIView extends UIViewBase<Props, UIViewBaseState> {
   private _update(): void {
     this.props.onUpdate(
       new DataPath([]),
-      new ScalarDataModel(this._checkboxInput.value));
+      new BooleanDataModel(!!this._checkboxInput.value));
   }
 }

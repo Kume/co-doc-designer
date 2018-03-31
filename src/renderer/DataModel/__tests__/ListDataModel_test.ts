@@ -1,12 +1,12 @@
 import MapDataModel from '../MapDataModel';
-import ScalarDataModel from '../ScalarDataModel';
+import { IntegerDataModel, StringDataModel } from '../ScalarDataModel';
 import ListDataModel from '../ListDataModel';
 import DataPath from '../DataPath';
 
 describe('Test for valueForKey', () => {
   it('Can get value', () => {
     const model = new ListDataModel(['a', 2]);
-    expect(model.list.get(0)).toEqual(new ScalarDataModel('a'));
+    expect(model.list.get(0)).toEqual(new StringDataModel('a'));
   });
 
   it('Can construct with object', () => {
@@ -19,20 +19,20 @@ describe('Test for getValue', () => {
   it('Can get value', () => {
     const model = new ListDataModel(['a', 2]);
     const path = new DataPath([1]);
-    expect(model.getValue(path)).toEqual(new ScalarDataModel(2));
+    expect(model.getValue(path)).toEqual(new IntegerDataModel(2));
   });
 });
 
 describe('Test for setValue', () => {
   it('Can set for index', () => {
     const model = new ListDataModel(['a', 2]);
-    const updatedModel = model.setValue(new DataPath([0]), new ScalarDataModel('b')) as ListDataModel;
-    expect(updatedModel.list.get(0)).toEqual(new ScalarDataModel('b'));
+    const updatedModel = model.setValue(new DataPath([0]), new StringDataModel('b')) as ListDataModel;
+    expect(updatedModel.list.get(0)).toEqual(new StringDataModel('b'));
   });
 
   it('Do not affect to other element', () => {
     const model = new ListDataModel(['a', 2]);
-    const updatedModel = model.setValue(new DataPath([0]), new ScalarDataModel('b')) as ListDataModel;
-    expect(updatedModel.list.get(1)).toEqual(new ScalarDataModel(2));
+    const updatedModel = model.setValue(new DataPath([0]), new StringDataModel('b')) as ListDataModel;
+    expect(updatedModel.list.get(1)).toEqual(new IntegerDataModel(2));
   });
 });

@@ -41,7 +41,7 @@ class DataPathElement {
     this._type = type;
   }
 
-  public get getMapKey(): string {
+  public get asMapKey(): string {
     switch (this._type) {
       case DataPathElement.Type.MapKey:
         return this._value as string;
@@ -52,7 +52,7 @@ class DataPathElement {
     }
   }
 
-  public get toListIndex(): number {
+  public get asListIndex(): number {
     switch (this._type) {
       case DataPathElement.Type.ListIndex:
         return this._value as number;

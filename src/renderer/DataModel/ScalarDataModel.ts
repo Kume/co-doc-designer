@@ -2,13 +2,15 @@ import DataModelBase from './DataModelBase';
 import { Record } from 'immutable';
 import DataPath from './DataPath';
 
-export type ScalarDataSource = number | string | boolean | null;
+export type ScalarDataSource = number | string | boolean | null | Date;
 
 export enum ScalarDataModelType {
   Null,
   String,
   Boolean,
-  Number
+  Integer,
+  Float,
+  Date
 }
 
 const ScalarDataModelRecord = Record({
@@ -20,23 +22,8 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
   public readonly type: ScalarDataModelType;
   public readonly value: any;
 
-  private static getValueType(value: any) {
-    let type: ScalarDataModelType = ScalarDataModelType.Null;
-    if (value === null) {
-      type = ScalarDataModelType.Null;
-      value = null;
-    } else if (typeof value === 'string') {
-      type = ScalarDataModelType.String;
-    } else if (typeof value === 'number') {
-      type = ScalarDataModelType.Number;
-    } else if (typeof value === 'boolean') {
-      type = ScalarDataModelType.Boolean;
-    }
-    return {value, type};
-  }
-
-  constructor(value: ScalarDataSource = null) {
-    super(ScalarDataModel.getValueType(value));
+  constructor(value: ScalarDataSource, type: ScalarDataModelType) {
+    super({value, type});
   }
 
   public setValue(path: DataPath, value: DataModelBase): DataModelBase {
@@ -69,5 +56,57 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
     } else {
       return JSON.stringify(this.toJsonObject());
     }
+  }
+}
+
+export class StringDataModel extends ScalarDataModel {
+  public readonly value: string;
+
+  public static readonly empty: StringDataModel = new StringDataModel('');
+
+  constructor(value: string) {
+    super(value, ScalarDataModelType.String);
+  }
+}
+
+export class NumberDataModel extends ScalarDataModel {
+  public readonly value: number;
+}
+
+export class IntegerDataModel extends NumberDataModel {
+  constructor(value: number) {
+    super(value, ScalarDataModelType.Integer);
+  }
+}
+
+export class FloatDataModel extends NumberDataModel {
+  constructor(value: number) {
+    super(value, ScalarDataModelType.Float);
+  }
+}
+
+export class BooleanDataModel extends ScalarDataModel {
+  public readonly value: boolean;
+
+  constructor(value: boolean) {
+    super(value, ScalarDataModelType.Boolean);
+  }
+}
+
+export class NullDataModel extends ScalarDataModel {
+  public readonly value: null;
+
+  public static readonly null: NullDataModel = new NullDataModel();
+
+  constructor() {
+    super(null, ScalarDataModelType.Null);
+  }
+}
+
+export class DateDataModel extends ScalarDataModel {
+  public readonly value: Date;
+
+  constructor(value: Date) {
+    super(value, ScalarDataModelType.Date);
   }
 }

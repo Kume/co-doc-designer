@@ -2,11 +2,12 @@ import MultiContentsUIModel from './MultiContentsUIModel';
 import DataPathElement from '../DataModel/DataPathElement';
 import UIModelConfigObject from './UIModelConfigObject';
 import ListDataModel from '../DataModel/ListDataModel';
-import MapDataModel, { MapDataModelElement } from '../DataModel/MapDataModel';
+import MapDataModel from '../DataModel/MapDataModel';
 import UIModelBase from './UIModelBase';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
-import { CollectionDataModelType, parseCollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
+import CollectionDataModelUtil, { CollectionDataModelType } from "../DataModel/CollectionDataModelUtil";
+import DataModelFactory from "../DataModel/DataModelFactory";
 
 export interface TableUIModelConfigObject extends UIModelConfigObject {
   dataType?: string;
@@ -18,7 +19,7 @@ export default class TableUIModel extends MultiContentsUIModel {
   public constructor(config: TableUIModelConfigObject) {
     super(config.title, DataPathElement.parse(config.key));
     if (config.dataType) {
-      this._dataType = parseCollectionDataModelType(config.dataType);
+      this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
     }
   }
 
@@ -34,23 +35,22 @@ export default class TableUIModel extends MultiContentsUIModel {
           if (!(item instanceof MapDataModel)) {
             throw new Error('Invalid data type');
           }
-          const key = content.key.getMapKey;
+          const key = content.key.asMapKey;
           const value = item.valueForKey(key) as ScalarDataModel;
           map[key] = value && value.value;
         });
         return map;
       });
     } else if (data instanceof MapDataModel) {
-      return data.list.map((item: MapDataModelElement) => {
+      return data.mapDataWithIndex((item, index) => {
         const map = {};
         this.contents.forEach((content: UIModelBase) => {
           if (content.key.isKey) {
-            map[DataPathElement.SpecialName.Key] = new ScalarDataModel(item.key.value);
+            map[DataPathElement.SpecialName.Key] = DataModelFactory.create(index);
           } else {
-            const key = content.key.getMapKey;
-            const itemValue = item.value;
-            if (itemValue instanceof MapDataModel) {
-              const value = itemValue.valueForKey(key) as ScalarDataModel;
+            const key = content.key.asMapKey;
+            if (item instanceof MapDataModel) {
+              const value = item.valueForKey(key) as ScalarDataModel;
               map[key] = value && value.value;
             } else {
               throw new Error('');
@@ -58,7 +58,7 @@ export default class TableUIModel extends MultiContentsUIModel {
           }
         });
         return map;
-      }).toArray();
+      });
     } else {
       // TODO 警告
       return [];

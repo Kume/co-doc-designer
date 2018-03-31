@@ -1,12 +1,12 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import TextUIModel from '../UIModel/TextUIModel';
-import ScalarDataModel from '../DataModel/ScalarDataModel';
+import { StringDataModel } from '../DataModel/ScalarDataModel';
 import DataPath from '../DataModel/DataPath';
 
 interface Props extends UIViewBaseProps {
   model: TextUIModel;
-  data: ScalarDataModel;
+  data: StringDataModel;
 }
 
 export default class TextUIView extends UIViewBase<Props, UIViewBaseState> {
@@ -27,6 +27,6 @@ export default class TextUIView extends UIViewBase<Props, UIViewBaseState> {
   private _update(): void {
     this.props.onUpdate(
       new DataPath([]),
-      new ScalarDataModel(this._textInput.value));
+      new StringDataModel(this._textInput.value));
   }
 }

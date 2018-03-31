@@ -6,7 +6,7 @@ import MapDataModel from '../DataModel/MapDataModel';
 import DataPath from '../DataModel/DataPath';
 import DataModelBase from '../DataModel/DataModelBase';
 import EditContext from './EditContext';
-import CollectionDataModelUtil from '../DataModel/CollectionDataModelUtil';
+import DataModelFactory from "../DataModel/DataModelFactory";
 
 interface Props extends UIViewBaseProps {
   model: FormUIModel;
@@ -18,14 +18,13 @@ export default class FormUIView extends UIViewBase<Props, UIViewBaseState> {
     return (
       <div>
         {this.props.model.contents.map(contentModel => {
-          const factory = new UIViewFactory();
-          const ContentComponent = factory.createUIView(contentModel!);
+          const ContentComponent = UIViewFactory.createUIView(contentModel!);
           let data: DataModelBase | undefined;
           if (contentModel!.key.isKey) {
             data = this.props.indexInParent === undefined
-              ? undefined : CollectionDataModelUtil.indexToDataModel(this.props.indexInParent);
+              ? undefined : DataModelFactory.create(this.props.indexInParent);
           } else {
-            data = this.props.data.valueForKey(contentModel!.key.getMapKey);
+            data = this.props.data.valueForKey(contentModel!.key.asMapKey);
           }
           return (
             <div className="ui-form--row" key={contentModel!.key.toString()}>

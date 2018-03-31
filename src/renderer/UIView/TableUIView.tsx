@@ -8,9 +8,9 @@ import TextUIModel from '../UIModel/TextUIModel';
 import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
-import ScalarDataModel from '../DataModel/ScalarDataModel';
 import DataPath from '../DataModel/DataPath';
 import ListDataModel from '../DataModel/ListDataModel';
+import DataModelFactory from "../DataModel/DataModelFactory";
 
 /* tslint:disable */
 window['__HOT_BUILD_DATE__'] = '';
@@ -51,7 +51,7 @@ export default class TableUIView extends UIViewBase<Props, UIViewBaseState> {
         const column: string = change[1];
         const changed: any = change[3];
         let rowData: MapDataModel = data.getValueForIndex(row) as MapDataModel;
-        rowData = rowData.setValueForKey(column, new ScalarDataModel(changed));
+        rowData = rowData.setValueForKey(column, DataModelFactory.create(changed));
         data = data.setValueForIndex(row, rowData);
       });
       this.props.onUpdate(new DataPath([]), data);

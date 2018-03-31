@@ -5,7 +5,7 @@ import UIViewFactory from "./UIViewFactory";
 import DataPath from "../DataModel/DataPath";
 import EditContext from "./EditContext";
 import UIModelBase from "../UIModel/UIModelBase";
-import ScalarDataModel, { ScalarDataModelType } from "../DataModel/ScalarDataModel";
+import { StringDataModel } from "../DataModel/ScalarDataModel";
 
 interface OnComplete {
   (key: CollectionIndex | undefined, data: DataModelBase): void;
@@ -19,7 +19,7 @@ interface Props {
 
 interface State extends UIViewBaseState {
   data: DataModelBase;
-  key: ScalarDataModel | undefined;
+  key: CollectionIndex | undefined;
   editContext: EditContext;
 }
 
@@ -28,7 +28,7 @@ export default class UIViewModal extends React.Component<Props, State> {
     super(props, context);
     this.state = {
       data: this.props.data,
-      key: new ScalarDataModel(''),
+      key: undefined,
       editContext: new EditContext()
     };
     this.onComolete = this.onComolete.bind(this);
@@ -44,8 +44,7 @@ export default class UIViewModal extends React.Component<Props, State> {
     if (model === undefined || data === undefined) {
       return <div />;
     } else {
-      const factory = new UIViewFactory();
-      const CurrentComponent = factory.createUIView(model);
+      const CurrentComponent = UIViewFactory.createUIView(model);
       return (
         <div>
           <CurrentComponent
@@ -55,8 +54,8 @@ export default class UIViewModal extends React.Component<Props, State> {
             onUpdate={(path: DataPath, value: DataModelBase) => {
               console.log('onUpdate on modal', path.elements.toJS(), value);
               if (path.pointsKey && path.elements.size === 0) {
-                if (value instanceof ScalarDataModel && value.type === ScalarDataModelType.String) {
-                  this.setState({key: value});
+                if (value instanceof StringDataModel) {
+                  this.setState({key: value.value});
                 } else {
                   throw new Error('Cannot set value as key')
                 }

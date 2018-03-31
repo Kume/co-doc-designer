@@ -1,5 +1,4 @@
 import DataPath from './DataPath';
-import ScalarDataModel from './ScalarDataModel';
 
 export default abstract class DataModelBase {
   public abstract setValue(path: DataPath, value: DataModelBase): DataModelBase;
@@ -21,7 +20,7 @@ export interface DataModelConvert<T> {
   (data: DataModelBase): T;
 }
 
-export type CollectionIndex = number | ScalarDataModel;
+export type CollectionIndex = number | string;
 
 export interface DataModelConvertWithIndex<T> {
   (data: DataModelBase, index: CollectionIndex): T;

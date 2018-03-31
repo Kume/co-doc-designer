@@ -5,7 +5,6 @@ import { CollectionDataModel, CollectionIndex, default as DataModelBase } from '
 import MapDataModel from '../DataModel/MapDataModel';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
 import DataPath from "../DataModel/DataPath";
-import CollectionDataModelUtil from "../DataModel/CollectionDataModelUtil";
 import UIModelBase from "./UIModelBase";
 import { UIModelFactory } from "./UIModelFactory";
 import DataModelFactory from "../DataModel/DataModelFactory";
@@ -32,7 +31,7 @@ export default class ContentListUIModel extends SingleContentUIModel {
     super(config.title, DataPathElement.parse(config.key));
     this._listIndexKey = DataPathElement.parse(config.listIndexKey!);
     this._addFormContent = UIModelFactory.create(config.addFormContent);
-    this._addFormDefaultValue = DataModelFactory.createDataModel(config.addFormDefaultValue);
+    this._addFormDefaultValue = DataModelFactory.create(config.addFormDefaultValue);
   }
 
   get addFormContent(): UIModelBase {
@@ -47,7 +46,7 @@ export default class ContentListUIModel extends SingleContentUIModel {
     return data.mapDataWithIndex<ContentListIndex>(
       (item: DataModelBase, index: CollectionIndex): ContentListIndex => {
         let isInvalid: boolean = false;
-        const isSelected = CollectionDataModelUtil.indexesEqual(selectedIndex, index);
+        const isSelected = index === selectedIndex;
         if (this._listIndexKey && this._listIndexKey.isKey) {
           return {index, title: index.toString(), isSelected, isInvalid};
         }

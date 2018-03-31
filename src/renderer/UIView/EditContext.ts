@@ -4,7 +4,6 @@ import DataPathElement from '../DataModel/DataPathElement';
 import { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
-import ScalarDataModel from '../DataModel/ScalarDataModel';
 
 const EditContextRecord = Record({
   path: new DataPath([])
@@ -41,14 +40,14 @@ export default class EditContext extends EditContextRecord {
     const first = this.path.elements.first();
     if (data instanceof MapDataModel) {
       if (first.canBeMapKey) {
-        const key = first.getMapKey;
-        return data.isValidKey(key) ? new ScalarDataModel(key) : undefined;
+        const key = first.asMapKey;
+        return data.isValidKey(key) ? key : undefined;
       } else {
         return undefined;
       }
     } else if (data instanceof ListDataModel) {
       if (first.canBeListIndex) {
-        const index = first.toListIndex;
+        const index = first.asListIndex;
         return data.isValidIndex(index) ? index : undefined;
       } else {
         return undefined;

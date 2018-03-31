@@ -16,7 +16,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
   private static formatValues(list: any) {
     let formattedValues: List<DataModelBase> = List.of<DataModelBase>();
     if (Array.isArray(list)) {
-      formattedValues = List<DataModelBase>(list.map(i => DataModelFactory.createDataModel(i)));
+      formattedValues = List<DataModelBase>(list.map(i => DataModelFactory.create(i)));
     }
     return formattedValues;
   }
@@ -32,7 +32,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
   public setValueForIndex(index: number, value: any): this {
     return this.set('list', this.list.set(
       index,
-      DataModelFactory.createDataModel(value)));
+      DataModelFactory.create(value)));
   }
 
   public getValueForIndex(index: number): DataModelBase | undefined {
@@ -43,8 +43,8 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     if (path.elements.size > 0) {
       const pathElement = path.elements.first();
       return this.set('list', this.list.set(
-        pathElement.toListIndex,
-        this.list.get(pathElement.toListIndex).setValue(path.shift(), value)));
+        pathElement.asListIndex,
+        this.list.get(pathElement.asListIndex).setValue(path.shift(), value)));
     } else {
       return value;
     }
@@ -56,7 +56,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     } else {
       const pathElement = path.elements.first();
       if (pathElement.canBeListIndex) {
-        return this.list.get(pathElement.toListIndex).getValue(path.shift());
+        return this.list.get(pathElement.asListIndex).getValue(path.shift());
       } else {
         return undefined;
       }
@@ -68,7 +68,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       throw new Error();
     }
 
-    const index = path.elements.get(0).toListIndex;
+    const index = path.elements.get(0).asListIndex;
     if (path.elements.size === 1) {
       return this.set('list', this.list.delete(index));
     } else {

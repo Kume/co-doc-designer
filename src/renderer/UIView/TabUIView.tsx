@@ -16,8 +16,7 @@ interface Props extends UIViewBaseProps {
 export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
   public render(): ReactNode {
     const currentModel = this.props.model.contents.get(this.currentTabIndex);
-    const factory = new UIViewFactory();
-    const CurrentComponent = factory.createUIView(currentModel);
+    const CurrentComponent = UIViewFactory.createUIView(currentModel);
 
     return (
       <div>
@@ -26,7 +25,7 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
             return (
               <div
                 className={'ui-tab-tab' + (index === this.currentTabIndex ? ' selected' : '')}
-                key={content!.key.getMapKey}
+                key={content!.key.asMapKey}
                 onClick={() => this.props.onSetEditContext(new EditContext({path: new DataPath(content!.key)}))}
               >
                 {content!.title}
@@ -56,7 +55,7 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
   private _currentData(): DataModelBase | undefined {
     if (this.props.data instanceof MapDataModel) {
       const key = this.props.model.contents.get(this.currentTabIndex).key;
-      return this.props.data.valueForKey(key.getMapKey);
+      return this.props.data.valueForKey(key.asMapKey);
     }
     return undefined;
   }
@@ -65,7 +64,7 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
     const pathElement = this.props.editContext.path.elements.first();
     if (pathElement) {
       const index = this.props.model.contents.findIndex((model: UIModelBase) => {
-        return model.key.getMapKey === pathElement.getMapKey;
+        return model.key.asMapKey === pathElement.asMapKey;
       });
       if (index >= 0) {
         return index;

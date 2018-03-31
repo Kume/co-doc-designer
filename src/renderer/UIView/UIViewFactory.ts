@@ -13,7 +13,7 @@ import TableUIModel from '../UIModel/TableUIModel';
 import TableUIView from './TableUIView';
 
 export default class UIViewFactory {
-  public createUIView(model: UIModelBase): ComponentClass<UIViewBaseProps> {
+  public static createUIView(model: UIModelBase): ComponentClass<UIViewBaseProps> {
     if (model instanceof TabUIModel) {
       return TabUIView;
     }

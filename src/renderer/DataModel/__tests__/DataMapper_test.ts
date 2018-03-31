@@ -79,7 +79,7 @@ describe('Unit Test for DataMapper', () => {
       it(`Save with [${key}]`, async () => {
         const storage = new ObjectDataStorage();
         const mapper = DataMapper.build(testDatum.mapperConfig, storage);
-        const data = DataModelFactory.createDataModel(testDatum.data);
+        const data = DataModelFactory.create(testDatum.data);
         await mapper.saveAsync(data);
         expect(storage.data).toEqual(testDatum.file);
       });
@@ -91,7 +91,7 @@ describe('Unit Test for DataMapper', () => {
         }
         const mapper = DataMapper.build(testDatum.mapperConfig, storage);
         const loaded = await mapper.loadAsync();
-        expect(loaded).toEqual(DataModelFactory.createDataModel(testDatum.data));
+        expect(loaded).toEqual(DataModelFactory.create(testDatum.data));
       });
     });
   });
