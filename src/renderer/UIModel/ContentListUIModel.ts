@@ -6,9 +6,14 @@ import MapDataModel from '../DataModel/MapDataModel';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
 import DataPath from "../DataModel/DataPath";
 import CollectionDataModelUtil from "../DataModel/CollectionDataModelUtil";
+import UIModelBase from "./UIModelBase";
+import { UIModelFactory } from "./UIModelFactory";
+import DataModelFactory from "../DataModel/DataModelFactory";
 
 export interface ContentListUIModelConfigObject extends UIModelConfigObject {
   listIndexKey?: string;
+  addFormContent: UIModelConfigObject;
+  addFormDefaultValue: Object;
 }
 
 export interface ContentListIndex {
@@ -21,9 +26,21 @@ export interface ContentListIndex {
 
 export default class ContentListUIModel extends SingleContentUIModel {
   private _listIndexKey?: DataPathElement;
+  private _addFormContent: UIModelBase;
+  private _addFormDefaultValue: DataModelBase;
   public constructor(config: ContentListUIModelConfigObject) {
     super(config.title, DataPathElement.parse(config.key));
     this._listIndexKey = DataPathElement.parse(config.listIndexKey!);
+    this._addFormContent = UIModelFactory.create(config.addFormContent);
+    this._addFormDefaultValue = DataModelFactory.createDataModel(config.addFormDefaultValue);
+  }
+
+  get addFormContent(): UIModelBase {
+    return this._addFormContent;
+  }
+
+  get addFormDefaultValue(): DataModelBase {
+    return this._addFormDefaultValue;
   }
 
   public getIndexes(data: CollectionDataModel, selectedIndex?: CollectionIndex): Array<ContentListIndex> {

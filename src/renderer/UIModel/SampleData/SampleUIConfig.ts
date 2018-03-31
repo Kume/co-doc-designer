@@ -52,7 +52,26 @@ export const sampleUIConfig: UIModelConfigObject = {
             ]
           }
         ]
-      }
+      },
+      addFormContent: {
+        type: 'form',
+        key: '',
+        title: '',
+        contents: [
+          <TextUIModelConfigObject> {
+            type: 'text',
+            key: '$key',
+            title: '物理名',
+            emptyToNull: false
+          },
+          {
+            type: 'text',
+            key: 'label',
+            title: '論理名'
+          }
+        ]
+      },
+      addFormDefaultValue: {}
     },
     {
       type: 'table',

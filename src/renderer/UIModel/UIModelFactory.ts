@@ -1,6 +1,6 @@
 import UIModelBase from './UIModelBase';
 import UIModelConfigObject from './UIModelConfigObject';
-import ContentListUIModel from './ContentListUIModel';
+import ContentListUIModel, { ContentListUIModelConfigObject } from './ContentListUIModel';
 import MultiContentsUIModel from './MultiContentsUIModel';
 import TableUIModel, { TableUIModelConfigObject } from './TableUIModel';
 import TextUIModel, { TextUIModelConfigObject } from './TextUIModel';
@@ -14,7 +14,7 @@ export class UIModelFactory {
     let model: UIModelBase;
     switch (config.type) {
       case 'contentList':
-        model = new ContentListUIModel(config);
+        model = new ContentListUIModel(config as ContentListUIModelConfigObject);
         break;
 
       case 'table':

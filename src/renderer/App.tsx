@@ -7,6 +7,8 @@ import * as Yaml from 'js-yaml';
 import DataMapper from './DataModel/DataMapper';
 import * as path from 'path';
 import FileDataStorage from './DataModel/FileDataStorage';
+import { UIModelFactory } from "./UIModel/UIModelFactory";
+import UIModelConfigObject from "./UIModel/UIModelConfigObject";
 
 const logo = require('./logo.svg');
 
@@ -37,7 +39,8 @@ class App extends React.Component {
         const schema = Yaml.safeLoad(data.toString());
         this.dataMapper = DataMapper.build(schema && schema['fileMap'], new FileDataStorage(path.dirname(fileNames[0])));
         const loaded = await this.dataMapper.loadAsync();
-        console.log(loaded.toJsonObject());
+        const model = UIModelFactory.create(schema!['uiRoot'] as UIModelConfigObject);
+        this.root!.setData(model, loaded);
       });
     });
   }

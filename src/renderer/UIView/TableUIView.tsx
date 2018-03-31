@@ -28,8 +28,6 @@ interface Props extends UIViewBaseProps {
 
 export default class TableUIView extends UIViewBase<Props, UIViewBaseState> {
   render(): React.ReactNode {
-    console.log('test');
-    console.log(this.props.model.toTableData(this.props.data));
     return (
       <HotTable data={this.props.model.toTableData(this.props.data)} settings={this.settings} />
     );

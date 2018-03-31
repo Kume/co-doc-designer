@@ -45,6 +45,8 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
               this.props.onSetEditContext(context.unshift(currentModel.key));
             }}
             editContext={this.props.editContext.shift()}
+            openModal={this.props.openModal}
+            closeModal={this.props.closeModal}
           />
         </div>
       </div>

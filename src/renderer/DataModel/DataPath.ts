@@ -2,23 +2,47 @@ import DataPathElement, { DataPathElementCompatible } from './DataPathElement';
 import { List, Record } from 'immutable';
 
 const DataPathRecord = Record({
-  elements: List<DataPathElement>()
+  elements: List<DataPathElement>(),
+  isAbsolute: false,
+  pointsKey: false
 });
 
 export type DataPathElementsCompatible = DataPathElementCompatible | Array<DataPathElementCompatible>;
 
 export default class DataPath extends DataPathRecord {
   public readonly elements: List<DataPathElement>;
+  public readonly isAbsolute: boolean;
+  public readonly pointsKey: boolean;
 
   public constructor(elements: DataPathElementsCompatible) {
+    if (!(elements instanceof DataPathElement) && !Array.isArray(elements)) {
+      elements = DataPathElement.create(elements);
+    }
+
     if (elements instanceof DataPathElement) {
-      super({elements: List<DataPathElement>([elements])});
+      if (elements.isKey) {
+        super({
+          elements: List<DataPathElement>([]),
+          pointsKey: true
+        });
+      } else {
+        super({
+          elements: List<DataPathElement>([elements])
+        });
+      }
     } else if (Array.isArray(elements)) {
-      super({elements: List<DataPathElement>(elements.map(path => {
+      const pathElements: Array<DataPathElement> = elements.map(path => {
         return DataPathElement.create(path);
-      }))});
-    } else {
-      super({elements: List<DataPathElement>([DataPathElement.create(elements)])});
+      });
+      if (pathElements.length > 0 && pathElements[pathElements.length - 1].isKey) {
+        pathElements.pop();
+        super({
+          elements: List<DataPathElement>(pathElements),
+          pointsKey: true
+        });
+      } else {
+        super({elements: List<DataPathElement>(pathElements)})
+      }
     }
   }
 
@@ -31,7 +55,15 @@ export default class DataPath extends DataPathRecord {
   }
 
   public unshift(path: DataPathElementCompatible): this {
-    return this.set('elements', this.elements.unshift(DataPathElement.create(path)));
+    const pathElement = DataPathElement.create(path);
+    if (pathElement.isKey) {
+      if (this.elements.size > 0 || this.pointsKey) {
+        throw new Error('Cannot unshift $key');
+      }
+      return this.set('pointsKey', true);
+    } else {
+      return this.set('elements', this.elements.unshift(pathElement));
+    }
   }
 
   public shift(): this {

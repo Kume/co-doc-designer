@@ -59,7 +59,9 @@ export default class TableUIModel extends MultiContentsUIModel {
         });
         return map;
       }).toArray();
+    } else {
+      // TODO 警告
+      return [];
     }
-    throw new Error('Invalid data type');
   }
 }

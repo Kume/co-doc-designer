@@ -12,6 +12,14 @@ export interface OnSetEditContext {
   (context: EditContext): void;
 }
 
+export interface OpenModal {
+  (context: React.ReactNode): void;
+}
+
+interface Function {
+  (): void;
+}
+
 export interface UIViewBaseProps {
   model: UIModelBase;
   data: DataModelBase | undefined;
@@ -19,6 +27,8 @@ export interface UIViewBaseProps {
   onUpdate: OnUpdateData;
   onSetEditContext: OnSetEditContext;
   editContext: EditContext;
+  openModal?: OpenModal;
+  closeModal?: Function;
 }
 
 export interface UIViewBaseState {}

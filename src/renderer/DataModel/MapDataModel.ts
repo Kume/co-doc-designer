@@ -88,14 +88,17 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       const index = this.indexForPath(key);
       if (index >= 0) {
         let node = this.list.get(index);
-        if (path.elements.size === 2 && path.elements.last().type === DataPathElement.Type.Key) {
+        if (path.pointsKey && path.elements.size === 1) {
           if (this.validateCanSetKey(index, value)) {
             node = node.setKey(value);
           }
+        } else {
+          node = node.setValue(path.shift(), value);
         }
-        return this.set('list', this.list.set(index, node.setValue(path.shift(), value)));
+        return this.set('list', this.list.set(index, node));
       } else {
-        return this.set('list', this.list.push(new MapDataModelElement(key.getMapKey, value)));
+        const pushedList = this.list.push(new MapDataModelElement(key.getMapKey, value));
+        return this.set('list', pushedList);
       }
     } else {
       return value;
@@ -116,10 +119,11 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     } else {
       const index = this.indexForPath(path.elements.first());
       if (index >= 0) {
-        if (path.elements.size === 2 && path.elements.last().isKey) {
+        if (path.pointsKey && path.elements.size === 1) {
           return this.list.get(index).key;
+        } else {
+          return this.list.get(index).value.getValue(path.shift());
         }
-        return this.list.get(index).value.getValue(path.shift());
       } else {
         return undefined;
       }
