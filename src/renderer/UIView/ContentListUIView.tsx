@@ -23,7 +23,9 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
   constructor (props: Props, context?: any) {
     super(props, context);
 
-    this.onUpdate = this.onUpdate.bind(this)
+    this.onUpdate = this.onUpdate.bind(this);
+    this.moveUpForIndex = this.moveUpForIndex.bind(this);
+    this.moveDownForIndex = this.moveDownForIndex.bind(this);
   }
 
   public render(): React.ReactNode {
@@ -52,8 +54,8 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
             <input type="button"
                    value="+"
                    onClick={this.props.openModal && (() => this.props.openModal!(this.addForm))} />
-            <input type="button" value="↑" />
-            <input type="button" value="↓" />
+            <input type="button" value="↑" onClick={this.moveUpForIndex} />
+            <input type="button" value="↓" onClick={this.moveDownForIndex} />
           </div>
         </div>
         <div>
@@ -98,14 +100,27 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
     );
   }
 
-  // private moveUpForIndex(index: CollectionIndex) {
-  //   if (this.props.data instanceof MapDataModel) {
-  //     if (index instanceof ScalarDataModel) {
-  //       const currentIndex = this.props.data.indexForKey(index.value);
-  //
-  //     }
-  //   }
-  // }
+  private moveUpForIndex() {
+    const index = this.currentIndex;
+    if (this.props.editContext.path.elements.isEmpty()) {
+      if (!this.currentIndex) { return; }
+      this.onEditContextChanged(this.currentIndex);
+    }
+    if (this.props.data instanceof MapDataModel) {
+      this.props.onUpdate(new DataPath([]), this.props.data.moveUpForKey(index as string));
+    }
+  }
+
+  private moveDownForIndex() {
+    const index = this.currentIndex;
+    if (this.props.editContext.path.elements.isEmpty()) {
+      if (!this.currentIndex) { return; }
+      this.onEditContextChanged(this.currentIndex);
+    }
+    if (this.props.data instanceof MapDataModel) {
+      this.props.onUpdate(new DataPath([]), this.props.data.moveDownForKey(index as string));
+    }
+  }
 
   private onUpdate(path: DataPath, value: DataModelBase): void {
     const index = this.currentIndexPathElement;

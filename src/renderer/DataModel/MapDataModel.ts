@@ -140,7 +140,25 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
-  public transposeOrder(key1: string, key2: string): this {
+  public moveUpForKey(key: string) {
+    const index1 = this.indexForKey(key);
+    if (index1 <= 0) {
+      // TODO 警告
+      return this;
+    }
+    return this._transposeOrder(index1, index1 - 1);
+  }
+
+  public moveDownForKey(key: string) {
+    const index1 = this.indexForKey(key);
+    if (index1 < 0 || index1 >= this.list.size - 1) {
+      // TODO 警告
+      return this;
+    }
+    return this._transposeOrder(index1, index1 + 1);
+  }
+
+  public transposeOrderWithKey(key1: string, key2: string): this {
     const index1 = this.indexForKey(key1);
     if (index1 < 0) {
       // TODO 警告
@@ -151,6 +169,10 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       // TODO 警告
       return this;
     }
+    return this._transposeOrder(index1, index2);
+  }
+
+  private _transposeOrder(index1: number, index2: number): this {
     const value1 = this.list.get(index1);
     const value2 = this.list.get(index2);
     return this.withMutations(map =>
