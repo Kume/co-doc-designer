@@ -1,17 +1,17 @@
-import SingleContentUIModel from './SingleContentUIModel';
-import UIModelConfigObject from './UIModelConfigObject';
+import SingleContentUIDefinition from './SingleContentUIDefinition';
+import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 import DataPathElement from '../DataModel/DataPathElement';
 import { CollectionDataModel, CollectionIndex, default as DataModelBase } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
 import DataPath from "../DataModel/DataPath";
-import UIModelBase from "./UIModelBase";
-import { UIModelFactory } from "./UIModelFactory";
+import UIDefinitionBase from "./UIDefinitionBase";
+import { UIDefinitionFactory } from "./UIDefinitionFactory";
 import DataModelFactory from "../DataModel/DataModelFactory";
 
-export interface ContentListUIModelConfigObject extends UIModelConfigObject {
+export interface ContentListUIDefinitionConfigObject extends UIDefinitionConfigObject {
   listIndexKey?: string;
-  addFormContent: UIModelConfigObject;
+  addFormContent: UIDefinitionConfigObject;
   addFormDefaultValue: Object;
 }
 
@@ -23,18 +23,18 @@ export interface ContentListIndex {
   description?: string;
 }
 
-export default class ContentListUIModel extends SingleContentUIModel {
+export default class ContentListUIDefinition extends SingleContentUIDefinition {
   private _listIndexKey?: DataPathElement;
-  private _addFormContent: UIModelBase;
+  private _addFormContent: UIDefinitionBase;
   private _addFormDefaultValue: DataModelBase;
-  public constructor(config: ContentListUIModelConfigObject) {
+  public constructor(config: ContentListUIDefinitionConfigObject) {
     super(config.title, DataPathElement.parse(config.key));
     this._listIndexKey = DataPathElement.parse(config.listIndexKey!);
-    this._addFormContent = UIModelFactory.create(config.addFormContent);
+    this._addFormContent = UIDefinitionFactory.create(config.addFormContent);
     this._addFormDefaultValue = DataModelFactory.create(config.addFormDefaultValue);
   }
 
-  get addFormContent(): UIModelBase {
+  get addFormContent(): UIDefinitionBase {
     return this._addFormContent;
   }
 

@@ -1,11 +1,11 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
+import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import ScalarDataModel, { BooleanDataModel } from '../DataModel/ScalarDataModel';
 import DataPath from '../DataModel/DataPath';
 
 interface Props extends UIViewBaseProps {
-  model: CheckBoxUIModel;
+  model: CheckBoxUIDefinition;
   data: ScalarDataModel;
 }
 

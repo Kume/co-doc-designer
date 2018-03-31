@@ -1,11 +1,11 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TextUIModel from '../UIModel/TextUIModel';
+import TextUIDefinition from '../UIDefinition/TextUIDefinition';
 import { StringDataModel } from '../DataModel/ScalarDataModel';
 import DataPath from '../DataModel/DataPath';
 
 interface Props extends UIViewBaseProps {
-  model: TextUIModel;
+  model: TextUIDefinition;
   data: StringDataModel;
 }
 

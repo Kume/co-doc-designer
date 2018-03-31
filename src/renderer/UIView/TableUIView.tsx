@@ -1,11 +1,11 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TableUIModel from '../UIModel/TableUIModel';
+import TableUIDefinition from '../UIDefinition/TableUIDefinition';
 // import HotTable from 'react-handsontable';
-import UIModelBase from '../UIModel/UIModelBase';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import * as Handsontable from 'handsontable';
-import TextUIModel from '../UIModel/TextUIModel';
-import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
+import TextUIDefinition from '../UIDefinition/TextUIDefinition';
+import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import DataPath from '../DataModel/DataPath';
@@ -22,7 +22,7 @@ window['__HOT_BASE_VERSION__'] = '';
 const HotTable = require('react-handsontable');
 
 interface Props extends UIViewBaseProps {
-  model: TableUIModel;
+  model: TableUIDefinition;
   data: CollectionDataModel;
 }
 
@@ -60,11 +60,11 @@ export default class TableUIView extends UIViewBase<Props, UIViewBaseState> {
 
   private getColumnSettings(row?: number, col?: number, prop?: object) {
     const model = this.props.model.contents.get(col as number);
-    if (model instanceof TextUIModel) {
+    if (model instanceof TextUIDefinition) {
       return {
         type: 'text'
       };
-    } else if (model instanceof CheckBoxUIModel) {
+    } else if (model instanceof CheckBoxUIDefinition) {
       return {
         type: 'checkbox'
       };
@@ -73,6 +73,6 @@ export default class TableUIView extends UIViewBase<Props, UIViewBaseState> {
   }
 
   private get columnHeaders(): Array<string> {
-    return this.props.model.contents.map((content: UIModelBase) => content.title).toArray();
+    return this.props.model.contents.map((content: UIDefinitionBase) => content.title).toArray();
   }
 }

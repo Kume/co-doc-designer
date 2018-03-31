@@ -1,16 +1,16 @@
 import * as React from 'react';
-import UIModelBase from '../UIModel/UIModelBase';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import UIViewFactory from './UIViewFactory';
 import DataModelBase from '../DataModel/DataModelBase';
 import DataPath from '../DataModel/DataPath';
 import DataModelFactory from '../DataModel/DataModelFactory';
 import EditContext from './EditContext';
-import { UIModelFactory } from '../UIModel/UIModelFactory';
-import { sampleDataForUIConfig, sampleUIConfig } from '../UIModel/SampleData/SampleUIConfig';
+import { UIDefinitionFactory } from '../UIDefinition/UIDefinitionFactory';
+import { sampleDataForUIConfig, sampleUIConfig } from '../UIDefinition/SampleData/SampleUIConfig';
 
 interface Props {}
 interface State {
-  model: UIModelBase | undefined;
+  model: UIDefinitionBase | undefined;
   data: DataModelBase | undefined;
   editContext: EditContext;
   modalContent: React.ReactNode | undefined;
@@ -20,7 +20,7 @@ export default class RootUIView extends React.Component<Props, State> {
   constructor(props: Props, context?: any) {
     super(props, context);
     this.state = {
-      model: UIModelFactory.create(sampleUIConfig),
+      model: UIDefinitionFactory.create(sampleUIConfig),
       data: DataModelFactory.create(sampleDataForUIConfig),
       editContext: new EditContext(),
       modalContent: undefined

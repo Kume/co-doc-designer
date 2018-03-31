@@ -1,13 +1,13 @@
-import UIModelConfigObject from '../UIModelConfigObject';
-import { TextUIModelConfigObject } from '../TextUIModel';
-import { ContentListUIModelConfigObject } from '../ContentListUIModel';
+import UIDefinitionConfigObject from '../UIDefinitionConfigObject';
+import { TextUIDefinitionConfigObject } from '../TextUIDefinition';
+import { ContentListUIDefinitionConfigObject } from '../ContentListUIDefinition';
 
-export const sampleUIConfig: UIModelConfigObject = {
+export const sampleUIConfig: UIDefinitionConfigObject = {
   type: 'tab',
   key: '',
   title: '',
   contents: [
-    <ContentListUIModelConfigObject> {
+    <ContentListUIDefinitionConfigObject> {
       type: 'contentList',
       key: 'tables',
       title: 'テーブル設計',
@@ -18,7 +18,7 @@ export const sampleUIConfig: UIModelConfigObject = {
         key: '',
         title: '',
         contents: [
-          <TextUIModelConfigObject> {
+          <TextUIDefinitionConfigObject> {
             type: 'text',
             key: '$key',
             title: '物理名',
@@ -58,7 +58,7 @@ export const sampleUIConfig: UIModelConfigObject = {
         key: '',
         title: '',
         contents: [
-          <TextUIModelConfigObject> {
+          <TextUIDefinitionConfigObject> {
             type: 'text',
             key: '$key',
             title: '物理名',

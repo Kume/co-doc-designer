@@ -1,16 +1,16 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TabUIModel from '../UIModel/TabUIModel';
+import TabUIDefinition from '../UIDefinition/TabUIDefinition';
 import UIViewFactory from './UIViewFactory';
 import DataModelBase from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import { ReactNode } from 'react';
 import DataPath from '../DataModel/DataPath';
 import EditContext from './EditContext';
-import UIModelBase from '../UIModel/UIModelBase';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 
 interface Props extends UIViewBaseProps {
-  model: TabUIModel;
+  model: TabUIDefinition;
 }
 
 export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
@@ -63,7 +63,7 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
   private get currentTabIndex(): number {
     const pathElement = this.props.editContext.path.elements.first();
     if (pathElement) {
-      const index = this.props.model.contents.findIndex((model: UIModelBase) => {
+      const index = this.props.model.contents.findIndex((model: UIDefinitionBase) => {
         return model.key.asMapKey === pathElement.asMapKey;
       });
       if (index >= 0) {

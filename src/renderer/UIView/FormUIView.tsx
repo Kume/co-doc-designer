@@ -1,6 +1,6 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import FormUIModel from '../UIModel/FormUIModel';
+import FormUIDefinition from '../UIDefinition/FormUIDefinition';
 import UIViewFactory from './UIViewFactory';
 import MapDataModel from '../DataModel/MapDataModel';
 import DataPath from '../DataModel/DataPath';
@@ -9,7 +9,7 @@ import EditContext from './EditContext';
 import DataModelFactory from "../DataModel/DataModelFactory";
 
 interface Props extends UIViewBaseProps {
-  model: FormUIModel;
+  model: FormUIDefinition;
   data: MapDataModel;
 }
 

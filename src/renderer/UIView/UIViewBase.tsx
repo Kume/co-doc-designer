@@ -1,5 +1,5 @@
 import * as React from 'react';
-import UIModelBase from '../UIModel/UIModelBase';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
 import DataPath from '../DataModel/DataPath';
 import EditContext from './EditContext';
@@ -21,7 +21,7 @@ interface Function {
 }
 
 export interface UIViewBaseProps {
-  model: UIModelBase;
+  model: UIDefinitionBase;
   data: DataModelBase | undefined;
   indexInParent?: CollectionIndex;
   onUpdate: OnUpdateData;

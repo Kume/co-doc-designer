@@ -1,32 +1,32 @@
 import UIViewBase, { UIViewBaseProps } from './UIViewBase';
-import UIModelBase from '../UIModel/UIModelBase';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import TabUIView from './TabUIView';
-import TabUIModel from '../UIModel/TabUIModel';
+import TabUIDefinition from '../UIDefinition/TabUIDefinition';
 import { ComponentClass } from 'react';
-import ContentListUIModel from '../UIModel/ContentListUIModel';
+import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
 import ContentListUIView from './ContentListUIView';
-import TextUIModel from '../UIModel/TextUIModel';
+import TextUIDefinition from '../UIDefinition/TextUIDefinition';
 import TextUIView from './TextUIView';
-import FormUIModel from '../UIModel/FormUIModel';
+import FormUIDefinition from '../UIDefinition/FormUIDefinition';
 import FormUIView from './FormUIView';
-import TableUIModel from '../UIModel/TableUIModel';
+import TableUIDefinition from '../UIDefinition/TableUIDefinition';
 import TableUIView from './TableUIView';
 
 export default class UIViewFactory {
-  public static createUIView(model: UIModelBase): ComponentClass<UIViewBaseProps> {
-    if (model instanceof TabUIModel) {
+  public static createUIView(model: UIDefinitionBase): ComponentClass<UIViewBaseProps> {
+    if (model instanceof TabUIDefinition) {
       return TabUIView;
     }
-    if (model instanceof ContentListUIModel) {
+    if (model instanceof ContentListUIDefinition) {
       return ContentListUIView;
     }
-    if (model instanceof TextUIModel) {
+    if (model instanceof TextUIDefinition) {
       return TextUIView;
     }
-    if (model instanceof FormUIModel) {
+    if (model instanceof FormUIDefinition) {
       return FormUIView;
     }
-    if (model instanceof TableUIModel) {
+    if (model instanceof TableUIDefinition) {
       return TableUIView;
     }
     return UIViewBase;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import ContentListUIModel, { ContentListIndex } from '../UIModel/ContentListUIModel';
+import ContentListUIDefinition, { ContentListIndex } from '../UIDefinition/ContentListUIDefinition';
 import UIViewFactory from './UIViewFactory';
 import DataModelBase, { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
 import DataPath from '../DataModel/DataPath';
@@ -12,7 +12,7 @@ import MapDataModel from "../DataModel/MapDataModel";
 import ListDataModel from "../DataModel/ListDataModel";
 
 interface Props extends UIViewBaseProps {
-  model: ContentListUIModel;
+  model: ContentListUIDefinition;
   data: CollectionDataModel;
 }
 

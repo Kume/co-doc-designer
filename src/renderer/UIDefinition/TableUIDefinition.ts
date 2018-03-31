@@ -1,22 +1,22 @@
-import MultiContentsUIModel from './MultiContentsUIModel';
+import MultiContentsUIDefinition from './MultiContentsUIDefinition';
 import DataPathElement from '../DataModel/DataPathElement';
-import UIModelConfigObject from './UIModelConfigObject';
+import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 import ListDataModel from '../DataModel/ListDataModel';
 import MapDataModel from '../DataModel/MapDataModel';
-import UIModelBase from './UIModelBase';
+import UIDefinitionBase from './UIDefinitionBase';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
 import CollectionDataModelUtil, { CollectionDataModelType } from "../DataModel/CollectionDataModelUtil";
 import DataModelFactory from "../DataModel/DataModelFactory";
 
-export interface TableUIModelConfigObject extends UIModelConfigObject {
+export interface TableUIDefinitionConfigObject extends UIDefinitionConfigObject {
   dataType?: string;
 }
 
-export default class TableUIModel extends MultiContentsUIModel {
+export default class TableUIDefinition extends MultiContentsUIDefinition {
   private _dataType: CollectionDataModelType = CollectionDataModelType.List;
 
-  public constructor(config: TableUIModelConfigObject) {
+  public constructor(config: TableUIDefinitionConfigObject) {
     super(config.title, DataPathElement.parse(config.key));
     if (config.dataType) {
       this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
@@ -31,7 +31,7 @@ export default class TableUIModel extends MultiContentsUIModel {
     if (data instanceof ListDataModel) {
       return data.mapData(item => {
         const map = {};
-        this.contents.forEach((content: UIModelBase) => {
+        this.contents.forEach((content: UIDefinitionBase) => {
           if (!(item instanceof MapDataModel)) {
             throw new Error('Invalid data type');
           }
@@ -44,7 +44,7 @@ export default class TableUIModel extends MultiContentsUIModel {
     } else if (data instanceof MapDataModel) {
       return data.mapDataWithIndex((item, index) => {
         const map = {};
-        this.contents.forEach((content: UIModelBase) => {
+        this.contents.forEach((content: UIDefinitionBase) => {
           if (content.key.isKey) {
             map[DataPathElement.SpecialName.Key] = DataModelFactory.create(index);
           } else {

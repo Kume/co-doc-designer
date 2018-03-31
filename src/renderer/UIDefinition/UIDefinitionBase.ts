@@ -1,6 +1,6 @@
 import DataPathElement from '../DataModel/DataPathElement';
 
-export default abstract class UIModelBase {
+export default abstract class UIDefinitionBase {
   private _title: string;
   private _key: DataPathElement;
 

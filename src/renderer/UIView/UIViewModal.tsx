@@ -4,7 +4,7 @@ import DataModelBase, { CollectionIndex } from "../DataModel/DataModelBase";
 import UIViewFactory from "./UIViewFactory";
 import DataPath from "../DataModel/DataPath";
 import EditContext from "./EditContext";
-import UIModelBase from "../UIModel/UIModelBase";
+import UIDefinitionBase from "../UIDefinition/UIDefinitionBase";
 import { StringDataModel } from "../DataModel/ScalarDataModel";
 
 interface OnComplete {
@@ -12,7 +12,7 @@ interface OnComplete {
 }
 
 interface Props {
-  model: UIModelBase;
+  model: UIDefinitionBase;
   data: DataModelBase;
   onComolete: OnComplete
 }
