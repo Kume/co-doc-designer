@@ -4,7 +4,7 @@ import DataPath from './DataPath';
 import { DataFormatter } from './DataFormatter';
 import YamlDataFormatter from './YamlDataFormatter';
 import MapDataModel from './MapDataModel';
-import ScalarDataModel from './ScalarDataModel';
+import { StringDataModel } from './ScalarDataModel';
 import DataModelFactory from './DataModelFactory';
 
 abstract class MappingNodeBase {
@@ -86,17 +86,17 @@ class MapMappingNode extends MappingNode {
     const mapData = data.getValue(basePath);
     if (mapData instanceof MapDataModel) {
       for (const mapElement of mapData.list.toArray()) {
-        const key: string = mapElement.key.value;
+        const key: string = mapElement.key;
         const directoryPath = parentDirectory.concat(this._directoryPath);
         const filename = key + '.yml';
         const filePath = specifiedDirectory.concat(this._directoryPath).concat([filename]).join('/');
-        const path = basePath.push(mapElement.key.value);
+        const path = basePath.push(mapElement.key);
         data = await this.saveChildrenAsync(
           data, storage, formatter, path, directoryPath.concat([key]), [key]);
         await storage.saveAsync(
           directoryPath.concat([filename]),
           formatter.format(data.getValue(path)!.toJsonObject()));
-        data = data.setValue(path, new ScalarDataModel(filePath));
+        data = data.setValue(path, new StringDataModel(filePath));
       }
       return data;
     } else {
@@ -115,11 +115,11 @@ class MapMappingNode extends MappingNode {
     const mapData = data.getValue(basePath);
     if (mapData instanceof MapDataModel) {
       for (const mapElement of mapData.list.toArray()) {
-        const key: string = mapElement.key.value;
+        const key: string = mapElement.key;
         const directoryPath = parentDirectory.concat(this._directoryPath);
         const filename = key + '.yml';
         // const filePath = this._directoryPath.concat([filename]).join('/');
-        const path = basePath.push(mapElement.key.value);
+        const path = basePath.push(mapElement.key);
         const source = await storage.loadAsync(directoryPath.concat([filename]));
         const formated = formatter.parse(source);
         const loaded = DataModelFactory.create(formated);
@@ -166,7 +166,7 @@ export class SingleMappingNode extends MappingNode {
       await storage.saveAsync(
         parentDirectory.concat(this._directoryPath).concat([this._fileName]),
         formatter.format(value.toJsonObject()));
-      return data.setValue(path, new ScalarDataModel(specifiedDirectory.concat([this._fileName]).join('/')));
+      return data.setValue(path, new StringDataModel(specifiedDirectory.concat([this._fileName]).join('/')));
     } else {
       return data;
     }
