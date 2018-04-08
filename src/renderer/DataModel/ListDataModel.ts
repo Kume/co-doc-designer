@@ -1,5 +1,5 @@
 import DataModelBase, {
-  CollectionDataModel, DataModelConvert, DataModelConvertWithIndex,
+  CollectionDataModel, CollectionIndex, DataModelConvert, DataModelConvertWithIndex,
   DataModelSideEffect
 } from './DataModelBase';
 import { List, Record } from 'immutable';
@@ -74,6 +74,49 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     } else {
       return this.set('list', this.list.get(index).removeValue(path.shift()));
     }
+  }
+
+  moveUpForCollectionIndex(index: CollectionIndex): CollectionDataModel {
+    if (typeof index === 'number') {
+      return this.moveUp(index);
+    } else {
+      // TODO 警告
+      return this;
+    }
+  }
+
+  moveDownForCollectionIndex(index: CollectionIndex): CollectionDataModel {
+    if (typeof index === 'number') {
+      return this.moveDown(index);
+    } else {
+      // TODO 警告
+      return this;
+    }
+  }
+
+  public moveUp(index: number): this {
+    if (index <= 0 || index >= this.list.size) {
+      // TODO 警告
+      return this;
+    }
+    return this._transposeOrder(index, index - 1);
+  }
+
+  public moveDown(index: number): this {
+    if (index < 0 || index >= this.list.size - 1) {
+      // TODO 警告
+      return this;
+    }
+    return this._transposeOrder(index, index + 1);
+  }
+
+  private _transposeOrder(index1: number, index2: number): this {
+    const value1 = this.list.get(index1);
+    const value2 = this.list.get(index2);
+    return this.withMutations(map =>
+      map.setIn(['list', index1], value2)
+        .setIn(['list', index2], value1)
+    ) as this;
   }
 
   public forEachData(sideEffect: DataModelSideEffect): void {

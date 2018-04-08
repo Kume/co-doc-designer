@@ -1,5 +1,5 @@
 import DataModelBase, {
-  CollectionDataModel,
+  CollectionDataModel, CollectionIndex,
   DataModelConvert,
   DataModelConvertWithIndex,
   DataModelSideEffect
@@ -140,16 +140,34 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
-  public moveUpForKey(key: string) {
+  moveUpForCollectionIndex(index: CollectionIndex): CollectionDataModel {
+    if (typeof index === 'string') {
+      return this.moveUpForKey(index);
+    } else {
+      // TODO 警告
+      return this;
+    }
+  }
+
+  moveDownForCollectionIndex(index: CollectionIndex): CollectionDataModel {
+    if (typeof index === 'string') {
+      return this.moveDownForKey(index);
+    } else {
+      // TODO 警告
+      return this;
+    }
+  }
+
+  public moveUpForKey(key: string): this {
     const index1 = this.indexForKey(key);
-    if (index1 <= 0) {
+    if (index1 <= 0 || index1 >= this.list.size) {
       // TODO 警告
       return this;
     }
     return this._transposeOrder(index1, index1 - 1);
   }
 
-  public moveDownForKey(key: string) {
+  public moveDownForKey(key: string): this {
     const index1 = this.indexForKey(key);
     if (index1 < 0 || index1 >= this.list.size - 1) {
       // TODO 警告

@@ -6,6 +6,7 @@ export default abstract class DataModelBase {
   public abstract removeValue(path: DataPath): DataModelBase;
   public abstract toJS(): string;
   public abstract toJsonObject(): any;
+  public abstract equals(e: any): boolean;
 }
 
 export interface DataModelSideEffect {
@@ -36,4 +37,6 @@ export abstract class CollectionDataModel extends DataModelBase {
   public abstract mapData<T>(converter: DataModelConvert<T>): Array<T>;
   public abstract mapDataWithIndex<T>(converter: DataModelConvertWithIndex<T>): Array<T>;
   public abstract get dataIsEmpty(): boolean;
+  public abstract moveUpForCollectionIndex(index: CollectionIndex): CollectionDataModel;
+  public abstract moveDownForCollectionIndex(index: CollectionIndex): CollectionDataModel;
 }

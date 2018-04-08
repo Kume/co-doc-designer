@@ -14,6 +14,8 @@ export default class DataPath extends DataPathRecord {
   public readonly isAbsolute: boolean;
   public readonly pointsKey: boolean;
 
+  public static readonly empty: DataPath = new DataPath([]);
+
   public constructor(elements: DataPathElementsCompatible) {
     if (!(elements instanceof DataPathElement) && !Array.isArray(elements)) {
       elements = DataPathElement.create(elements);

@@ -12,6 +12,8 @@ const EditContextRecord = Record({
 export default class EditContext extends EditContextRecord {
   public readonly path: DataPath;
 
+  public static readonly empty = new EditContext();
+
   public set(key: string, value: any): this {
     return super.set(key, value) as this;
   }
@@ -27,8 +29,8 @@ export default class EditContext extends EditContextRecord {
     return this.set('path', this.path.unshift(pathElement));
   }
 
-  public currentIndexForData(data: CollectionDataModel): CollectionIndex | undefined {
-    if (data.dataIsEmpty) { return undefined; }
+  public currentIndexForData(data?: CollectionDataModel): CollectionIndex | undefined {
+    if (!data || data.dataIsEmpty) { return undefined; }
     if (this.path.elements.isEmpty()) {
       if (data instanceof MapDataModel) {
         return data.firstKey;

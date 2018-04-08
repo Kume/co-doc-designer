@@ -7,34 +7,60 @@ import DataModelFactory from '../DataModel/DataModelFactory';
 import EditContext from './EditContext';
 import { UIDefinitionFactory } from '../UIDefinition/UIDefinitionFactory';
 import { sampleDataForUIConfig, sampleUIConfig } from '../UIDefinition/SampleData/SampleUIConfig';
+import UIModel from "../UIModel/UIModel";
+import { UIModelFactory } from "../UIModel/UIModelFactory";
+import { UIModelManager } from "../UIModel/UIModelManager";
+import { TextUIDefinitionConfigObject } from "../UIDefinition/TextUIDefinition";
+import { ContentListUIDefinitionConfigObject } from "../UIDefinition/ContentListUIDefinition";
+
+const simpleData = DataModelFactory.create(['first', 'second']);
+const simpleUIDefinition = UIDefinitionFactory.create({
+  type: 'contentList',
+  key: '',
+  title: '',
+  listIndexKey: '$key',
+  content: {
+    type: 'text',
+    title: '',
+    key: '',
+    emptyToNull: false
+  },
+  addFormContent: {
+    type: 'text',
+    title: '',
+    key: '',
+    emptyToNull: false
+  },
+  addFormDefaultValue: 'test'
+} as ContentListUIDefinitionConfigObject);
 
 interface Props {}
 interface State {
-  model: UIDefinitionBase | undefined;
-  data: DataModelBase | undefined;
-  editContext: EditContext;
-  modalContent: React.ReactNode | undefined;
+  model: UIModel | undefined;
 }
 
 export default class RootUIView extends React.Component<Props, State> {
+  private _manager: UIModelManager = new UIModelManager();
+
   constructor(props: Props, context?: any) {
     super(props, context);
+    this._manager.initialize(simpleData, simpleUIDefinition);
+    this._manager.notifyModelChanged = (model) => {
+      console.log('notifyModelChanged');
+      this.setState({model})
+    };
     this.state = {
-      model: UIDefinitionFactory.create(sampleUIConfig),
-      data: DataModelFactory.create(sampleDataForUIConfig),
-      editContext: new EditContext(),
-      modalContent: undefined
+      model: this._manager.model
     };
   }
 
-  public setData (model: any, data: any): void {
-    this.setState({model, data})
+  get manager(): UIModelManager {
+    return this._manager;
   }
 
   public render(): React.ReactNode {
     const model = this.state.model;
-    const data = this.state.data;
-    if (model === undefined || data === undefined) {
+    if (model === undefined) {
       return <div />;
     } else {
       const CurrentComponent = UIViewFactory.createUIView(model);
@@ -42,19 +68,7 @@ export default class RootUIView extends React.Component<Props, State> {
         <div>
           <CurrentComponent
             model={model}
-            data={this.state.data}
-            onUpdate={(path: DataPath, value: DataModelBase) => {
-              console.log('onUpdate', path.toJS(), value);
-              const newData = data.setValue(path, value);
-              this.setState({data: newData});
-              console.log('newdata', newData.toJsonObject());
-            }}
-            onSetEditContext={(context: EditContext) => {
-              this.setState({editContext: context});
-            }}
-            editContext={this.state.editContext}
-            openModal={modalContent => this.setState({modalContent})}
-            closeModal={() => this.setState({modalContent: undefined})}
+            dispatch={this._manager.dispatch}
           />
           {this.state.modalContent && (
             <div className="ui-root--modal-background" onClick={() => this.setState({modalContent: undefined})}>

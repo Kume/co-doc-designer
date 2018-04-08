@@ -1,32 +1,22 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TextUIDefinition from '../UIDefinition/TextUIDefinition';
-import { StringDataModel } from '../DataModel/ScalarDataModel';
-import DataPath from '../DataModel/DataPath';
+import TextUIModel from "../UIModel/TextUIModel";
 
 interface Props extends UIViewBaseProps {
-  model: TextUIDefinition;
-  data: StringDataModel;
+  model: TextUIModel;
 }
 
 export default class TextUIView extends UIViewBase<Props, UIViewBaseState> {
   private _textInput: HTMLInputElement;
 
   render(): React.ReactNode {
-    const { data } = this.props;
     return (
       <input
         type="text"
-        value={data && data.value}
-        onChange={() => this._update()}
+        value={this.props.model.text}
+        onChange={() => this.props.model.inputText(this.props.dispatch, this._textInput.value)}
         ref={ref => this._textInput = ref!}
       />
     );
-  }
-
-  private _update(): void {
-    this.props.onUpdate(
-      new DataPath([]),
-      new StringDataModel(this._textInput.value));
   }
 }

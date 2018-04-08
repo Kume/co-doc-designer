@@ -8,19 +8,12 @@ import DataPath from "../DataModel/DataPath";
 import UIDefinitionBase from "./UIDefinitionBase";
 import { UIDefinitionFactory } from "./UIDefinitionFactory";
 import DataModelFactory from "../DataModel/DataModelFactory";
+import { ContentListIndex } from "../UIModel/ContentListUIModel";
 
 export interface ContentListUIDefinitionConfigObject extends UIDefinitionConfigObject {
   listIndexKey?: string;
   addFormContent: UIDefinitionConfigObject;
   addFormDefaultValue: Object;
-}
-
-export interface ContentListIndex {
-  index: CollectionIndex;
-  isInvalid: boolean;
-  isSelected: boolean;
-  title: string;
-  description?: string;
 }
 
 export default class ContentListUIDefinition extends SingleContentUIDefinition {
@@ -40,6 +33,10 @@ export default class ContentListUIDefinition extends SingleContentUIDefinition {
 
   get addFormDefaultValue(): DataModelBase {
     return this._addFormDefaultValue;
+  }
+
+  get listIndexKey(): DataPathElement | undefined {
+    return this._listIndexKey;
   }
 
   public getIndexes(data: CollectionDataModel, selectedIndex?: CollectionIndex): Array<ContentListIndex> {
