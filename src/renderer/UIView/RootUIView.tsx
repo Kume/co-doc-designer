@@ -11,7 +11,6 @@ const simpleUIDefinition = UIDefinitionFactory.create({
   type: 'contentList',
   key: '',
   title: '',
-  listIndexKey: '$key',
   content: {
     type: 'text',
     title: '',

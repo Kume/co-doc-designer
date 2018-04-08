@@ -43,6 +43,17 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     return this.list.get(index);
   }
 
+  public indexForValue(value: DataModelBase | undefined): number | undefined {
+    if (value === undefined) { return undefined; }
+    const size = this.list.size;
+    for (let i = 0; i < size; i++) {
+      if (this.list.get(i).equals(value)) {
+        return i;
+      }
+    }
+    return undefined;
+  }
+
   public setValue(path: DataPath, value: DataModelBase): DataModelBase {
     if (path.elements.size > 0) {
       const pathElement = path.elements.first();

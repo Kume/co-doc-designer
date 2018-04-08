@@ -1,14 +1,11 @@
 import SingleContentUIDefinition from './SingleContentUIDefinition';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 import DataPathElement from '../DataModel/DataPathElement';
-import { CollectionDataModel, CollectionIndex, default as DataModelBase } from '../DataModel/DataModelBase';
+import DataModelBase, { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
-import ScalarDataModel from '../DataModel/ScalarDataModel';
-import DataPath from "../DataModel/DataPath";
 import UIDefinitionBase from "./UIDefinitionBase";
 import { UIDefinitionFactory } from "./UIDefinitionFactory";
 import DataModelFactory from "../DataModel/DataModelFactory";
-import { ContentListIndex } from "../UIModel/ContentListUIModel";
 import ListDataModel from "../DataModel/ListDataModel";
 import { CollectionDataModelType, default as CollectionDataModelUtil } from "../DataModel/CollectionDataModelUtil";
 
@@ -27,7 +24,7 @@ export default class ContentListUIDefinition extends SingleContentUIDefinition {
 
   public constructor(config: ContentListUIDefinitionConfigObject) {
     super(config.title, DataPathElement.parse(config.key));
-    this._listIndexKey = DataPathElement.parse(config.listIndexKey!);
+    this._listIndexKey = config.listIndexKey === undefined ? undefined : DataPathElement.parse(config.listIndexKey);
     this._addFormContent = UIDefinitionFactory.create(config.addFormContent);
     this._addFormDefaultValue = DataModelFactory.create(config.addFormDefaultValue);
     this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);

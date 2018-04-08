@@ -7,6 +7,7 @@ import ContentListUIModel from "../ContentListUIModel";
 import EditContext from "../../UIView/EditContext";
 import TextUIModel from "../TextUIModel";
 import DataPath from "../../DataModel/DataPath";
+import { StringDataModel } from "../../DataModel/ScalarDataModel";
 
 const simpleUIDefinition = UIDefinitionFactory.create(<ContentListUIDefinitionConfigObject> {
   type: 'contentList',
@@ -63,6 +64,33 @@ describe('Test for ContentListUIModel', () => {
       (manager.model as ContentListUIModel).selectIndex(manager.dispatch, 1);
       const child = (manager.model as ContentListUIModel).childModel as TextUIModel;
       expect(child.text).toBe('second');
+    })
+  });
+
+  describe('Unit tests for ContentListUIModel.moveUp and ContentListUIModel.moveDown', () => {
+    it('Can move up', () => {
+      const manager = new UIModelManager();
+      manager.initialize(simpleData, simpleUIDefinition);
+      (manager.model as ContentListUIModel).selectIndex(manager.dispatch, 1);
+      (manager.model as ContentListUIModel).moveUp(manager.dispatch);
+      expect(manager.data.getValue(new DataPath(0))).toEqual(new StringDataModel('second'));
+      expect(manager.data.getValue(new DataPath(1))).toEqual(new StringDataModel('first'));
+    });
+
+    it('Can move down', () => {
+      const manager = new UIModelManager();
+      manager.initialize(simpleData, simpleUIDefinition);
+      (manager.model as ContentListUIModel).moveDown(manager.dispatch);
+      expect(manager.data.getValue(new DataPath(0))).toEqual(new StringDataModel('second'));
+      expect(manager.data.getValue(new DataPath(1))).toEqual(new StringDataModel('first'));
+    });
+
+    it('Follow selected data when move', () => {
+      const manager = new UIModelManager();
+      manager.initialize(simpleData, simpleUIDefinition);
+      (manager.model as ContentListUIModel).moveDown(manager.dispatch);
+      const child = (manager.model as ContentListUIModel).childModel as TextUIModel;
+      expect(child.text).toBe('first');
     })
   });
 });

@@ -26,7 +26,8 @@ export interface ContentListIndex {
 
 const ContentListUIModelRecord = Record({
   ...UIModelPropsDefault,
-  childModel: undefined
+  childModel: undefined,
+  selectedData: undefined,
 });
 
 export default class ContentListUIModel extends ContentListUIModelRecord implements UIModel, UIModelProps {
@@ -35,14 +36,26 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   public readonly editContext: EditContext;
   public readonly childModel: UIModel | undefined;
   public readonly dataPath: DataPath;
+  public readonly selectedData: DataModelBase | undefined;
 
   constructor(props: UIModelProps) {
-    super({ ...props, childModel: ContentListUIModel.childModel(props) });
+    super({
+      ...props,
+      childModel: ContentListUIModel.childModel(props),
+      selectedData: ContentListUIModel.selectedData(props)
+    });
   }
 
-  private static childProps(props: UIModelProps): UIModelProps | undefined {
+  private static selectedData(props: UIModelProps): DataModelBase | undefined {
     const collectionData = CollectionDataModelUtil.asCollectionDataModel(props.data);
     const index = props.editContext.currentIndexForData(collectionData);
+    if (index === undefined) { return undefined; }
+    return collectionData && collectionData.getValue(new DataPath(index));
+  }
+
+  private static childProps(props: UIModelProps, lastSelectedData?: DataModelBase): UIModelProps | undefined {
+    const collectionData = CollectionDataModelUtil.asCollectionDataModel(props.data);
+    const index = props.editContext.currentIndexForData(collectionData, lastSelectedData);
     if (index === undefined) {
       return undefined;
     }
@@ -55,8 +68,8 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
     };
   }
 
-  private static childModel(props: UIModelProps): UIModel | undefined {
-    const childProps = ContentListUIModel.childProps(props);
+  private static childModel(props: UIModelProps, lastSelectedData?: DataModelBase): UIModel | undefined {
+    const childProps = ContentListUIModel.childProps(props, lastSelectedData);
     return childProps && UIModelFactory.create(childProps);
   }
 
@@ -80,14 +93,18 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
         (item: DataModelBase, index: CollectionIndex): ContentListIndex => {
           let isInvalid: boolean = false;
           const isSelected = index === this.selectedIndex;
-          if (this.definition.listIndexKey && this.definition.listIndexKey.isKey) {
+          const listIndexKey = this.definition.listIndexKey;
+          if (listIndexKey === undefined) {
+            return {index, title: item.toString(), isSelected, isInvalid};
+          }
+          if (listIndexKey.isKey) {
             return {index, title: index.toString(), isSelected, isInvalid};
           }
           let title: string = '';
           if (!(item instanceof MapDataModel)) {
             throw new Error('Invalid data type');
           }
-          const scalarItem = item.getValue(new DataPath([this.definition.listIndexKey!]));
+          const scalarItem = item.getValue(new DataPath([listIndexKey]));
           if (scalarItem instanceof ScalarDataModel) {
             title = scalarItem.value;
           } else {
@@ -102,7 +119,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   }
 
   public get selectedIndex(): CollectionIndex | undefined {
-    return this.editContext.currentIndexForData(this._data);
+    return this.editContext.currentIndexForData(this._data, this.selectedData);
   }
 
   public get addFormModelProps(): UIModelProps {
@@ -160,7 +177,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
       return this;
     } else {
       const newModel = this.set('data', data) as this;
-      const childModel = ContentListUIModel.childModel({...(this.propsObject), data});
+      const childModel = ContentListUIModel.childModel({...(this.propsObject), data}, this.selectedData);
       return newModel.set('childModel', childModel) as this;
     }
   }
@@ -170,7 +187,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
       return this;
     } else {
       const newModel = this.set('editContext', editContext) as this;
-      const childModel = ContentListUIModel.childModel({...(this.propsObject), editContext});
+      const childModel = ContentListUIModel.childModel({...(this.propsObject), editContext}, this.selectedData);
       return newModel.set('childModel', childModel) as this;
     }
   }

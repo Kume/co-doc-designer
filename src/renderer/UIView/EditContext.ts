@@ -1,7 +1,7 @@
 import DataPath from '../DataModel/DataPath';
 import { Record } from 'immutable';
-import DataPathElement from '../DataModel/DataPathElement';
-import { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
+import { DataPathElementCompatible } from '../DataModel/DataPathElement';
+import { CollectionDataModel, CollectionIndex, default as DataModelBase } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
 
@@ -22,20 +22,25 @@ export default class EditContext extends EditContextRecord {
     return this.set('path', this.path.shift());
   }
 
-  public unshift(pathElement: string): this;
-  public unshift(pathElement: number): this;
-  public unshift(pathElement: DataPathElement): this;
-  public unshift(pathElement: any): this {
+  public unshift(pathElement: DataPathElementCompatible): this {
     return this.set('path', this.path.unshift(pathElement));
   }
 
-  public currentIndexForData(data?: CollectionDataModel): CollectionIndex | undefined {
+  public pop(): this {
+    return this.set('path', this.path.pop());
+  }
+
+  public push(pathElement: DataPathElementCompatible): this {
+    return this.set('path', this.path.push(pathElement));
+  }
+
+  public currentIndexForData(data?: CollectionDataModel, lastSelectedData?: DataModelBase): CollectionIndex | undefined {
     if (!data || data.dataIsEmpty) { return undefined; }
     if (this.path.elements.isEmpty()) {
       if (data instanceof MapDataModel) {
         return data.firstKey;
       } else if (data instanceof ListDataModel) {
-        return 0;
+        return data.indexForValue(lastSelectedData) || 0;
       }
       return undefined;
     }
