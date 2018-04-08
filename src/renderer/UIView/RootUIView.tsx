@@ -1,16 +1,9 @@
 import * as React from 'react';
-import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import UIViewFactory from './UIViewFactory';
-import DataModelBase from '../DataModel/DataModelBase';
-import DataPath from '../DataModel/DataPath';
 import DataModelFactory from '../DataModel/DataModelFactory';
-import EditContext from './EditContext';
 import { UIDefinitionFactory } from '../UIDefinition/UIDefinitionFactory';
-import { sampleDataForUIConfig, sampleUIConfig } from '../UIDefinition/SampleData/SampleUIConfig';
 import UIModel from "../UIModel/UIModel";
-import { UIModelFactory } from "../UIModel/UIModelFactory";
 import { UIModelManager } from "../UIModel/UIModelManager";
-import { TextUIDefinitionConfigObject } from "../UIDefinition/TextUIDefinition";
 import { ContentListUIDefinitionConfigObject } from "../UIDefinition/ContentListUIDefinition";
 
 const simpleData = DataModelFactory.create(['first', 'second']);
@@ -37,6 +30,7 @@ const simpleUIDefinition = UIDefinitionFactory.create({
 interface Props {}
 interface State {
   model: UIModel | undefined;
+  modalModel: UIModel | undefined;
 }
 
 export default class RootUIView extends React.Component<Props, State> {
@@ -45,12 +39,15 @@ export default class RootUIView extends React.Component<Props, State> {
   constructor(props: Props, context?: any) {
     super(props, context);
     this._manager.initialize(simpleData, simpleUIDefinition);
-    this._manager.notifyModelChanged = (model) => {
-      console.log('notifyModelChanged');
-      this.setState({model})
+    this._manager.notifyModelChanged = () => {
+      this.setState({model: this._manager.model})
+    };
+    this._manager.notifyModalModelChanged = () => {
+      this.setState({modalModel: this._manager.modalModel})
     };
     this.state = {
-      model: this._manager.model
+      model: this._manager.model,
+      modalModel: undefined
     };
   }
 
@@ -59,21 +56,23 @@ export default class RootUIView extends React.Component<Props, State> {
   }
 
   public render(): React.ReactNode {
-    const model = this.state.model;
+    const { model, modalModel } = this.state;
     if (model === undefined) {
       return <div />;
     } else {
       const CurrentComponent = UIViewFactory.createUIView(model);
+      const ModalContentComponent = modalModel && UIViewFactory.createUIView(modalModel);
       return (
         <div>
           <CurrentComponent
             model={model}
             dispatch={this._manager.dispatch}
           />
-          {this.state.modalContent && (
-            <div className="ui-root--modal-background" onClick={() => this.setState({modalContent: undefined})}>
+          {ModalContentComponent && (
+            <div className="ui-root--modal-background" onClick={() => this._manager.closeModal()}>
               <div className="ui-root-modal-content" onClick={(e) => e.stopPropagation()}>
-                {this.state.modalContent}
+                <ModalContentComponent model={modalModel!} dispatch={this._manager.dispatchForModal} />
+                <input type="button" onClick={() => this._manager.onModalSubmit(this._manager.modalData!)} value="submit"/>
               </div>
             </div>
           )}

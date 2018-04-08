@@ -29,6 +29,10 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     return super.set(key, value) as this;
   }
 
+  public push(value: DataModelBase): this {
+    return this.set('list', this.list.push(value));
+  }
+
   public setValueForIndex(index: number, value: any): this {
     return this.set('list', this.list.set(
       index,
@@ -76,7 +80,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     }
   }
 
-  moveUpForCollectionIndex(index: CollectionIndex): CollectionDataModel {
+  public moveUpForCollectionIndex(index: CollectionIndex): CollectionDataModel {
     if (typeof index === 'number') {
       return this.moveUp(index);
     } else {
@@ -85,7 +89,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     }
   }
 
-  moveDownForCollectionIndex(index: CollectionIndex): CollectionDataModel {
+  public moveDownForCollectionIndex(index: CollectionIndex): CollectionDataModel {
     if (typeof index === 'number') {
       return this.moveDown(index);
     } else {

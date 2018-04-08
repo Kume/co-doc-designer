@@ -10,7 +10,11 @@ import EditContext from "../UIView/EditContext";
 import CollectionDataModelUtil from "../DataModel/CollectionDataModelUtil";
 import { UIModelFactory } from "./UIModelFactory";
 import DataModelUtil from "../DataModel/DataModelUtil";
-import { createChangeEditContextAction, createSetValueAction } from "./UIModelAction";
+import {
+  createChangeEditContextAction, createCloseModalAction, createOpenModalAction,
+  createSetValueAction
+} from "./UIModelAction";
+import ListDataModel from "../DataModel/ListDataModel";
 
 export interface ContentListIndex {
   index: CollectionIndex;
@@ -100,6 +104,15 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   public get selectedIndex(): CollectionIndex | undefined {
     return this.editContext.currentIndexForData(this._data);
   }
+
+  public get addFormModelProps(): UIModelProps {
+    return {
+      data: this.definition.addFormDefaultValue,
+      dataPath: this.dataPath,
+      definition: this.definition.addFormContent,
+      editContext: EditContext.empty
+    };
+  }
   //#endregion
 
   //#region Manipulation
@@ -113,6 +126,18 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
 
   public moveDown(dispatch: ActionDispatch): void {
     dispatch(createSetValueAction(this.dataPath, this._data!.moveDownForCollectionIndex(this.selectedIndex!)));
+  }
+
+  public openAddForm(dispatch: ActionDispatch): void {
+    dispatch(createOpenModalAction(this.addFormModelProps, (data) => {
+      const currentData = this._data || this.definition.defaultCollection;
+      if (currentData instanceof MapDataModel) {
+
+      } else if (currentData instanceof ListDataModel) {
+        dispatch(createSetValueAction(this.dataPath, currentData.push(data)));
+        dispatch(createCloseModalAction());
+      }
+    }));
   }
   //#endregion
 

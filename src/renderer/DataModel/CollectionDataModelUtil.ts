@@ -8,14 +8,17 @@ export enum CollectionDataModelType {
 }
 
 export default class CollectionDataModelUtil {
-  public static parseModelType(str: string): CollectionDataModelType {
+  public static parseModelType(
+    str: string | undefined,
+    defaultType: CollectionDataModelType = CollectionDataModelType.List
+  ): CollectionDataModelType {
     switch (str) {
       case 'list':
         return CollectionDataModelType.List;
       case 'map':
         return CollectionDataModelType.Map;
       default:
-        throw new Error('Invalid collection data type');
+        return defaultType;
     }
   }
 

@@ -14,6 +14,7 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
   constructor (props: Props, context?: any) {
     super(props, context);
 
+    this.openAddFormModal = this.openAddFormModal.bind(this);
     this.moveUpForIndex = this.moveUpForIndex.bind(this);
     this.moveDownForIndex = this.moveDownForIndex.bind(this);
   }
@@ -24,6 +25,10 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
 
   private moveDownForIndex() {
     this.props.model.moveDown(this.props.dispatch);
+  }
+
+  private openAddFormModal() {
+    this.props.model.openAddForm(this.props.dispatch);
   }
 
   public render(): React.ReactNode {
@@ -50,8 +55,7 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
             }
           </ul>
           <div className="ui-content-list--button-area">
-            <input type="button"
-                   value="+" />
+            <input type="button" value="+" onClick={this.openAddFormModal} />
             <input type="button" value="↑" onClick={this.moveUpForIndex} />
             <input type="button" value="↓" onClick={this.moveDownForIndex} />
           </div>

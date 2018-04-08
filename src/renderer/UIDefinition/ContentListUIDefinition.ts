@@ -9,22 +9,28 @@ import UIDefinitionBase from "./UIDefinitionBase";
 import { UIDefinitionFactory } from "./UIDefinitionFactory";
 import DataModelFactory from "../DataModel/DataModelFactory";
 import { ContentListIndex } from "../UIModel/ContentListUIModel";
+import ListDataModel from "../DataModel/ListDataModel";
+import { CollectionDataModelType, default as CollectionDataModelUtil } from "../DataModel/CollectionDataModelUtil";
 
 export interface ContentListUIDefinitionConfigObject extends UIDefinitionConfigObject {
   listIndexKey?: string;
   addFormContent: UIDefinitionConfigObject;
   addFormDefaultValue: Object;
+  dataType?: string;
 }
 
 export default class ContentListUIDefinition extends SingleContentUIDefinition {
   private _listIndexKey?: DataPathElement;
   private _addFormContent: UIDefinitionBase;
   private _addFormDefaultValue: DataModelBase;
+  private _dataType: CollectionDataModelType;
+
   public constructor(config: ContentListUIDefinitionConfigObject) {
     super(config.title, DataPathElement.parse(config.key));
     this._listIndexKey = DataPathElement.parse(config.listIndexKey!);
     this._addFormContent = UIDefinitionFactory.create(config.addFormContent);
     this._addFormDefaultValue = DataModelFactory.create(config.addFormDefaultValue);
+    this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
   }
 
   get addFormContent(): UIDefinitionBase {
@@ -39,26 +45,11 @@ export default class ContentListUIDefinition extends SingleContentUIDefinition {
     return this._listIndexKey;
   }
 
-  public getIndexes(data: CollectionDataModel, selectedIndex?: CollectionIndex): Array<ContentListIndex> {
-    return data.mapDataWithIndex<ContentListIndex>(
-      (item: DataModelBase, index: CollectionIndex): ContentListIndex => {
-        let isInvalid: boolean = false;
-        const isSelected = index === selectedIndex;
-        if (this._listIndexKey && this._listIndexKey.isKey) {
-          return {index, title: index.toString(), isSelected, isInvalid};
-        }
-        let title: string = '';
-        if (!(item instanceof MapDataModel)) {
-          throw new Error('Invalid data type');
-        }
-        const scalarItem = item.getValue(new DataPath([this._listIndexKey!]));
-        if (scalarItem instanceof ScalarDataModel) {
-          title = scalarItem.value;
-        } else {
-          isInvalid = true;
-        }
-        return {index, title, isSelected, isInvalid};
-      }
-    );
+  get defaultCollection(): CollectionDataModel {
+    if (this._dataType === CollectionDataModelType.List) {
+      return new ListDataModel([]);
+    } else {
+      return new MapDataModel({});
+    }
   }
 }
