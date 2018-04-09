@@ -14,6 +14,10 @@ export default class EditContext extends EditContextRecord {
 
   public static readonly empty = new EditContext();
 
+  public get pathIsEmpty(): boolean {
+    return this.path.elements.isEmpty();
+  }
+
   public set(key: string, value: any): this {
     return super.set(key, value) as this;
   }

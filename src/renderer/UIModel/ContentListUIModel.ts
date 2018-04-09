@@ -138,11 +138,23 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   }
 
   public moveUp(dispatch: ActionDispatch): void {
-    dispatch(createSetValueAction(this.dataPath, this._data!.moveUpForCollectionIndex(this.selectedIndex!)));
+    const moved = this._data!.moveUpForCollectionIndex(this.selectedIndex!);
+    dispatch(createSetValueAction(this.dataPath, moved));
+    if (moved !== this._data && !this.editContext.pathIsEmpty) {
+      if (typeof this.selectedIndex === 'number') {
+        dispatch(createChangeEditContextAction(new EditContext(this.dataPath).push(this.selectedIndex - 1)));
+      }
+    }
   }
 
   public moveDown(dispatch: ActionDispatch): void {
-    dispatch(createSetValueAction(this.dataPath, this._data!.moveDownForCollectionIndex(this.selectedIndex!)));
+    const moved = this._data!.moveDownForCollectionIndex(this.selectedIndex!);
+    dispatch(createSetValueAction(this.dataPath, moved));
+    if (moved !== this._data && !this.editContext.pathIsEmpty) {
+      if (typeof this.selectedIndex === 'number') {
+        dispatch(createChangeEditContextAction(new EditContext(this.dataPath).push(this.selectedIndex + 1)));
+      }
+    }
   }
 
   public openAddForm(dispatch: ActionDispatch): void {

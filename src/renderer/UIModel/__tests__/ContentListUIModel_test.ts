@@ -85,12 +85,21 @@ describe('Test for ContentListUIModel', () => {
       expect(manager.data.getValue(new DataPath(1))).toEqual(new StringDataModel('first'));
     });
 
-    it('Follow selected data when move', () => {
+    it('Follow selected data after move', () => {
       const manager = new UIModelManager();
       manager.initialize(simpleData, simpleUIDefinition);
       (manager.model as ContentListUIModel).moveDown(manager.dispatch);
       const child = (manager.model as ContentListUIModel).childModel as TextUIModel;
       expect(child.text).toBe('first');
-    })
+    });
+
+    it('Follow selected data after select and move', () => {
+      const manager = new UIModelManager();
+      manager.initialize(simpleData, simpleUIDefinition);
+      (manager.model as ContentListUIModel).selectIndex(manager.dispatch, 1); // Select "second"
+      (manager.model as ContentListUIModel).moveUp(manager.dispatch); // Click moveUp
+      const child = (manager.model as ContentListUIModel).childModel as TextUIModel;
+      expect(child.text).toBe('second');
+    });
   });
 });
