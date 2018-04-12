@@ -4,7 +4,7 @@ import { StringDataModel } from "../DataModel/ScalarDataModel";
 import ContentListUIDefinition from "../UIDefinition/ContentListUIDefinition";
 import DataPath from "../DataModel/DataPath";
 import DataModelBase from "../DataModel/DataModelBase";
-import EditContext from "../UIView/EditContext";
+import EditContext from "./EditContext";
 import { createSetValueAction } from "./UIModelAction";
 
 const TextUIModelRecord = Record({

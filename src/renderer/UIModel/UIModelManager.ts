@@ -7,7 +7,7 @@ import {
   UIModelAction
 } from "./UIModelAction";
 import { UIModelFactory } from "./UIModelFactory";
-import EditContext from "../UIView/EditContext";
+import EditContext from "./EditContext";
 
 interface Function {
   (): void;

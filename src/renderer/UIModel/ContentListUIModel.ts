@@ -6,7 +6,7 @@ import MapDataModel from "../DataModel/MapDataModel";
 import DataPath from "../DataModel/DataPath";
 import ScalarDataModel from "../DataModel/ScalarDataModel";
 import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from "./UIModel";
-import EditContext from "../UIView/EditContext";
+import EditContext from "./EditContext";
 import CollectionDataModelUtil from "../DataModel/CollectionDataModelUtil";
 import { UIModelFactory } from "./UIModelFactory";
 import DataModelUtil from "../DataModel/DataModelUtil";
@@ -142,7 +142,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
     dispatch(createSetValueAction(this.dataPath, moved));
     if (moved !== this._data && !this.editContext.pathIsEmpty) {
       if (typeof this.selectedIndex === 'number') {
-        dispatch(createChangeEditContextAction(new EditContext(this.dataPath).push(this.selectedIndex - 1)));
+        dispatch(createChangeEditContextAction(new EditContext({path: this.dataPath}).push(this.selectedIndex - 1)));
       }
     }
   }
@@ -152,7 +152,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
     dispatch(createSetValueAction(this.dataPath, moved));
     if (moved !== this._data && !this.editContext.pathIsEmpty) {
       if (typeof this.selectedIndex === 'number') {
-        dispatch(createChangeEditContextAction(new EditContext(this.dataPath).push(this.selectedIndex + 1)));
+        dispatch(createChangeEditContextAction(new EditContext({path: this.dataPath}).push(this.selectedIndex + 1)));
       }
     }
   }

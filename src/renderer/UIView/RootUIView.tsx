@@ -6,25 +6,37 @@ import UIModel from "../UIModel/UIModel";
 import { UIModelManager } from "../UIModel/UIModelManager";
 import { ContentListUIDefinitionConfigObject } from "../UIDefinition/ContentListUIDefinition";
 
-const simpleData = DataModelFactory.create(['first', 'second']);
+const simpleData = DataModelFactory.create({ list: ['first', 'second'], single: 'singleValue' });
 const simpleUIDefinition = UIDefinitionFactory.create({
-  type: 'contentList',
+  type: 'tab',
   key: '',
   title: '',
-  content: {
-    type: 'text',
-    title: '',
-    key: '',
-    emptyToNull: false
-  },
-  addFormContent: {
-    type: 'text',
-    title: '',
-    key: '',
-    emptyToNull: false
-  },
-  addFormDefaultValue: 'test'
-} as ContentListUIDefinitionConfigObject);
+  contents: [
+    {
+      type: 'contentList',
+      key: 'list',
+      title: 'ContentList',
+      content: {
+        type: 'text',
+        title: '',
+        key: '',
+        emptyToNull: false
+      },
+      addFormContent: {
+        type: 'text',
+        title: '',
+        key: '',
+        emptyToNull: false
+      },
+      addFormDefaultValue: ''
+    } as ContentListUIDefinitionConfigObject,
+    {
+      type: 'text',
+      title: 'Single',
+      key: 'single',
+    }
+  ]
+});
 
 interface Props {}
 interface State {

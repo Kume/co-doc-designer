@@ -5,7 +5,7 @@ import UIViewFactory from './UIViewFactory';
 import MapDataModel from '../DataModel/MapDataModel';
 import DataPath from '../DataModel/DataPath';
 import DataModelBase from '../DataModel/DataModelBase';
-import EditContext from './EditContext';
+import EditContext from '../UIModel/EditContext';
 import DataModelFactory from "../DataModel/DataModelFactory";
 
 interface Props extends UIViewBaseProps {

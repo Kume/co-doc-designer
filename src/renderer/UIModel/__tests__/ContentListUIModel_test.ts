@@ -4,7 +4,7 @@ import { ContentListUIDefinitionConfigObject } from "../../UIDefinition/ContentL
 import DataModelFactory from "../../DataModel/DataModelFactory";
 import { UIModelManager } from "../UIModelManager";
 import ContentListUIModel from "../ContentListUIModel";
-import EditContext from "../../UIView/EditContext";
+import EditContext from "../EditContext";
 import TextUIModel from "../TextUIModel";
 import DataPath from "../../DataModel/DataPath";
 import { StringDataModel } from "../../DataModel/ScalarDataModel";

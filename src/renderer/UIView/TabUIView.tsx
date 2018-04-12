@@ -1,78 +1,40 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TabUIDefinition from '../UIDefinition/TabUIDefinition';
 import UIViewFactory from './UIViewFactory';
-import DataModelBase from '../DataModel/DataModelBase';
-import MapDataModel from '../DataModel/MapDataModel';
 import { ReactNode } from 'react';
-import DataPath from '../DataModel/DataPath';
-import EditContext from './EditContext';
-import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import TabUIModel from "../UIModel/TabUIModel";
 
 interface Props extends UIViewBaseProps {
-  model: TabUIDefinition;
+  model: TabUIModel;
 }
 
 export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
   public render(): ReactNode {
-    const currentModel = this.props.model.contents.get(this.currentTabIndex);
-    const CurrentComponent = UIViewFactory.createUIView(currentModel);
+    const { model, dispatch } = this.props;
+    const CurrentComponent = UIViewFactory.createUIView(model.childModel);
 
     return (
       <div>
         <div className="ui-tab-head">
-          {this.props.model.contents.map((content, index) => {
+          {model.tabs.map(tab => {
             return (
               <div
-                className={'ui-tab-tab' + (index === this.currentTabIndex ? ' selected' : '')}
-                key={content!.key.asMapKey}
-                onClick={() => this.props.onSetEditContext(new EditContext({path: new DataPath(content!.key)}))}
+                className={'ui-tab-tab' + (tab.isSelected ? ' selected' : '')}
+                key={tab.key}
+                onClick={() => model.selectTab(dispatch, tab.key)}
               >
-                {content!.title}
+                {tab.title}
               </div>
-            );
+            )
           })}
         </div>
         <div className="ui-tab-content">
           <CurrentComponent
-            model={currentModel}
-            data={this._currentData()}
-            onUpdate={(path: DataPath, value: DataModelBase) => {
-              this.props.onUpdate(path.unshift(currentModel.key), value);
-            }}
-            onSetEditContext={(context: EditContext) => {
-              this.props.onSetEditContext(context.unshift(currentModel.key));
-            }}
-            editContext={this.props.editContext.shift()}
-            openModal={this.props.openModal}
-            closeModal={this.props.closeModal}
+            model={model.childModel}
+            dispatch={dispatch}
           />
         </div>
       </div>
     );
-  }
-
-  private _currentData(): DataModelBase | undefined {
-    if (this.props.data instanceof MapDataModel) {
-      const key = this.props.model.contents.get(this.currentTabIndex).key;
-      return this.props.data.valueForKey(key.asMapKey);
-    }
-    return undefined;
-  }
-
-  private get currentTabIndex(): number {
-    const pathElement = this.props.editContext.path.elements.first();
-    if (pathElement) {
-      const index = this.props.model.contents.findIndex((model: UIDefinitionBase) => {
-        return model.key.asMapKey === pathElement.asMapKey;
-      });
-      if (index >= 0) {
-        return index;
-      } else {
-        return 0;
-      }
-    } else {
-      return 0;
-    }
   }
 }

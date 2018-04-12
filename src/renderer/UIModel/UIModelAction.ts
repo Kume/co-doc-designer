@@ -1,6 +1,6 @@
 import DataPath from "../DataModel/DataPath";
 import DataModelBase from "../DataModel/DataModelBase";
-import EditContext from "../UIView/EditContext";
+import EditContext from "./EditContext";
 import { UIModelProps } from "./UIModel";
 
 export enum ActionType {

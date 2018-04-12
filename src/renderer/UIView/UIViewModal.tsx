@@ -3,7 +3,7 @@ import { UIViewBaseState } from "./UIViewBase";
 import DataModelBase, { CollectionIndex } from "../DataModel/DataModelBase";
 import UIViewFactory from "./UIViewFactory";
 import DataPath from "../DataModel/DataPath";
-import EditContext from "./EditContext";
+import EditContext from "../UIModel/EditContext";
 import UIDefinitionBase from "../UIDefinition/UIDefinitionBase";
 import { StringDataModel } from "../DataModel/ScalarDataModel";
 

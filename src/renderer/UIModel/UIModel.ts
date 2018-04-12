@@ -1,6 +1,6 @@
 import DataModelBase from "../DataModel/DataModelBase";
 import UIDefinitionBase from "../UIDefinition/UIDefinitionBase";
-import EditContext from "../UIView/EditContext";
+import EditContext from "./EditContext";
 import { UIModelAction } from "./UIModelAction";
 import DataPath from "../DataModel/DataPath";
 
@@ -23,6 +23,10 @@ export interface ActionDispatch {
 }
 
 export default interface UIModel {
-  updateData(data: DataModelBase): UIModel;
+  readonly data: DataModelBase | undefined;
+  readonly definition: UIDefinitionBase;
+  readonly editContext: EditContext;
+  readonly dataPath: DataPath;
+  updateData(data: DataModelBase | undefined): UIModel;
   updateEditContext(editContext: EditContext): UIModel;
 }

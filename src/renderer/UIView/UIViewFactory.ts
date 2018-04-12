@@ -8,6 +8,7 @@ import TableUIView from './TableUIView';
 import UIModel from "../UIModel/UIModel";
 import TextUIModel from "../UIModel/TextUIModel";
 import ContentListUIModel from "../UIModel/ContentListUIModel";
+import TabUIModel from "../UIModel/TabUIModel";
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel): ComponentClass<UIViewBaseProps> {
@@ -16,6 +17,9 @@ export default class UIViewFactory {
     }
     if (model instanceof TextUIModel) {
       return TextUIView;
+    }
+    if (model instanceof TabUIModel) {
+      return TabUIView;
     }
     return UIViewBase;
   }
