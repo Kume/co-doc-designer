@@ -6,9 +6,9 @@ import DataPath from "../DataModel/DataPath";
 
 export interface UIModelProps {
   definition: UIDefinitionBase;
-  data?: DataModelBase;
+  data: DataModelBase | undefined;
   dataPath: DataPath,
-  editContext: EditContext;
+  editContext: EditContext | undefined;
 }
 
 export const UIModelPropsDefault = {

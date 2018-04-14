@@ -155,4 +155,12 @@ export class UIModelManager {
   get modalData(): DataModelBase | undefined {
     return this._modalData;
   }
+
+  get editContext(): EditContext {
+    return this._editContext;
+  }
+
+  get modalEditContext(): EditContext {
+    return this._modalEditContext;
+  }
 }

@@ -5,6 +5,8 @@ import ContentListUIDefinition from "../UIDefinition/ContentListUIDefinition";
 import ContentListUIModel from "./ContentListUIModel";
 import TabUIDefinition from "../UIDefinition/TabUIDefinition";
 import TabUIModel from "./TabUIModel";
+import FormUIModel from "./FormUIModel";
+import FormUIDefinition from "../UIDefinition/FormUIDefinition";
 
 export class UIModelFactory {
   public static create(props: UIModelProps): UIModel {
@@ -16,6 +18,9 @@ export class UIModelFactory {
     }
     if (props.definition instanceof TabUIDefinition) {
       return new TabUIModel(props);
+    }
+    if (props.definition instanceof FormUIDefinition) {
+      return new FormUIModel(props);
     }
     throw new Error('Unknown UI Definition');
   }

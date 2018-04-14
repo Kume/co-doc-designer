@@ -6,7 +6,7 @@ import UIModel from "../UIModel/UIModel";
 import { UIModelManager } from "../UIModel/UIModelManager";
 import { ContentListUIDefinitionConfigObject } from "../UIDefinition/ContentListUIDefinition";
 
-const simpleData = DataModelFactory.create({ list: ['first', 'second'], single: 'singleValue' });
+const simpleData = DataModelFactory.create({ list: [{name: 'A', type: 'a'}, {name: 'B', type: 'b'}], single: 'singleValue' });
 const simpleUIDefinition = UIDefinitionFactory.create({
   type: 'tab',
   key: '',
@@ -16,11 +16,23 @@ const simpleUIDefinition = UIDefinitionFactory.create({
       type: 'contentList',
       key: 'list',
       title: 'ContentList',
+      listIndexKey: 'name',
       content: {
-        type: 'text',
+        type: 'form',
         title: '',
         key: '',
-        emptyToNull: false
+        contents: [
+          {
+            type: 'text',
+            key: 'name',
+            title: '名前'
+          },
+          {
+            type: 'text',
+            key: 'type',
+            title: 'タイプ'
+          }
+        ]
       },
       addFormContent: {
         type: 'text',

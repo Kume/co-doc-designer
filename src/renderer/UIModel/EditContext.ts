@@ -67,4 +67,12 @@ export default class EditContext extends EditContextRecord {
       throw new Error('Invalid type');
     }
   }
+
+  public static equals(a: EditContext | undefined, b: EditContext | undefined): boolean {
+    if (a === undefined) {
+      return b === undefined;
+    } else {
+      return !!b && a.equals(b);
+    }
+  }
 }

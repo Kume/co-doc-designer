@@ -27,7 +27,7 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   public readonly editContext: EditContext;
   public readonly childModel: UIModel;
   public readonly dataPath: DataPath;
-  public readonly selectedData: DataModelBase | undefined;
+  public readonly selectedTab: string | undefined;
 
   constructor(props: UIModelProps) {
     super({
@@ -37,35 +37,46 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   }
 
   //#region private static function for props
-  private static selectedData(props: UIModelProps): DataModelBase | undefined {
+  private static selectedData(props: UIModelProps, selectedTab?: string): DataModelBase | undefined {
     if (props.data instanceof MapDataModel) {
-      const content = this.selectedContent(props.definition as TabUIDefinition, props.editContext);
+      const content = this.selectedContent(props.definition as TabUIDefinition, props.editContext, selectedTab);
       return props.data.valueForKey(content.key.asMapKey)
     }
     return undefined;
   }
 
-  private static selectedContent(definition: TabUIDefinition, editContext: EditContext): UIDefinitionBase {
-    if (editContext.pathIsEmpty) {
-      return definition.contents.first();
+  private static selectedContent(
+    definition: TabUIDefinition,
+    editContext: EditContext | undefined,
+    selectedTab?: string
+  ): UIDefinitionBase {
+    if (!editContext || editContext.pathIsEmpty) {
+      if (selectedTab) {
+        return TabUIModel.findContent(definition, selectedTab);
+      } else {
+        return definition.contents.first();
+      }
     } else {
       const contextPathElement = editContext.path.elements.first();
       if (!contextPathElement.canBeMapKey) { throw new Error('Invalid edit context') }
-      const contextKey = contextPathElement.asMapKey;
-      for (const content of definition.contents.toArray()) {
-        if (content.key.canBeMapKey && content.key.asMapKey === contextKey) {
-          return content;
-        }
-      }
-      throw new Error('There is no matched content.');
+      return TabUIModel.findContent(definition, contextPathElement.asMapKey);
     }
+  }
+
+  private static findContent(definition: TabUIDefinition, key: string): UIDefinitionBase {
+    for (const content of definition.contents.toArray()) {
+      if (content.key.canBeMapKey && content.key.asMapKey === key) {
+        return content;
+      }
+    }
+    throw new Error();
   }
 
   private static childModel(props: UIModelProps): UIModel {
     const selectedContent = this.selectedContent(props.definition as TabUIDefinition, props.editContext);
     const selectedData = this.selectedData(props);
     const childProps: UIModelProps = {
-      editContext: props.editContext.shift(),
+      editContext: props.editContext && props.editContext.shift(),
       definition: selectedContent,
       data: selectedData,
       dataPath: props.dataPath.push(selectedContent.key)
@@ -110,8 +121,8 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
 
   updateEditContext(editContext: EditContext): this {
     let newModel = this.set('editContext', editContext) as this;
-    const selectedContent = TabUIModel.selectedContent(this.definition, editContext);
-    const currentContent = TabUIModel.selectedContent(this.definition, this.editContext);
+    const selectedContent = TabUIModel.selectedContent(this.definition, editContext, this.selectedTab);
+    const currentContent = TabUIModel.selectedContent(this.definition, this.editContext, this.selectedTab);
     if (selectedContent !== currentContent) {
       newModel = newModel.set('childModel', TabUIModel.childModel({...this.propsObject, editContext})) as this;
     } else {
