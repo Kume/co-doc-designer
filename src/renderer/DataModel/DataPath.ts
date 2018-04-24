@@ -77,7 +77,14 @@ export default class DataPath extends DataPathRecord {
   }
 
   public push(element: DataPathElementCompatible): this {
-    return this.set('elements', this.elements.push(DataPathElement.create(element)));
+    if (element instanceof DataPathElement && element.isKey) {
+      if (this.pointsKey) {
+        throw new Error('Cannot push $key');
+      }
+      return this.set('pointsKey', true);
+    } else {
+      return this.set('elements', this.elements.push(DataPathElement.create(element)));
+    }
   }
 
   public concat(otherPath: DataPath): this {

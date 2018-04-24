@@ -26,7 +26,7 @@ export default class CollectionDataModelUtil {
     return model instanceof MapDataModel || model instanceof ListDataModel;
   }
 
-  public static asCollectionDataModel(model?: DataModelBase): CollectionDataModel | undefined {
+  public static asCollectionDataModel(model: DataModelBase | undefined): CollectionDataModel | undefined {
     return model && this.isCollectionDataModel(model) ? model : undefined;
   }
 

@@ -1,11 +1,11 @@
 import { Record } from "immutable";
 import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from "./UIModel";
 import { StringDataModel } from "../DataModel/ScalarDataModel";
-import ContentListUIDefinition from "../UIDefinition/ContentListUIDefinition";
 import DataPath from "../DataModel/DataPath";
 import DataModelBase from "../DataModel/DataModelBase";
 import EditContext from "./EditContext";
 import { createSetValueAction } from "./UIModelAction";
+import TextUIDefinition from "../UIDefinition/TextUIDefinition";
 
 const TextUIModelRecord = Record({
   ...UIModelPropsDefault,
@@ -13,7 +13,7 @@ const TextUIModelRecord = Record({
 
 export default class TextUIModel extends TextUIModelRecord implements UIModel {
   public readonly data: DataModelBase | undefined;
-  public readonly definition: ContentListUIDefinition;
+  public readonly definition: TextUIDefinition;
   public readonly editContext: EditContext;
   public readonly dataPath: DataPath;
 

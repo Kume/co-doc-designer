@@ -5,6 +5,7 @@ import DataModelBase, {
 import { List, Record } from 'immutable';
 import DataModelFactory from './DataModelFactory';
 import DataPath from './DataPath';
+import DataPathElement from "./DataPathElement";
 
 const ListDataModelRecord = Record({
   list: List<DataModelBase>()
@@ -55,14 +56,20 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
   }
 
   public setValue(path: DataPath, value: DataModelBase): DataModelBase {
-    if (path.elements.size > 0) {
-      const pathElement = path.elements.first();
-      return this.set('list', this.list.set(
-        pathElement.asListIndex,
-        this.list.get(pathElement.asListIndex).setValue(path.shift(), value)));
-    } else {
+    if (path.elements.size === 0) {
       return value;
     }
+    const pathElement = path.elements.first();
+
+    if (pathElement.type === DataPathElement.Type.After) {
+      return this.set('list', this.list.push(value));
+    } else if (pathElement.type === DataPathElement.Type.Before) {
+
+    }
+
+    return this.set('list', this.list.set(
+      pathElement.asListIndex,
+      this.list.get(pathElement.asListIndex).setValue(path.shift(), value)));
   }
 
   public getValue(path: DataPath): DataModelBase | undefined {

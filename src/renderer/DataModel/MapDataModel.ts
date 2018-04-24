@@ -76,25 +76,25 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
   }
 
   public setValue(path: DataPath, value: DataModelBase): DataModelBase {
-    if (path.elements.size > 0) {
-      const key = path.elements.first();
-      const index = this.indexForPath(key);
-      if (index >= 0) {
-        let node = this.list.get(index);
-        if (path.pointsKey && path.elements.size === 1) {
-          if (this.validateCanSetKey(index, value)) {
-            node = node.setKey(value.value);
-          }
-        } else {
-          node = node.setValue(path.shift(), value);
-        }
-        return this.set('list', this.list.set(index, node));
-      } else {
-        const pushedList = this.list.push(new MapDataModelElement(key.asMapKey, value));
-        return this.set('list', pushedList);
-      }
-    } else {
+    if (path.elements.size === 0) {
       return value;
+    }
+    const key = path.elements.first();
+
+    const index = this.indexForPath(key);
+    if (index >= 0) {
+      let node = this.list.get(index);
+      if (path.pointsKey && path.elements.size === 1) {
+        if (this.validateCanSetKey(index, value)) {
+          node = node.setKey(value.value);
+        }
+      } else {
+        node = node.setValue(path.shift(), value);
+      }
+      return this.set('list', this.list.set(index, node));
+    } else {
+      const pushedList = this.list.push(new MapDataModelElement(key.asMapKey, value));
+      return this.set('list', pushedList);
     }
   }
 

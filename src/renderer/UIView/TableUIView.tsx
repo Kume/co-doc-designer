@@ -1,36 +1,56 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TableUIDefinition from '../UIDefinition/TableUIDefinition';
-// import HotTable from 'react-handsontable';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import * as Handsontable from 'handsontable';
 import TextUIDefinition from '../UIDefinition/TextUIDefinition';
 import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
-import { CollectionDataModel } from '../DataModel/DataModelBase';
-import MapDataModel from '../DataModel/MapDataModel';
-import DataPath from '../DataModel/DataPath';
-import ListDataModel from '../DataModel/ListDataModel';
-import DataModelFactory from "../DataModel/DataModelFactory";
+import TableUIModel from "../UIModel/TableUIModel";
+import TextUIModel from "../UIModel/TextUIModel";
+import CheckBoxUIModel from "../UIModel/CheckBoxUIModel";
 
+// 定数未定義エラーを防ぐために適当に定義しておく。
 /* tslint:disable */
 window['__HOT_BUILD_DATE__'] = '';
 window['__HOT_PACKAGE_NAME__'] = '';
 window['__HOT_VERSION__'] = '';
 window['__HOT_BASE_VERSION__'] = '';
+const HotTable = require('react-handsontable');
 /* tslint:enable */
 
-const HotTable = require('react-handsontable');
 
 interface Props extends UIViewBaseProps {
-  model: TableUIDefinition;
-  data: CollectionDataModel;
+  model: TableUIModel;
 }
 
-export default class TableUIView extends UIViewBase<Props, UIViewBaseState> {
+interface State extends UIViewBaseState {
+  hottableData: Array<Array<any>>
+}
+
+export default class TableUIView extends UIViewBase<Props, State> {
+  constructor(props: Props, context?: any) {
+    super(props, context);
+    this.state = {
+      hottableData: TableUIView.getData(props.model)
+    }
+  }
+
   render(): React.ReactNode {
     return (
-      <HotTable data={this.props.model.toTableData(this.props.data)} settings={this.settings} />
+      <HotTable data={TableUIView.getData(this.props.model)} settings={this.settings} />
     );
+  }
+
+  private static getData(model: TableUIModel): Array<Array<any>> {
+    return model.children.map(row => {
+      return row!.map(cell => {
+        if (cell instanceof TextUIModel) {
+          return cell.text;
+        } else if (cell instanceof CheckBoxUIModel) {
+          return cell.isChecked;
+        }
+        return ''
+      }).toArray();
+    }).toArray();
   }
 
   private get settings(): Handsontable._Handsontable.DefaultSettings {
@@ -44,22 +64,12 @@ export default class TableUIView extends UIViewBase<Props, UIViewBaseState> {
 
   private onChange(changes: any[], source: string): void {
     if (!changes) { return; }
-    if (this.props.data instanceof ListDataModel) {
-      let data: ListDataModel = this.props.data;
-      changes.forEach((change: Array<any>) => {
-        const row: number = change[0];
-        const column: string = change[1];
-        const changed: any = change[3];
-        let rowData: MapDataModel = data.getValueForIndex(row) as MapDataModel;
-        rowData = rowData.setValueForKey(column, DataModelFactory.create(changed));
-        data = data.setValueForIndex(row, rowData);
-      });
-      this.props.onUpdate(new DataPath([]), data);
-    }
+    console.log({changes});
+    this.props.model.inputChanges(this.props.dispatch, changes);
   }
 
   private getColumnSettings(row?: number, col?: number, prop?: object) {
-    const model = this.props.model.contents.get(col as number);
+    const model = this.props.model.definition.contents.get(col as number);
     if (model instanceof TextUIDefinition) {
       return {
         type: 'text'
@@ -73,6 +83,6 @@ export default class TableUIView extends UIViewBase<Props, UIViewBaseState> {
   }
 
   private get columnHeaders(): Array<string> {
-    return this.props.model.contents.map((content: UIDefinitionBase) => content.title).toArray();
+    return this.props.model.definition.contents.map((content: UIDefinitionBase) => content.title).toArray();
   }
 }

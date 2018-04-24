@@ -1,30 +1,31 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
-import ScalarDataModel, { BooleanDataModel } from '../DataModel/ScalarDataModel';
-import DataPath from '../DataModel/DataPath';
+import CheckBoxUIModel from "../UIModel/CheckBoxUIModel";
 
 interface Props extends UIViewBaseProps {
-  model: CheckBoxUIDefinition;
-  data: ScalarDataModel;
+  model: CheckBoxUIModel;
 }
 
 export default class CheckBoxUIView extends UIViewBase<Props, UIViewBaseState> {
+  constructor(props: Props, context?: any) {
+    super(props, context);
+
+    this.onUpdate = this.onUpdate.bind(this);
+  }
+
   private _checkboxInput: HTMLInputElement;
   render(): React.ReactNode {
     return (
       <input
         type="checkbox"
-        defaultValue={this.props.data.value}
-        onChange={() => this._update()}
+        checked={this.props.model.isChecked}
+        onChange={this.onUpdate}
         ref={ref => this._checkboxInput = ref!}
       />
     );
   }
 
-  private _update(): void {
-    this.props.onUpdate(
-      new DataPath([]),
-      new BooleanDataModel(!!this._checkboxInput.value));
+  private onUpdate(): void {
+    this.props.model.check(this.props.dispatch, !!this._checkboxInput.value);
   }
 }

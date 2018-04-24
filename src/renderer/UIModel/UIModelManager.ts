@@ -16,7 +16,7 @@ interface Function {
 export class UIModelManager {
   private _data: DataModelBase;
   private _definition: UIDefinitionBase;
-  private _model: UIModel;
+  protected _model: UIModel;
   private _editContext: EditContext = EditContext.empty;
   private _modalData: DataModelBase | undefined;
   private _modalModel: UIModel | undefined;

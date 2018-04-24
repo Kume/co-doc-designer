@@ -8,6 +8,7 @@ import UIDefinitionBase from "../UIDefinition/UIDefinitionBase";
 import { UIModelFactory } from "./UIModelFactory";
 import MapDataModel from "../DataModel/MapDataModel";
 import DataModelUtil from "../DataModel/DataModelUtil";
+import { StringDataModel } from "../DataModel/ScalarDataModel";
 
 const FormUIModelRecord = Record({
   ...UIModelPropsDefault,
@@ -37,9 +38,17 @@ export default class FormUIModel extends FormUIModelRecord implements UIModel, U
 
   private static childProps(definition: UIDefinitionBase, props: UIModelProps): UIModelProps {
     const data = props.data instanceof MapDataModel ? props.data : undefined;
+    let childData: DataModelBase | undefined = undefined;
+    if (data) {
+      if (definition.key.isKey) {
+        childData = new StringDataModel(props.dataPath.elements.last().toString());
+      } else {
+        childData = data.valueForKey(definition.key.asMapKey);
+      }
+    }
     return {
-      dataPath: props.dataPath.push(definition.key.asMapKey),
-      data: data && data.valueForKey(definition.key.asMapKey),
+      dataPath: props.dataPath.push(definition.key),
+      data: childData,
       definition,
       editContext: FormUIModel.editContextForChild(definition, props.editContext)
     }

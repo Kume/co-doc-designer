@@ -40,15 +40,15 @@ class App extends React.Component {
         this.dataMapper = DataMapper.build(schema && schema['fileMap'], new FileDataStorage(path.dirname(fileNames[0])));
         const loaded = await this.dataMapper.loadAsync();
         const model = UIDefinitionFactory.create(schema!['uiRoot'] as UIDefinitionConfigObject);
-        this.root!.setData(model, loaded);
+        this.root!.load(model, loaded);
       });
     });
   }
 
   async _saveFile() {
     const root = this.root;
-    if (root && root.state.data) {
-      await this.dataMapper.saveAsync(root.state.data);
+    if (root && root.state.model && root.state.model.data) {
+      await this.dataMapper.saveAsync(root.state.model.data);
     }
   }
 

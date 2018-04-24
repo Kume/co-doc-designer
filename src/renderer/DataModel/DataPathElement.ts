@@ -86,8 +86,12 @@ namespace DataPathElement {
     MapKey,
     ListIndex,
     Both,
+    Before,
+    After,
     Key
   }
+  export const before = new DataPathElement(undefined, DataPathElement.Type.Before);
+  export const after = new DataPathElement(undefined, DataPathElement.Type.After);
 }
 
 export default DataPathElement;

@@ -37,6 +37,19 @@ uiRoot:
         - type: checkbox
           key: nullable
           title: Null許可
+    addFormContent:
+      type: form
+      key: ''
+      title: ''
+      contents:
+        - type: text
+          key: $key
+          title: 物理名
+          emptyToNull: false
+        - type: text
+          key: label
+          title: 論理名
+      addFormDefaultValue: {}
   - type: table
     key: messages
     title: メッセージ
