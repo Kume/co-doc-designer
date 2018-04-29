@@ -2,7 +2,7 @@ import MapDataModel from '../MapDataModel';
 import { IntegerDataModel, StringDataModel } from '../ScalarDataModel';
 import ListDataModel from '../ListDataModel';
 import DataPath from '../DataPath';
-import DataModelFactory from "../DataModelFactory";
+import DataModelFactory from '../DataModelFactory';
 
 describe('Unit tests for ListDataModel', () => {
   describe('Unit tests for ListDataModel.valueForKey', () => {

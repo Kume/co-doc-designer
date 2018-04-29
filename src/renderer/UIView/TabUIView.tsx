@@ -2,7 +2,7 @@ import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
 import { ReactNode } from 'react';
-import TabUIModel from "../UIModel/TabUIModel";
+import TabUIModel from '../UIModel/TabUIModel';
 
 interface Props extends UIViewBaseProps {
   model: TabUIModel;
@@ -25,7 +25,7 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
               >
                 {tab.title}
               </div>
-            )
+            );
           })}
         </div>
         <div className="ui-tab-content">

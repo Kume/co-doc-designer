@@ -8,7 +8,7 @@ import { List, Record } from 'immutable';
 import ScalarDataModel, { NullDataModel, StringDataModel } from './ScalarDataModel';
 import DataPath from './DataPath';
 import DataPathElement from './DataPathElement';
-import DataModelFactory from "./DataModelFactory";
+import DataModelFactory from './DataModelFactory';
 
 const MapDataModelElementRecord = Record({
   key: StringDataModel.empty,
@@ -18,6 +18,8 @@ const MapDataModelElementRecord = Record({
 export class MapDataModelElement extends MapDataModelElementRecord {
   public readonly key: string;
   public readonly value: DataModelBase;
+
+  private _keyAsDataModel?: ScalarDataModel;
 
   public constructor(key: string, value: DataModelBase) {
     super({key, value});
@@ -35,7 +37,6 @@ export class MapDataModelElement extends MapDataModelElementRecord {
     return this.set('key', key);
   }
 
-  private _keyAsDataModel?: ScalarDataModel;
   public get keyAsDataModel(): ScalarDataModel {
     return this._keyAsDataModel ? this._keyAsDataModel : this._keyAsDataModel = new StringDataModel(this.key);
   }
@@ -190,15 +191,6 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return this._transposeOrder(index1, index2);
   }
 
-  private _transposeOrder(index1: number, index2: number): this {
-    const value1 = this.list.get(index1);
-    const value2 = this.list.get(index2);
-    return this.withMutations(map =>
-      map.setIn(['list', index1], value2)
-        .setIn(['list', index2], value1)
-    ) as this;
-  }
-
   public forEachData(sideEffect: DataModelSideEffect): void {
     this.list.forEach(item => sideEffect(item!.value));
   }
@@ -223,10 +215,6 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return this.list.isEmpty();
   }
 
-  public isValidKey(key: string): boolean {
-    return this.indexForKey(key) >= 0;
-  }
-
   public get firstKey(): string | undefined {
     if (this.list.isEmpty()) {
       return undefined;
@@ -239,16 +227,20 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return JSON.stringify(this.toJsonObject());
   }
 
+  public indexForKey(key: string): number {
+    return this.list.findIndex(element => element!.key === key);
+  }
+
+  public isValidKey(key: string): boolean {
+    return this.indexForKey(key) >= 0;
+  }
+
   private indexForPath(pathElement: DataPathElement): number {
     if (pathElement.canBeMapKey) {
       return this.indexForKey(pathElement.asMapKey);
     } else {
       return -1;
     }
-  }
-
-  public indexForKey(key: string): number {
-    return this.list.findIndex(element => element!.key === key);
   }
 
   private validateCanSetKey(targetIndex: number, value: DataModelBase): value is StringDataModel {
@@ -260,5 +252,14 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       throw new Error('Cannot set duplicated key');
     }
     return true;
+  }
+
+  private _transposeOrder(index1: number, index2: number): this {
+    const value1 = this.list.get(index1);
+    const value2 = this.list.get(index2);
+    return this.withMutations(map =>
+      map.setIn(['list', index1], value2)
+        .setIn(['list', index2], value1)
+    ) as this;
   }
 }

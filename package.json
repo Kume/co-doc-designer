@@ -15,7 +15,8 @@
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
     "build": "yarn compile && electron-builder",
-    "test": "react-scripts-ts test --env=jsdom"
+    "test": "react-scripts-ts test --env=jsdom",
+    "lint": "tslint --project ./"
   },
   "devDependencies": {
     "@types/jest": "^22.2.2",
@@ -28,6 +29,7 @@
     "electron-builder": "^20.8.1",
     "electron-webpack": "^1.13.0",
     "electron-webpack-ts": "^2.0.0",
+    "tslint": "^5.9.1",
     "typescript": "^2.7.2"
   }
 }

@@ -1,11 +1,11 @@
-import { Record } from "immutable";
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from "./UIModel";
-import { StringDataModel } from "../DataModel/ScalarDataModel";
-import DataPath from "../DataModel/DataPath";
-import DataModelBase from "../DataModel/DataModelBase";
-import EditContext from "./EditContext";
-import { createSetValueAction } from "./UIModelAction";
-import TextUIDefinition from "../UIDefinition/TextUIDefinition";
+import { Record } from 'immutable';
+import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from './UIModel';
+import { StringDataModel } from '../DataModel/ScalarDataModel';
+import DataPath from '../DataModel/DataPath';
+import DataModelBase from '../DataModel/DataModelBase';
+import EditContext from './EditContext';
+import { createSetValueAction } from './UIModelAction';
+import TextUIDefinition from '../UIDefinition/TextUIDefinition';
 
 const TextUIModelRecord = Record({
   ...UIModelPropsDefault,

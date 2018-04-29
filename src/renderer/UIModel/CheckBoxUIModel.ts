@@ -1,11 +1,11 @@
-import { Record } from "immutable";
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from "./UIModel";
-import DataPath from "../DataModel/DataPath";
-import EditContext from "./EditContext";
-import DataModelBase from "../DataModel/DataModelBase";
-import CheckBoxUIDefinition from "../UIDefinition/CheckBoxUIDefinition";
-import { createSetValueAction } from "./UIModelAction";
-import { BooleanDataModel } from "../DataModel/ScalarDataModel";
+import { Record } from 'immutable';
+import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from './UIModel';
+import DataPath from '../DataModel/DataPath';
+import EditContext from './EditContext';
+import DataModelBase from '../DataModel/DataModelBase';
+import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
+import { createSetValueAction } from './UIModelAction';
+import { BooleanDataModel } from '../DataModel/ScalarDataModel';
 
 const CheckBoxUIModelRecord = Record({
   ...UIModelPropsDefault
@@ -65,7 +65,7 @@ export default class CheckBoxUIModel extends CheckBoxUIModelRecord implements UI
       dataPath: this.dataPath,
       data: this.data,
       editContext: this.editContext
-    }
+    };
   }
 
   updateData(data: DataModelBase | undefined): this {

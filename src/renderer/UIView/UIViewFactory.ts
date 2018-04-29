@@ -3,16 +3,16 @@ import TabUIView from './TabUIView';
 import { ComponentClass } from 'react';
 import ContentListUIView from './ContentListUIView';
 import TextUIView from './TextUIView';
-import UIModel from "../UIModel/UIModel";
-import TextUIModel from "../UIModel/TextUIModel";
-import ContentListUIModel from "../UIModel/ContentListUIModel";
-import TabUIModel from "../UIModel/TabUIModel";
-import FormUIView from "./FormUIView";
-import FormUIModel from "../UIModel/FormUIModel";
-import CheckBoxUIModel from "../UIModel/CheckBoxUIModel";
-import CheckBoxUIView from "./CheckBoxUIView";
-import TableUIModel from "../UIModel/TableUIModel";
-import TableUIView from "./TableUIView";
+import UIModel from '../UIModel/UIModel';
+import TextUIModel from '../UIModel/TextUIModel';
+import ContentListUIModel from '../UIModel/ContentListUIModel';
+import TabUIModel from '../UIModel/TabUIModel';
+import FormUIView from './FormUIView';
+import FormUIModel from '../UIModel/FormUIModel';
+import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
+import CheckBoxUIView from './CheckBoxUIView';
+import TableUIModel from '../UIModel/TableUIModel';
+import TableUIView from './TableUIView';
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel): ComponentClass<UIViewBaseProps> {

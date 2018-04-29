@@ -1,20 +1,20 @@
-import { Record } from "immutable";
-import DataModelBase, { CollectionDataModel, CollectionIndex } from "../DataModel/DataModelBase";
-import { applyMixins } from "../../common/util";
-import ContentListUIDefinition from "../UIDefinition/ContentListUIDefinition";
-import MapDataModel from "../DataModel/MapDataModel";
-import DataPath from "../DataModel/DataPath";
-import ScalarDataModel from "../DataModel/ScalarDataModel";
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from "./UIModel";
-import EditContext from "./EditContext";
-import CollectionDataModelUtil from "../DataModel/CollectionDataModelUtil";
-import { UIModelFactory } from "./UIModelFactory";
-import DataModelUtil from "../DataModel/DataModelUtil";
+import { Record } from 'immutable';
+import DataModelBase, { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
+import { applyMixins } from '../../common/util';
+import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
+import MapDataModel from '../DataModel/MapDataModel';
+import DataPath from '../DataModel/DataPath';
+import ScalarDataModel from '../DataModel/ScalarDataModel';
+import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from './UIModel';
+import EditContext from './EditContext';
+import CollectionDataModelUtil from '../DataModel/CollectionDataModelUtil';
+import { UIModelFactory } from './UIModelFactory';
+import DataModelUtil from '../DataModel/DataModelUtil';
 import {
   createChangeEditContextAction, createCloseModalAction, createOpenModalAction,
   createSetValueAction
-} from "./UIModelAction";
-import ListDataModel from "../DataModel/ListDataModel";
+} from './UIModelAction';
+import ListDataModel from '../DataModel/ListDataModel';
 
 export interface ContentListIndex {
   index: CollectionIndex;
@@ -38,30 +38,22 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   public readonly dataPath: DataPath;
   public readonly selectedData: DataModelBase | undefined;
 
-  constructor(props: UIModelProps) {
-    super({
-      ...props,
-      childModel: ContentListUIModel.childModel(props),
-      selectedData: ContentListUIModel.selectedData(props)
-    });
-  }
-
   private static selectedData(props: UIModelProps): DataModelBase | undefined {
     const collectionData = CollectionDataModelUtil.asCollectionDataModel(props.data);
-    const index = props.editContext.currentIndexForData(collectionData);
+    const index = EditContext.currentIndexForData(props.editContext, collectionData);
     if (index === undefined) { return undefined; }
     return collectionData && collectionData.getValue(new DataPath(index));
   }
 
   private static childProps(props: UIModelProps, lastSelectedData?: DataModelBase): UIModelProps | undefined {
     const collectionData = CollectionDataModelUtil.asCollectionDataModel(props.data);
-    const index = props.editContext.currentIndexForData(collectionData, lastSelectedData);
+    const index = EditContext.currentIndexForData(props.editContext, collectionData, lastSelectedData);
     if (index === undefined) {
       return undefined;
     }
     const definition = props.definition as ContentListUIDefinition;
     return {
-      editContext: props.editContext.shift(),
+      editContext: props.editContext && props.editContext.shift(),
       dataPath: props.dataPath.push(index),
       data: CollectionDataModelUtil.getValueForIndex(collectionData, index),
       definition: definition.content
@@ -71,6 +63,14 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   private static childModel(props: UIModelProps, lastSelectedData?: DataModelBase): UIModel | undefined {
     const childProps = ContentListUIModel.childProps(props, lastSelectedData);
     return childProps && UIModelFactory.create(childProps);
+  }
+
+  constructor(props: UIModelProps) {
+    super({
+      ...props,
+      childModel: ContentListUIModel.childModel(props),
+      selectedData: ContentListUIModel.selectedData(props)
+    });
   }
 
   //#region Public Getter
@@ -84,7 +84,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
       dataPath: this.dataPath,
       data: this.data,
       editContext: this.editContext
-    }
+    };
   }
 
   public get indexes(): Array<ContentListIndex> {
@@ -119,7 +119,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   }
 
   public get selectedIndex(): CollectionIndex | undefined {
-    return this.editContext.currentIndexForData(this._data, this.selectedData);
+    return EditContext.currentIndexForData(this.editContext, this._data, this.selectedData);
   }
 
   public get addFormModelProps(): UIModelProps {
@@ -134,7 +134,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
 
   //#region Manipulation
   public selectIndex(dispatch: ActionDispatch, index: CollectionIndex): void {
-    dispatch(createChangeEditContextAction(new EditContext({ path: this.dataPath.push(index) })))
+    dispatch(createChangeEditContextAction(new EditContext({ path: this.dataPath.push(index) })));
   }
 
   public moveUp(dispatch: ActionDispatch): void {
@@ -161,7 +161,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
     dispatch(createOpenModalAction(this.addFormModelProps, (data) => {
       const currentData = this._data || this.definition.defaultCollection;
       if (currentData instanceof MapDataModel) {
-
+        // TODO
       } else if (currentData instanceof ListDataModel) {
         dispatch(createSetValueAction(this.dataPath, currentData.push(data)));
         dispatch(createCloseModalAction());
@@ -169,20 +169,6 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
     }));
   }
   //#endregion
-
-  public updateProps(props: UIModelProps): UIModel {
-    let newModel = this;
-    if (!this.editContext.equals(props.editContext)) {
-      newModel = newModel.set('editContext', props.editContext) as this;
-    }
-    if (!DataModelUtil.equals(this.data, props.data)) {
-      newModel = newModel.set('data', props.data) as this;
-    }
-    const childProps = ContentListUIModel.childProps(props);
-    const childModel = childProps && UIModelFactory.create(childProps);
-    newModel = newModel.set('childModel', childModel) as this;
-    return newModel;
-  }
 
   updateData(data: DataModelBase): UIModel {
     if (DataModelUtil.equals(this.data, data)) {

@@ -1,7 +1,7 @@
-import DataPath from "../DataModel/DataPath";
-import DataModelBase from "../DataModel/DataModelBase";
-import EditContext from "./EditContext";
-import { UIModelProps } from "./UIModel";
+import DataPath from '../DataModel/DataPath';
+import DataModelBase from '../DataModel/DataModelBase';
+import EditContext from './EditContext';
+import { UIModelProps } from './UIModel';
 
 export enum ActionType {
   SetValue,
@@ -33,15 +33,15 @@ export interface OpenModalAction extends UIModelAction {
 }
 
 export function createSetValueAction(path: DataPath, data: DataModelBase): SetValueAction {
-  return { type: ActionType.SetValue, path, data }
+  return { type: ActionType.SetValue, path, data };
 }
 
 export function createChangeEditContextAction(editContext: EditContext): ChangeEditContextAction {
-  return { type: ActionType.ChangeEditContext, editContext }
+  return { type: ActionType.ChangeEditContext, editContext };
 }
 
 export function createOpenModalAction(modelProps: UIModelProps, onSubmit: NotifyDataFunction): OpenModalAction {
-  return { type: ActionType.OpenModal, modelProps, onSubmit }
+  return { type: ActionType.OpenModal, modelProps, onSubmit };
 }
 
 export function createCloseModalAction(): UIModelAction {

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TextUIModel from "../UIModel/TextUIModel";
+import TextUIModel from '../UIModel/TextUIModel';
 
 interface Props extends UIViewBaseProps {
   model: TextUIModel;

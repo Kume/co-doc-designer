@@ -1,6 +1,6 @@
-import DataModelBase, { CollectionDataModel, CollectionIndex } from "./DataModelBase";
-import MapDataModel from "./MapDataModel";
-import ListDataModel from "./ListDataModel";
+import DataModelBase, { CollectionDataModel, CollectionIndex } from './DataModelBase';
+import MapDataModel from './MapDataModel';
+import ListDataModel from './ListDataModel';
 
 export enum CollectionDataModelType {
   Map,

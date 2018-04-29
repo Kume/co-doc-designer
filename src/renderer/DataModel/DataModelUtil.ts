@@ -1,4 +1,4 @@
-import DataModelBase from "./DataModelBase";
+import DataModelBase from './DataModelBase';
 
 export default class DataModelUtil {
   public static equals(a: DataModelBase | undefined, b: DataModelBase | undefined): boolean {

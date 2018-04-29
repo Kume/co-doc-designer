@@ -2,12 +2,11 @@ import * as React from 'react';
 import UIViewFactory from './UIViewFactory';
 import DataModelFactory from '../DataModel/DataModelFactory';
 import { UIDefinitionFactory } from '../UIDefinition/UIDefinitionFactory';
-import UIModel from "../UIModel/UIModel";
-import { UIModelManager } from "../UIModel/UIModelManager";
-import { sampleDataForUIConfig, sampleUIConfig } from "../UIDefinition/SampleData/SampleUIConfig";
-import DataModelBase from "../DataModel/DataModelBase";
-import UIDefinitionBase from "../UIDefinition/UIDefinitionBase";
-import UIDefinitionConfigObject from "../UIDefinition/UIDefinitionConfigObject";
+import UIModel from '../UIModel/UIModel';
+import { UIModelManager } from '../UIModel/UIModelManager';
+import { sampleDataForUIConfig, sampleUIConfig } from '../UIDefinition/SampleData/SampleUIConfig';
+import DataModelBase from '../DataModel/DataModelBase';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 
 interface Props {}
 interface State {
@@ -24,10 +23,10 @@ export default class RootUIView extends React.Component<Props, State> {
       DataModelFactory.create(sampleDataForUIConfig),
       UIDefinitionFactory.create(sampleUIConfig));
     this._manager.notifyModelChanged = () => {
-      this.setState({model: this._manager.model})
+      this.setState({model: this._manager.model});
     };
     this._manager.notifyModalModelChanged = () => {
-      this.setState({modalModel: this._manager.modalModel})
+      this.setState({modalModel: this._manager.modalModel});
     };
     this.state = {
       model: this._manager.model,
@@ -41,7 +40,7 @@ export default class RootUIView extends React.Component<Props, State> {
 
   public load(definition: UIDefinitionBase, data: DataModelBase) {
     this._manager.initialize(DataModelFactory.create(data), definition);
-    this.setState({model: this._manager.model, modalModel: undefined})
+    this.setState({model: this._manager.model, modalModel: undefined});
   }
 
   public render(): React.ReactNode {
@@ -61,7 +60,11 @@ export default class RootUIView extends React.Component<Props, State> {
             <div className="ui-root--modal-background" onClick={() => this._manager.closeModal()}>
               <div className="ui-root-modal-content" onClick={(e) => e.stopPropagation()}>
                 <ModalContentComponent model={modalModel!} dispatch={this._manager.dispatchForModal} />
-                <input type="button" onClick={() => this._manager.onModalSubmit(this._manager.modalData!)} value="submit"/>
+                <input
+                  type="button"
+                  onClick={() => this._manager.onModalSubmit(this._manager.modalData!)}
+                  value="submit"
+                />
               </div>
             </div>
           )}

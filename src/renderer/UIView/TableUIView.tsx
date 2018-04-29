@@ -4,9 +4,9 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import * as Handsontable from 'handsontable';
 import TextUIDefinition from '../UIDefinition/TextUIDefinition';
 import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
-import TableUIModel from "../UIModel/TableUIModel";
-import TextUIModel from "../UIModel/TextUIModel";
-import CheckBoxUIModel from "../UIModel/CheckBoxUIModel";
+import TableUIModel from '../UIModel/TableUIModel';
+import TextUIModel from '../UIModel/TextUIModel';
+import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
 
 // 定数未定義エラーを防ぐために適当に定義しておく。
 /* tslint:disable */
@@ -17,29 +17,15 @@ window['__HOT_BASE_VERSION__'] = '';
 const HotTable = require('react-handsontable');
 /* tslint:enable */
 
-
 interface Props extends UIViewBaseProps {
   model: TableUIModel;
 }
 
 interface State extends UIViewBaseState {
-  hottableData: Array<Array<any>>
+  hottableData: Array<Array<any>>;
 }
 
 export default class TableUIView extends UIViewBase<Props, State> {
-  constructor(props: Props, context?: any) {
-    super(props, context);
-    this.state = {
-      hottableData: TableUIView.getData(props.model)
-    }
-  }
-
-  render(): React.ReactNode {
-    return (
-      <HotTable data={TableUIView.getData(this.props.model)} settings={this.settings} />
-    );
-  }
-
   private static getData(model: TableUIModel): Array<Array<any>> {
     return model.children.map(row => {
       return row!.map(cell => {
@@ -48,9 +34,22 @@ export default class TableUIView extends UIViewBase<Props, State> {
         } else if (cell instanceof CheckBoxUIModel) {
           return cell.isChecked;
         }
-        return ''
+        return '';
       }).toArray();
     }).toArray();
+  }
+
+  constructor(props: Props, context?: any) {
+    super(props, context);
+    this.state = {
+      hottableData: TableUIView.getData(props.model)
+    };
+  }
+
+  render(): React.ReactNode {
+    return (
+      <HotTable data={TableUIView.getData(this.props.model)} settings={this.settings} />
+    );
   }
 
   private get settings(): Handsontable._Handsontable.DefaultSettings {

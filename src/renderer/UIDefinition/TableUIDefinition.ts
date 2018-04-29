@@ -6,8 +6,8 @@ import MapDataModel from '../DataModel/MapDataModel';
 import UIDefinitionBase from './UIDefinitionBase';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
-import CollectionDataModelUtil, { CollectionDataModelType } from "../DataModel/CollectionDataModelUtil";
-import DataModelFactory from "../DataModel/DataModelFactory";
+import CollectionDataModelUtil, { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
+import DataModelFactory from '../DataModel/DataModelFactory';
 
 export interface TableUIDefinitionConfigObject extends UIDefinitionConfigObject {
   dataType?: string;

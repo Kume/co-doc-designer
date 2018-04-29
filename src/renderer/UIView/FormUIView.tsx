@@ -1,7 +1,7 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
-import FormUIModel from "../UIModel/FormUIModel";
+import FormUIModel from '../UIModel/FormUIModel';
 
 interface Props extends UIViewBaseProps {
   model: FormUIModel;

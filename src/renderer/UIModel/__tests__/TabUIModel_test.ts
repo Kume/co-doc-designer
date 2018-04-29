@@ -1,10 +1,10 @@
-import { UIDefinitionFactory } from "../../UIDefinition/UIDefinitionFactory";
-import DataModelFactory from "../../DataModel/DataModelFactory";
-import DataPath from "../../DataModel/DataPath";
-import EditContext from "../EditContext";
-import TabUIModel from "../TabUIModel";
-import TextUIModel from "../TextUIModel";
-import { UIModelManager } from "../UIModelManager";
+import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
+import DataModelFactory from '../../DataModel/DataModelFactory';
+import DataPath from '../../DataModel/DataPath';
+import EditContext from '../EditContext';
+import TabUIModel from '../TabUIModel';
+import TextUIModel from '../TextUIModel';
+import { UIModelManager } from '../UIModelManager';
 
 const simpleUIDefinition = UIDefinitionFactory.create({
   type: 'tab',
@@ -55,7 +55,7 @@ describe('Unit tests for TabUIModel', () => {
       childModel.inputText(manager.dispatch, 'changed');
       childModel = (manager.model as TabUIModel).childModel as TextUIModel;
       expect(childModel.text).toBe('changed');
-    })
+    });
   });
 
   describe('Unit tests for ContentListUIModel.selectTab', () => {
@@ -67,5 +67,5 @@ describe('Unit tests for TabUIModel', () => {
       expect(resultModel.childModel).toBeInstanceOf(TextUIModel);
       expect((resultModel.childModel as TextUIModel).text).toBe('second');
     });
-  })
+  });
 });

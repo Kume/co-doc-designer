@@ -10,11 +10,11 @@ const DataPathRecord = Record({
 export type DataPathElementsCompatible = DataPathElementCompatible | Array<DataPathElementCompatible>;
 
 export default class DataPath extends DataPathRecord {
+  public static readonly empty: DataPath = new DataPath([]);
+
   public readonly elements: List<DataPathElement>;
   public readonly isAbsolute: boolean;
   public readonly pointsKey: boolean;
-
-  public static readonly empty: DataPath = new DataPath([]);
 
   public constructor(elements: DataPathElementsCompatible) {
     if (!(elements instanceof DataPathElement) && !Array.isArray(elements)) {
@@ -43,7 +43,7 @@ export default class DataPath extends DataPathRecord {
           pointsKey: true
         });
       } else {
-        super({elements: List<DataPathElement>(pathElements)})
+        super({elements: List<DataPathElement>(pathElements)});
       }
     }
   }

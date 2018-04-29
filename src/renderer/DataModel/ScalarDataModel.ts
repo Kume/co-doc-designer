@@ -60,9 +60,9 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
 }
 
 export class StringDataModel extends ScalarDataModel {
-  public readonly value: string;
-
   public static readonly empty: StringDataModel = new StringDataModel('');
+
+  public readonly value: string;
 
   constructor(value: string) {
     super(value, ScalarDataModelType.String);
@@ -94,9 +94,9 @@ export class BooleanDataModel extends ScalarDataModel {
 }
 
 export class NullDataModel extends ScalarDataModel {
-  public readonly value: null;
-
   public static readonly null: NullDataModel = new NullDataModel();
+
+  public readonly value: null;
 
   constructor() {
     super(null, ScalarDataModelType.Null);

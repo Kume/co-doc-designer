@@ -7,8 +7,8 @@ import * as Yaml from 'js-yaml';
 import DataMapper from './DataModel/DataMapper';
 import * as path from 'path';
 import FileDataStorage from './DataModel/FileDataStorage';
-import { UIDefinitionFactory } from "./UIDefinition/UIDefinitionFactory";
-import UIDefinitionConfigObject from "./UIDefinition/UIDefinitionConfigObject";
+import { UIDefinitionFactory } from './UIDefinition/UIDefinitionFactory';
+import UIDefinitionConfigObject from './UIDefinition/UIDefinitionConfigObject';
 
 const logo = require('./logo.svg');
 
@@ -36,10 +36,10 @@ class App extends React.Component {
     dialog.showOpenDialog({}, (fileNames?: string[]) => {
       if (!fileNames) { return; }
       fs.readFile(fileNames[0], async (err, data) => {
-        const schema = Yaml.safeLoad(data.toString());
-        this.dataMapper = DataMapper.build(schema && schema['fileMap'], new FileDataStorage(path.dirname(fileNames[0])));
+        const schema = Yaml.safeLoad(data.toString()) as any;
+        this.dataMapper = DataMapper.build(schema && schema.fileMap, new FileDataStorage(path.dirname(fileNames[0])));
         const loaded = await this.dataMapper.loadAsync();
-        const model = UIDefinitionFactory.create(schema!['uiRoot'] as UIDefinitionConfigObject);
+        const model = UIDefinitionFactory.create(schema!.uiRoot as UIDefinitionConfigObject);
         this.root!.load(model, loaded);
       });
     });

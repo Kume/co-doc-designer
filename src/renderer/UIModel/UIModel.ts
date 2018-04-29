@@ -1,13 +1,13 @@
-import DataModelBase from "../DataModel/DataModelBase";
-import UIDefinitionBase from "../UIDefinition/UIDefinitionBase";
-import EditContext from "./EditContext";
-import { UIModelAction } from "./UIModelAction";
-import DataPath from "../DataModel/DataPath";
+import DataModelBase from '../DataModel/DataModelBase';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import EditContext from './EditContext';
+import { UIModelAction } from './UIModelAction';
+import DataPath from '../DataModel/DataPath';
 
 export interface UIModelProps {
   definition: UIDefinitionBase;
   data: DataModelBase | undefined;
-  dataPath: DataPath,
+  dataPath: DataPath;
   editContext: EditContext | undefined;
 }
 

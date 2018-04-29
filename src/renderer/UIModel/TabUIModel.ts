@@ -1,14 +1,14 @@
-import { Record } from "immutable";
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from "./UIModel";
-import DataPath from "../DataModel/DataPath";
-import DataModelBase from "../DataModel/DataModelBase";
-import EditContext from "./EditContext";
-import TabUIDefinition from "../UIDefinition/TabUIDefinition";
-import MapDataModel from "../DataModel/MapDataModel";
-import UIDefinitionBase from "../UIDefinition/UIDefinitionBase";
-import { UIModelFactory } from "./UIModelFactory";
-import { createChangeEditContextAction } from "./UIModelAction";
-import DataModelUtil from "../DataModel/DataModelUtil";
+import { Record } from 'immutable';
+import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from './UIModel';
+import DataPath from '../DataModel/DataPath';
+import DataModelBase from '../DataModel/DataModelBase';
+import EditContext from './EditContext';
+import TabUIDefinition from '../UIDefinition/TabUIDefinition';
+import MapDataModel from '../DataModel/MapDataModel';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import { UIModelFactory } from './UIModelFactory';
+import { createChangeEditContextAction } from './UIModelAction';
+import DataModelUtil from '../DataModel/DataModelUtil';
 
 export interface TabUIModelTab {
   title: string;
@@ -29,18 +29,11 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   public readonly dataPath: DataPath;
   public readonly selectedTab: string | undefined;
 
-  constructor(props: UIModelProps) {
-    super({
-      ...props,
-      childModel: TabUIModel.childModel(props)
-    });
-  }
-
   //#region private static function for props
   private static selectedData(props: UIModelProps, selectedTab?: string): DataModelBase | undefined {
     if (props.data instanceof MapDataModel) {
       const content = this.selectedContent(props.definition as TabUIDefinition, props.editContext, selectedTab);
-      return props.data.valueForKey(content.key.asMapKey)
+      return props.data.valueForKey(content.key.asMapKey);
     }
     return undefined;
   }
@@ -58,7 +51,7 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
       }
     } else {
       const contextPathElement = editContext.path.elements.first();
-      if (!contextPathElement.canBeMapKey) { throw new Error('Invalid edit context') }
+      if (!contextPathElement.canBeMapKey) { throw new Error('Invalid edit context'); }
       return TabUIModel.findContent(definition, contextPathElement.asMapKey);
     }
   }
@@ -85,13 +78,20 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   }
   //#endregion
 
+  constructor(props: UIModelProps) {
+    super({
+      ...props,
+      childModel: TabUIModel.childModel(props)
+    });
+  }
+
   public get propsObject(): UIModelProps {
     return {
       definition: this.definition,
       dataPath: this.dataPath,
       data: this.data,
       editContext: this.editContext
-    }
+    };
   }
 
   public get tabs(): Array<TabUIModelTab> {
@@ -106,7 +106,7 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
 
   //#region manipulation
   public selectTab(dispatch: ActionDispatch, tabKey: string): void {
-    dispatch(createChangeEditContextAction(new EditContext(this.dataPath).push(tabKey)))
+    dispatch(createChangeEditContextAction(new EditContext(this.dataPath).push(tabKey)));
   }
   //#endregion
 

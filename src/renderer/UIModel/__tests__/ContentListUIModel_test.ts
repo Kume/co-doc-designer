@@ -1,13 +1,13 @@
-import { TextUIDefinitionConfigObject } from "../../UIDefinition/TextUIDefinition";
-import { UIDefinitionFactory } from "../../UIDefinition/UIDefinitionFactory";
-import { ContentListUIDefinitionConfigObject } from "../../UIDefinition/ContentListUIDefinition";
-import DataModelFactory from "../../DataModel/DataModelFactory";
-import { UIModelManager } from "../UIModelManager";
-import ContentListUIModel from "../ContentListUIModel";
-import EditContext from "../EditContext";
-import TextUIModel from "../TextUIModel";
-import DataPath from "../../DataModel/DataPath";
-import { StringDataModel } from "../../DataModel/ScalarDataModel";
+import { TextUIDefinitionConfigObject } from '../../UIDefinition/TextUIDefinition';
+import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
+import { ContentListUIDefinitionConfigObject } from '../../UIDefinition/ContentListUIDefinition';
+import DataModelFactory from '../../DataModel/DataModelFactory';
+import { UIModelManager } from '../UIModelManager';
+import ContentListUIModel from '../ContentListUIModel';
+import EditContext from '../EditContext';
+import TextUIModel from '../TextUIModel';
+import DataPath from '../../DataModel/DataPath';
+import { StringDataModel } from '../../DataModel/ScalarDataModel';
 
 const simpleUIDefinition = UIDefinitionFactory.create(<ContentListUIDefinitionConfigObject> {
   type: 'contentList',
@@ -43,17 +43,6 @@ describe('Test for ContentListUIModel', () => {
       const child = simpleModel.childModel as TextUIModel;
       expect(child).toBeInstanceOf(TextUIModel);
       expect(child.text).toBe('first');
-    })
-  });
-
-  describe('Test ContentListUIModel.updateProps', () => {
-    it('Simple update props', () => {
-      const nextState = simpleModel.updateProps({
-        ...simpleProps,
-        data: simpleData.setValue(new DataPath([0]), DataModelFactory.create('changed'))
-      }) as ContentListUIModel;
-      const child = nextState.childModel as TextUIModel;
-      expect(child.text).toBe('changed');
     });
   });
 
@@ -64,7 +53,7 @@ describe('Test for ContentListUIModel', () => {
       (manager.model as ContentListUIModel).selectIndex(manager.dispatch, 1);
       const child = (manager.model as ContentListUIModel).childModel as TextUIModel;
       expect(child.text).toBe('second');
-    })
+    });
   });
 
   describe('Unit tests for ContentListUIModel.moveUp and ContentListUIModel.moveDown', () => {

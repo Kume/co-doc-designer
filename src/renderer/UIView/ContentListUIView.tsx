@@ -1,7 +1,7 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
-import ContentListUIModel, { ContentListIndex } from "../UIModel/ContentListUIModel";
+import ContentListUIModel, { ContentListIndex } from '../UIModel/ContentListUIModel';
 
 interface Props extends UIViewBaseProps {
   model: ContentListUIModel;
@@ -17,18 +17,6 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
     this.openAddFormModal = this.openAddFormModal.bind(this);
     this.moveUpForIndex = this.moveUpForIndex.bind(this);
     this.moveDownForIndex = this.moveDownForIndex.bind(this);
-  }
-
-  private moveUpForIndex() {
-    this.props.model.moveUp(this.props.dispatch);
-  }
-
-  private moveDownForIndex() {
-    this.props.model.moveDown(this.props.dispatch);
-  }
-
-  private openAddFormModal() {
-    this.props.model.openAddForm(this.props.dispatch);
   }
 
   public render(): React.ReactNode {
@@ -61,9 +49,21 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
           </div>
         </div>
         <div>
-          { ContentComponent && <ContentComponent model={childModel!} dispatch={this.props.dispatch} /> }
+          {ContentComponent && <ContentComponent model={childModel!} dispatch={this.props.dispatch} />}
         </div>
       </div>
     );
+  }
+
+  private moveUpForIndex() {
+    this.props.model.moveUp(this.props.dispatch);
+  }
+
+  private moveDownForIndex() {
+    this.props.model.moveDown(this.props.dispatch);
+  }
+
+  private openAddFormModal() {
+    this.props.model.openAddForm(this.props.dispatch);
   }
 }

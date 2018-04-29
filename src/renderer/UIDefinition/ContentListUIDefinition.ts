@@ -3,11 +3,11 @@ import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 import DataPathElement from '../DataModel/DataPathElement';
 import DataModelBase, { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
-import UIDefinitionBase from "./UIDefinitionBase";
-import { UIDefinitionFactory } from "./UIDefinitionFactory";
-import DataModelFactory from "../DataModel/DataModelFactory";
-import ListDataModel from "../DataModel/ListDataModel";
-import { CollectionDataModelType, default as CollectionDataModelUtil } from "../DataModel/CollectionDataModelUtil";
+import UIDefinitionBase from './UIDefinitionBase';
+import { UIDefinitionFactory } from './UIDefinitionFactory';
+import DataModelFactory from '../DataModel/DataModelFactory';
+import ListDataModel from '../DataModel/ListDataModel';
+import { CollectionDataModelType, default as CollectionDataModelUtil } from '../DataModel/CollectionDataModelUtil';
 
 export interface ContentListUIDefinitionConfigObject extends UIDefinitionConfigObject {
   listIndexKey?: string;

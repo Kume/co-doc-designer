@@ -10,37 +10,17 @@ const EditContextRecord = Record({
 });
 
 export default class EditContext extends EditContextRecord {
-  public readonly path: DataPath;
-
   public static readonly empty = new EditContext();
 
-  public get pathIsEmpty(): boolean {
-    return this.path.elements.isEmpty();
-  }
+  public readonly path: DataPath;
 
-  public set(key: string, value: any): this {
-    return super.set(key, value) as this;
-  }
-
-  public shift(): this {
-    return this.set('path', this.path.shift());
-  }
-
-  public unshift(pathElement: DataPathElementCompatible): this {
-    return this.set('path', this.path.unshift(pathElement));
-  }
-
-  public pop(): this {
-    return this.set('path', this.path.pop());
-  }
-
-  public push(pathElement: DataPathElementCompatible): this {
-    return this.set('path', this.path.push(pathElement));
-  }
-
-  public currentIndexForData(data?: CollectionDataModel, lastSelectedData?: DataModelBase): CollectionIndex | undefined {
+  public static currentIndexForData(
+    editContext: EditContext | undefined,
+    data?: CollectionDataModel,
+    lastSelectedData?: DataModelBase
+  ): CollectionIndex | undefined {
     if (!data || data.dataIsEmpty) { return undefined; }
-    if (this.path.elements.isEmpty()) {
+    if (!editContext || editContext.path.elements.isEmpty()) {
       if (data instanceof MapDataModel) {
         return data.firstKey;
       } else if (data instanceof ListDataModel) {
@@ -48,7 +28,7 @@ export default class EditContext extends EditContextRecord {
       }
       return undefined;
     }
-    const first = this.path.elements.first();
+    const first = editContext.path.elements.first();
     if (data instanceof MapDataModel) {
       if (first.canBeMapKey) {
         const key = first.asMapKey;
@@ -74,5 +54,29 @@ export default class EditContext extends EditContextRecord {
     } else {
       return !!b && a.equals(b);
     }
+  }
+
+  public get pathIsEmpty(): boolean {
+    return this.path.elements.isEmpty();
+  }
+
+  public set(key: string, value: any): this {
+    return super.set(key, value) as this;
+  }
+
+  public shift(): this {
+    return this.set('path', this.path.shift());
+  }
+
+  public unshift(pathElement: DataPathElementCompatible): this {
+    return this.set('path', this.path.unshift(pathElement));
+  }
+
+  public pop(): this {
+    return this.set('path', this.path.pop());
+  }
+
+  public push(pathElement: DataPathElementCompatible): this {
+    return this.set('path', this.path.push(pathElement));
   }
 }

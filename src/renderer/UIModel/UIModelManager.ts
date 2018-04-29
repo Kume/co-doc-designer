@@ -1,29 +1,29 @@
-import DataPath from "../DataModel/DataPath";
-import DataModelBase from "../DataModel/DataModelBase";
-import UIDefinitionBase from "../UIDefinition/UIDefinitionBase";
-import UIModel, { UIModelProps } from "./UIModel";
+import DataPath from '../DataModel/DataPath';
+import DataModelBase from '../DataModel/DataModelBase';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import UIModel, { UIModelProps } from './UIModel';
 import {
   ActionType, ChangeEditContextAction, NotifyDataFunction, OpenModalAction, SetValueAction,
   UIModelAction
-} from "./UIModelAction";
-import { UIModelFactory } from "./UIModelFactory";
-import EditContext from "./EditContext";
+} from './UIModelAction';
+import { UIModelFactory } from './UIModelFactory';
+import EditContext from './EditContext';
 
 interface Function {
   (): void;
 }
 
 export class UIModelManager {
+  public notifyModelChanged?: Function;
+  public notifyModalModelChanged?: Function;
+  protected _model: UIModel;
   private _data: DataModelBase;
   private _definition: UIDefinitionBase;
-  protected _model: UIModel;
   private _editContext: EditContext = EditContext.empty;
   private _modalData: DataModelBase | undefined;
   private _modalModel: UIModel | undefined;
   private _modalEditContext: EditContext = EditContext.empty;
   private _onModalSubmit: NotifyDataFunction;
-  public notifyModelChanged?: Function;
-  public notifyModalModelChanged?: Function;
 
   public constructor() {
     this.dispatch = this.dispatch.bind(this);
@@ -59,6 +59,8 @@ export class UIModelManager {
       case ActionType.CloseModal:
         this.closeModal();
         break;
+      default:
+        break;
     }
   }
 
@@ -77,6 +79,8 @@ export class UIModelManager {
       case ActionType.CloseModal:
         this.closeModal();
         break;
+      default:
+        break;
     }
   }
 
@@ -85,7 +89,9 @@ export class UIModelManager {
       const newData = this._data.setValue(path, data);
       this._model = this._model.updateData(newData);
       this._data = newData;
-      this.notifyModelChanged && this.notifyModelChanged();
+      if (this.notifyModelChanged) {
+        this.notifyModelChanged();
+      }
     } catch (error) {
       console.log('error', error);
       // TODO Error Handling
@@ -96,7 +102,9 @@ export class UIModelManager {
     try {
       this._model = this._model.updateEditContext(editContext);
       this._editContext = editContext;
-      this.notifyModelChanged && this.notifyModelChanged();
+      if (this.notifyModelChanged) {
+        this.notifyModelChanged();
+      }
     } catch (error) {
       console.log('error', error);
       // TODO Error Handling
@@ -108,7 +116,9 @@ export class UIModelManager {
       this._modalModel = UIModelFactory.create(modelProps);
       this._modalData = modelProps.data;
       this._onModalSubmit = onSubmit;
-      this.notifyModalModelChanged && this.notifyModalModelChanged();
+      if (this.notifyModelChanged) {
+        this.notifyModelChanged();
+      }
     } catch (error) {
       console.log('error', error);
       // TODO Error Handling
@@ -117,7 +127,9 @@ export class UIModelManager {
 
   public closeModal(): void {
     this._modalModel = undefined;
-    this.notifyModalModelChanged && this.notifyModalModelChanged();
+    if (this.notifyModelChanged) {
+      this.notifyModelChanged();
+    }
   }
 
   public setValueForModal(path: DataPath, data: DataModelBase) {
@@ -125,7 +137,9 @@ export class UIModelManager {
       const newData = this._modalData!.setValue(path, data);
       this._modalModel = this._modalModel!.updateData(newData);
       this._modalData = newData;
-      this.notifyModalModelChanged && this.notifyModalModelChanged();
+      if (this.notifyModelChanged) {
+        this.notifyModelChanged();
+      }
     } catch (error) {
       console.log('error', error);
       // TODO Error Handling

@@ -5,7 +5,7 @@ import DataModelBase, {
 import { List, Record } from 'immutable';
 import DataModelFactory from './DataModelFactory';
 import DataPath from './DataPath';
-import DataPathElement from "./DataPathElement";
+import DataPathElement from './DataPathElement';
 
 const ListDataModelRecord = Record({
   list: List<DataModelBase>()
@@ -64,7 +64,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     if (pathElement.type === DataPathElement.Type.After) {
       return this.set('list', this.list.push(value));
     } else if (pathElement.type === DataPathElement.Type.Before) {
-
+      // TODO
     }
 
     return this.set('list', this.list.set(
@@ -132,15 +132,6 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     return this._transposeOrder(index, index + 1);
   }
 
-  private _transposeOrder(index1: number, index2: number): this {
-    const value1 = this.list.get(index1);
-    const value2 = this.list.get(index2);
-    return this.withMutations(map =>
-      map.setIn(['list', index1], value2)
-        .setIn(['list', index2], value1)
-    ) as this;
-  }
-
   public forEachData(sideEffect: DataModelSideEffect): void {
     this.list.forEach(item => sideEffect(item!));
   }
@@ -179,5 +170,14 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
 
   public toString(): string {
     return JSON.stringify(this.toJsonObject());
+  }
+
+  private _transposeOrder(index1: number, index2: number): this {
+    const value1 = this.list.get(index1);
+    const value2 = this.list.get(index2);
+    return this.withMutations(map =>
+      map.setIn(['list', index1], value2)
+        .setIn(['list', index2], value1)
+    ) as this;
   }
 }

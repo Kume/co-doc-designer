@@ -39,8 +39,9 @@ export default class DataModelFactory {
         } else {
           return new MapDataModel(source);
         }
+      default:
+        throw new Error();
     }
-    throw new Error();
   }
 
   public static isDataModel(source: any): source is DataModelBase {

@@ -1,8 +1,8 @@
-import { UIDefinitionFactory } from "../../UIDefinition/UIDefinitionFactory";
-import { TextUIDefinitionConfigObject } from "../../UIDefinition/TextUIDefinition";
-import DataModelFactory from "../../DataModel/DataModelFactory";
-import { UIModelManager } from "../UIModelManager";
-import TextUIModel from "../TextUIModel";
+import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
+import { TextUIDefinitionConfigObject } from '../../UIDefinition/TextUIDefinition';
+import DataModelFactory from '../../DataModel/DataModelFactory';
+import { UIModelManager } from '../UIModelManager';
+import TextUIModel from '../TextUIModel';
 
 const simpleUIDefinition = UIDefinitionFactory.create({
   type: 'text',
@@ -21,7 +21,7 @@ describe('Test for UIModelManager', () => {
       const model = manager.model as TextUIModel;
       expect(model).toBeInstanceOf(TextUIModel);
       expect(model.text).toBe('foo');
-    })
+    });
   });
 
   describe('Test UIModelManager.updateProps', () => {
@@ -32,6 +32,6 @@ describe('Test for UIModelManager', () => {
       const model = manager.model as TextUIModel;
       expect(model).toBeInstanceOf(TextUIModel);
       expect(model.text).toBe('bar');
-    })
-  })
+    });
+  });
 });
