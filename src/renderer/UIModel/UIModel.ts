@@ -3,6 +3,7 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import EditContext from './EditContext';
 import { UIModelAction } from './UIModelAction';
 import DataPath from '../DataModel/DataPath';
+import UIModelState from './UIModelState';
 
 export interface UIModelProps {
   definition: UIDefinitionBase;
@@ -27,6 +28,7 @@ export default interface UIModel {
   readonly definition: UIDefinitionBase;
   readonly editContext: EditContext;
   readonly dataPath: DataPath;
-  updateData(data: DataModelBase | undefined): UIModel;
-  updateEditContext(editContext: EditContext): UIModel;
+  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): UIModel;
+  updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): UIModel;
+  getState(lastState: UIModelState | undefined): UIModelState | undefined;
 }

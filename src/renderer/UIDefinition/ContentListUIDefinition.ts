@@ -42,6 +42,10 @@ export default class ContentListUIDefinition extends SingleContentUIDefinition {
     return this._listIndexKey;
   }
 
+  get dataType(): CollectionDataModelType {
+    return this._dataType;
+  }
+
   get defaultCollection(): CollectionDataModel {
     if (this._dataType === CollectionDataModelType.List) {
       return new ListDataModel([]);

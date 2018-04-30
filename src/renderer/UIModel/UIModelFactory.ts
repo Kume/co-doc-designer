@@ -13,6 +13,7 @@ import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import CheckBoxUIModel from './CheckBoxUIModel';
 import TableUIDefinition from '../UIDefinition/TableUIDefinition';
 import TableUIModel from './TableUIModel';
+import UIModelState from './UIModelState';
 
 type UIDefinitionClass = new (title: string, key: DataPathElement) => UIDefinitionBase;
 type UIModelClass = new (props: UIModelProps) => UIModel;
@@ -20,24 +21,24 @@ type UIModelClass = new (props: UIModelProps) => UIModel;
 export class UIModelFactory {
   private static _modelClasses: Array<[UIDefinitionClass, UIModelClass]> = [];
 
-  public static create(props: UIModelProps): UIModel {
+  public static create(props: UIModelProps, lastState: UIModelState | undefined): UIModel {
     if (props.definition instanceof TextUIDefinition) {
-      return new TextUIModel(props);
+      return new TextUIModel(props, lastState);
     }
     if (props.definition instanceof ContentListUIDefinition) {
-      return new ContentListUIModel(props);
+      return new ContentListUIModel(props, lastState);
     }
     if (props.definition instanceof TabUIDefinition) {
-      return new TabUIModel(props);
+      return new TabUIModel(props, lastState);
     }
     if (props.definition instanceof FormUIDefinition) {
-      return new FormUIModel(props);
+      return new FormUIModel(props, lastState);
     }
     if (props.definition instanceof CheckBoxUIDefinition) {
-      return new CheckBoxUIModel(props);
+      return new CheckBoxUIModel(props, lastState);
     }
     if (props.definition instanceof TableUIDefinition) {
-      return new TableUIModel(props);
+      return new TableUIModel(props, lastState);
     }
     throw new Error('Unknown UI Definition');
   }

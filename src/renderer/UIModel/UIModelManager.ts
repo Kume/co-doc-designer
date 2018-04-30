@@ -8,6 +8,7 @@ import {
 } from './UIModelAction';
 import { UIModelFactory } from './UIModelFactory';
 import EditContext from './EditContext';
+import UIModelState from './UIModelState';
 
 interface Function {
   (): void;
@@ -18,6 +19,7 @@ export class UIModelManager {
   public notifyModalModelChanged?: Function;
   protected _model: UIModel;
   private _data: DataModelBase;
+  private _modelState: UIModelState | undefined;
   private _definition: UIDefinitionBase;
   private _editContext: EditContext = EditContext.empty;
   private _modalData: DataModelBase | undefined;
@@ -31,12 +33,13 @@ export class UIModelManager {
   }
 
   public initialize(data: DataModelBase, definition: UIDefinitionBase) {
-    this._model = UIModelFactory.create({
+    const props = {
       definition,
       data,
       editContext: EditContext.empty,
       dataPath: DataPath.empty
-    });
+    };
+    this._model = UIModelFactory.create(props, undefined);
     this._data = data;
     this._definition = definition;
     this._editContext = EditContext.empty;
@@ -87,7 +90,8 @@ export class UIModelManager {
   public setValue(path: DataPath, data: DataModelBase) {
     try {
       const newData = this._data.setValue(path, data);
-      this._model = this._model.updateData(newData);
+      this._modelState = this._model.getState(this._modelState);
+      this._model = this._model.updateData(newData, this._modelState);
       this._data = newData;
       if (this.notifyModelChanged) {
         this.notifyModelChanged();
@@ -100,7 +104,8 @@ export class UIModelManager {
 
   public changeEditContext(editContext: EditContext): void {
     try {
-      this._model = this._model.updateEditContext(editContext);
+      this._modelState = this._model.getState(this._modelState);
+      this._model = this._model.updateEditContext(editContext, this._modelState);
       this._editContext = editContext;
       if (this.notifyModelChanged) {
         this.notifyModelChanged();
@@ -113,7 +118,7 @@ export class UIModelManager {
 
   public openModal(modelProps: UIModelProps, onSubmit: NotifyDataFunction): void {
     try {
-      this._modalModel = UIModelFactory.create(modelProps);
+      this._modalModel = UIModelFactory.create(modelProps, undefined);
       this._modalData = modelProps.data;
       this._onModalSubmit = onSubmit;
       if (this.notifyModelChanged) {
@@ -135,7 +140,7 @@ export class UIModelManager {
   public setValueForModal(path: DataPath, data: DataModelBase) {
     try {
       const newData = this._modalData!.setValue(path, data);
-      this._modalModel = this._modalModel!.updateData(newData);
+      this._modalModel = this._modalModel!.updateData(newData, undefined);
       this._modalData = newData;
       if (this.notifyModelChanged) {
         this.notifyModelChanged();

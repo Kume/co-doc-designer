@@ -1,6 +1,6 @@
 import DataPath from '../DataModel/DataPath';
 import { Record } from 'immutable';
-import { DataPathElementCompatible } from '../DataModel/DataPathElement';
+import { default as DataPathElement, DataPathElementCompatible } from '../DataModel/DataPathElement';
 import { CollectionDataModel, CollectionIndex, default as DataModelBase } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
@@ -54,6 +54,14 @@ export default class EditContext extends EditContextRecord {
     } else {
       return !!b && a.equals(b);
     }
+  }
+
+  public get firstPathElement(): DataPathElement {
+    return this.path.elements.first();
+  }
+
+  public get lastPathElement(): DataPathElement {
+    return this.path.elements.last();
   }
 
   public get pathIsEmpty(): boolean {

@@ -6,6 +6,7 @@ import DataModelBase from '../DataModel/DataModelBase';
 import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import { createSetValueAction } from './UIModelAction';
 import { BooleanDataModel } from '../DataModel/ScalarDataModel';
+import UIModelState from './UIModelState';
 
 const CheckBoxUIModelRecord = Record({
   ...UIModelPropsDefault
@@ -21,7 +22,7 @@ export default class CheckBoxUIModel extends CheckBoxUIModelRecord implements UI
   public readonly editContext: EditContext;
   public readonly dataPath: DataPath;
 
-  constructor(props: UIModelProps) {
+  constructor(props: UIModelProps, lastState: UIModelState | undefined) {
     super({
       ...props
     });
@@ -68,11 +69,15 @@ export default class CheckBoxUIModel extends CheckBoxUIModelRecord implements UI
     };
   }
 
-  updateData(data: DataModelBase | undefined): this {
+  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): this {
     return this.set('data', data) as this;
   }
 
-  updateEditContext(editContext: EditContext): this {
+  updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): this {
     return this.set('editContext', editContext) as this;
+  }
+
+  getState(lastState: UIModelState | undefined): UIModelState | undefined {
+    return undefined;
   }
 }

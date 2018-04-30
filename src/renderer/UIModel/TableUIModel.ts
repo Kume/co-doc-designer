@@ -13,6 +13,7 @@ import { createSetValueAction } from './UIModelAction';
 import DataModelFactory from '../DataModel/DataModelFactory';
 import DataPathElement from '../DataModel/DataPathElement';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import UIModelState from './UIModelState';
 
 const TableUIModelRecord = Record({
   ...UIModelPropsDefault,
@@ -55,12 +56,13 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
     thisDataPath: DataPath,
     thisEditContext: EditContext | undefined
   ): UIModel {
-    return UIModelFactory.create({
+    const props = {
       data,
       dataPath: thisDataPath.push(row).push(definition!.key),
       editContext: undefined, // TODO
       definition
-    });
+    };
+    return UIModelFactory.create(props, undefined);
   }
 
   private static inputValueForModel(dispatch: ActionDispatch, model: UIModel, value: any) {
@@ -75,8 +77,7 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
     }
   }
 
-  constructor(props: UIModelProps) {
-    console.log('Created table ui model');
+  constructor(props: UIModelProps, lastState: UIModelState | undefined) {
     super({
       ...props,
       children: TableUIModel.children(props)
@@ -117,21 +118,17 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
     });
   }
 
-  public get propsObject(): UIModelProps {
-    return {
-      definition: this.definition,
-      dataPath: this.dataPath,
-      data: this.data,
-      editContext: this.editContext
-    };
-  }
-
-  updateData(data: DataModelBase | undefined): this {
+  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): this {
     return this.set('data', data) as this;
   }
 
-  updateEditContext(editContext: EditContext): this {
+  updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): this {
     return this.set('editContext', editContext) as this;
+  }
+
+  getState(lastState: UIModelState | undefined): UIModelState | undefined {
+    // Tableで扱うような単純な入力はstateを持たない = Tableもstateを保つ必要がない。今のところは。
+    return undefined;
   }
 
   private eachChanges(

@@ -9,6 +9,7 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { UIModelFactory } from './UIModelFactory';
 import { createChangeEditContextAction } from './UIModelAction';
 import DataModelUtil from '../DataModel/DataModelUtil';
+import UIModelState from './UIModelState';
 
 export interface TabUIModelTab {
   title: string;
@@ -16,9 +17,15 @@ export interface TabUIModelTab {
   isSelected: boolean;
 }
 
+interface TabUIModelState extends UIModelState {
+  children: {[key: string]: UIModelState};
+  selectedTab: string | undefined;
+}
+
 const TabUIModelRecord = Record({
   ...UIModelPropsDefault,
-  childModel: undefined
+  childModel: undefined,
+  selectedTab: undefined
 });
 
 export default class TabUIModel extends TabUIModelRecord implements UIModel, UIModelProps {
@@ -30,10 +37,9 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   public readonly selectedTab: string | undefined;
 
   //#region private static function for props
-  private static selectedData(props: UIModelProps, selectedTab?: string): DataModelBase | undefined {
-    if (props.data instanceof MapDataModel) {
-      const content = this.selectedContent(props.definition as TabUIDefinition, props.editContext, selectedTab);
-      return props.data.valueForKey(content.key.asMapKey);
+  private static dataForContent(data: DataModelBase | undefined, content: UIDefinitionBase): DataModelBase | undefined {
+    if (data instanceof MapDataModel) {
+      return data.valueForKey(content.key.asMapKey);
     }
     return undefined;
   }
@@ -41,11 +47,11 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   private static selectedContent(
     definition: TabUIDefinition,
     editContext: EditContext | undefined,
-    selectedTab?: string
+    lastState: TabUIModelState | undefined
   ): UIDefinitionBase {
     if (!editContext || editContext.pathIsEmpty) {
-      if (selectedTab) {
-        return TabUIModel.findContent(definition, selectedTab);
+      if (lastState && lastState.selectedTab) {
+        return TabUIModel.findContent(definition, lastState.selectedTab);
       } else {
         return definition.contents.first();
       }
@@ -65,33 +71,49 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
     throw new Error();
   }
 
-  private static childModel(props: UIModelProps): UIModel {
-    const selectedContent = this.selectedContent(props.definition as TabUIDefinition, props.editContext);
-    const selectedData = this.selectedData(props);
+  private static childModel(
+    selectedContent: UIDefinitionBase,
+    editContext: EditContext | undefined,
+    data: DataModelBase | undefined,
+    dataPath: DataPath,
+    lastState: TabUIModelState | undefined
+  ): UIModel {
+    const selectedData = this.dataForContent(data, selectedContent);
     const childProps: UIModelProps = {
-      editContext: props.editContext && props.editContext.shift(),
+      editContext: editContext && editContext.shift(),
       definition: selectedContent,
       data: selectedData,
-      dataPath: props.dataPath.push(selectedContent.key)
+      dataPath: dataPath.push(selectedContent.key)
     };
-    return UIModelFactory.create(childProps);
+    return UIModelFactory.create(childProps, lastState && lastState.children[selectedContent.key.asMapKey]);
+  }
+
+  private static childStateForContent(
+    state: TabUIModelState | undefined,
+    content: UIDefinitionBase
+  ): UIModelState | undefined {
+    if (state) {
+      return state.children[content.key.asMapKey];
+    }
+    return undefined;
+  }
+
+  private static castState(state: UIModelState | undefined): TabUIModelState | undefined {
+    return state && state.type === 'tab' ? state as TabUIModelState : undefined;
   }
   //#endregion
 
-  constructor(props: UIModelProps) {
+  constructor(props: UIModelProps, lastState: UIModelState | undefined) {
+    const tabState = TabUIModel.castState(lastState);
+    const selectedContent = TabUIModel.selectedContent(
+      props.definition as TabUIDefinition,
+      props.editContext,
+      tabState);
     super({
       ...props,
-      childModel: TabUIModel.childModel(props)
+      childModel: TabUIModel.childModel(selectedContent, props.editContext, props.data, props.dataPath, tabState),
+      selectedTab: selectedContent.key.asMapKey
     });
-  }
-
-  public get propsObject(): UIModelProps {
-    return {
-      definition: this.definition,
-      dataPath: this.dataPath,
-      data: this.data,
-      editContext: this.editContext
-    };
   }
 
   public get tabs(): Array<TabUIModelTab> {
@@ -99,7 +121,7 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
       return {
         title: content.title,
         key: content.key.asMapKey,
-        isSelected: content === TabUIModel.selectedContent(this.definition, this.editContext)
+        isSelected: content.key.asMapKey === this.selectedTab
       };
     });
   }
@@ -110,24 +132,68 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   }
   //#endregion
 
-  updateData(data: DataModelBase | undefined): UIModel {
+  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): UIModel {
     let newModel = this.set('data', data) as this;
-    const selectedData = TabUIModel.selectedData({...this.propsObject, data});
+    const tabLastState = TabUIModel.castState(lastState);
+    const selectedContent = TabUIModel.selectedContent(this.definition, this.editContext, tabLastState);
+    const selectedData = TabUIModel.dataForContent(data, selectedContent);
     if (!DataModelUtil.equals(selectedData, this.childModel.data)) {
-      newModel = newModel.set('childModel', this.childModel.updateData(selectedData)) as this;
+      const lastTabState = TabUIModel.castState(lastState);
+      const lastChildState = TabUIModel.childStateForContent(lastTabState, selectedContent);
+      newModel = newModel.set('childModel', this.childModel.updateData(selectedData, lastChildState)) as this;
     }
     return newModel;
   }
 
-  updateEditContext(editContext: EditContext): this {
+  //#region implementation for UIModel
+  updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): this {
     let newModel = this.set('editContext', editContext) as this;
-    const selectedContent = TabUIModel.selectedContent(this.definition, editContext, this.selectedTab);
-    const currentContent = TabUIModel.selectedContent(this.definition, this.editContext, this.selectedTab);
+    const tabLastState = TabUIModel.castState(lastState);
+    const selectedContent = TabUIModel.selectedContent(this.definition, editContext, tabLastState);
+    const currentContent = TabUIModel.selectedContent(this.definition, this.editContext, tabLastState);
+    const lastTabState = TabUIModel.castState(lastState);
     if (selectedContent !== currentContent) {
-      newModel = newModel.set('childModel', TabUIModel.childModel({...this.propsObject, editContext})) as this;
+      const childModel = TabUIModel.childModel(selectedContent, editContext, this.data, this.dataPath, lastTabState);
+      newModel = newModel.withMutations(mutator => mutator
+        .set('childModel', childModel)
+        .set('selectedTab', selectedContent.key.asMapKey)) as this;
     } else {
-      newModel = newModel.set('childModel', this.childModel.updateEditContext(editContext.shift())) as this;
+      const childState = TabUIModel.childStateForContent(lastTabState, selectedContent);
+      newModel = newModel.set('childModel', this.childModel.updateEditContext(editContext.shift(), childState)) as this;
     }
     return newModel;
   }
+
+  getState(lastState: UIModelState | undefined): TabUIModelState | undefined {
+    let isChanged: boolean = false;
+    const lastTabState = TabUIModel.castState(lastState);
+    const children: {[key: string]: UIModelState} = lastTabState ? {...lastTabState.children} : {};
+
+    if (this.selectedTab) {
+      const lastChildState = children[this.selectedTab];
+      const childState = this.childModel.getState(lastChildState);
+      if (childState) {
+        if (children[this.selectedTab] !== childState) {
+          children[this.selectedTab] = childState;
+          isChanged = true;
+        }
+      } else {
+        if (children[this.selectedTab]) {
+          delete children[this.selectedTab];
+          isChanged = true;
+        }
+      }
+    }
+
+    if (isChanged) {
+      return {
+        type: 'tab',
+        children,
+        selectedTab: this.selectedTab
+      };
+    } else {
+      return lastTabState;
+    }
+  }
+  //#endregion
 }
