@@ -30,6 +30,11 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             title: '論理名'
           },
           {
+            type: 'textarea',
+            key: 'description',
+            title: '説明'
+          },
+          {
             type: 'table',
             key: 'columns',
             title: 'カラム',

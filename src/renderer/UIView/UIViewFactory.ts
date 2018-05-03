@@ -13,6 +13,8 @@ import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
 import CheckBoxUIView from './CheckBoxUIView';
 import TableUIModel from '../UIModel/TableUIModel';
 import TableUIView from './TableUIView';
+import TextAreaUIView from './TextAreaUIView';
+import TextAreaUIModel from '../UIModel/TextAreaUIModel';
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel): ComponentClass<UIViewBaseProps> {
@@ -21,6 +23,9 @@ export default class UIViewFactory {
     }
     if (model instanceof TextUIModel) {
       return TextUIView;
+    }
+    if (model instanceof TextAreaUIModel) {
+      return TextAreaUIView;
     }
     if (model instanceof TabUIModel) {
       return TabUIView;

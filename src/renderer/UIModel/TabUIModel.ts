@@ -132,6 +132,7 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   }
   //#endregion
 
+  //#region implementation for UIModel
   updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): UIModel {
     let newModel = this.set('data', data) as this;
     const tabLastState = TabUIModel.castState(lastState);
@@ -145,7 +146,6 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
     return newModel;
   }
 
-  //#region implementation for UIModel
   updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): this {
     let newModel = this.set('editContext', editContext) as this;
     const tabLastState = TabUIModel.castState(lastState);
