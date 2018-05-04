@@ -49,7 +49,11 @@ export default class ContentListUIView extends UIViewBase<Props, State> {
           </div>
         </div>
         <div>
-          {ContentComponent && <ContentComponent model={childModel!} dispatch={this.props.dispatch} />}
+          {ContentComponent && <ContentComponent
+            model={childModel!}
+            dispatch={this.props.dispatch}
+            collectValue={this.props.collectValue}
+          />}
         </div>
       </div>
     );

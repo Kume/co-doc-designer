@@ -1,0 +1,36 @@
+Expression
+  = JoinedPath
+
+JoinedPath
+  = head:(WildWord / Word / PathVariable) tail:("." JoinedPath)? {
+    let words = [head];
+    if (Array.isArray(tail)) {
+      words = words.concat(tail[1]);
+    }
+    return words;
+  }
+
+PathVariable
+  = "[" variable: JoinedPath "]" {
+    return {
+      type: 'variable',
+      path: variable
+    }
+  }
+
+_ "whitespace"
+  = [ \t\n\r]*
+
+WildWord
+  = head:Word? "*" tail:Word? {
+    const words = [];
+    if (head) { words.push(head); }
+    if (tail) { words.push(tail); }
+    return {
+      type: 'wildcard',
+      words: words
+    }
+  }
+
+Word
+  = [a-zA-Z0-9]+ { return text(); }

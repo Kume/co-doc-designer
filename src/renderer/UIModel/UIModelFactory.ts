@@ -14,6 +14,8 @@ import TableUIModel from './TableUIModel';
 import UIModelState from './UIModelState';
 import TextAreaUIDefinition from '../UIDefinition/TextAreaUIDefinition';
 import TextAreaUIModel from './TextAreaUIModel';
+import SelectUIDefinition from '../UIDefinition/SelectUIDefinition';
+import SelectUIModel from './SelectUIModel';
 
 export class UIModelFactory {
   public static create(props: UIModelProps, lastState: UIModelState | undefined): UIModel {
@@ -34,6 +36,9 @@ export class UIModelFactory {
     }
     if (props.definition instanceof CheckBoxUIDefinition) {
       return new CheckBoxUIModel(props, lastState);
+    }
+    if (props.definition instanceof SelectUIDefinition) {
+      return new SelectUIModel(props, lastState);
     }
     if (props.definition instanceof TableUIDefinition) {
       return new TableUIModel(props, lastState);

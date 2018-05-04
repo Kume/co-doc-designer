@@ -15,6 +15,8 @@ import TableUIModel from '../UIModel/TableUIModel';
 import TableUIView from './TableUIView';
 import TextAreaUIView from './TextAreaUIView';
 import TextAreaUIModel from '../UIModel/TextAreaUIModel';
+import SelectUIModel from '../UIModel/SelectUIModel';
+import SelectUIView from './SelectUIView';
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel): ComponentClass<UIViewBaseProps> {
@@ -35,6 +37,9 @@ export default class UIViewFactory {
     }
     if (model instanceof CheckBoxUIModel) {
       return CheckBoxUIView;
+    }
+    if (model instanceof SelectUIModel) {
+      return SelectUIView;
     }
     if (model instanceof TableUIModel) {
       return TableUIView;

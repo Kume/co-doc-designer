@@ -1,11 +1,20 @@
 import DataPathElement, { DataPathElementCompatible } from './DataPathElement';
 import { List, Record } from 'immutable';
+import * as PathParser from './Path/PathParser';
 
 const DataPathRecord = Record({
   elements: List<DataPathElement>(),
   isAbsolute: false,
   pointsKey: false
 });
+
+interface ParsedPathElement {
+  type: string;
+  words?: Array<string>;
+  path?: ParsedPath;
+}
+
+type ParsedPath = Array<ParsedPathElement | string>;
 
 export type DataPathElementsCompatible = DataPathElementCompatible | Array<DataPathElementCompatible>;
 
@@ -15,6 +24,24 @@ export default class DataPath extends DataPathRecord {
   public readonly elements: List<DataPathElement>;
   public readonly isAbsolute: boolean;
   public readonly pointsKey: boolean;
+
+  public static parse(value: string): DataPath {
+    const parsed = PathParser.parse(value) as ParsedPath;
+    return this._parse(parsed);
+  }
+  private static _parse(parsed: ParsedPath): DataPath {
+    return new DataPath(parsed.map(parsedElement => {
+      if (typeof parsedElement === 'string') {
+        return DataPathElement.parse(parsedElement);
+      } else if (parsedElement.type === 'wildcard') {
+        return DataPathElement.wildCard;
+      } else if (parsedElement.type === 'variable') {
+        return DataPathElement.variable(this._parse(parsedElement.path!));
+      } else {
+        throw new Error();
+      }
+    }));
+  }
 
   public constructor(elements: DataPathElementsCompatible) {
     if (!(elements instanceof DataPathElement) && !Array.isArray(elements)) {
@@ -54,6 +81,10 @@ export default class DataPath extends DataPathRecord {
 
   public set(key: string, value: any): this {
     return super.set(key, value) as this;
+  }
+
+  public get firstElement(): DataPathElement {
+    return this.elements.first();
   }
 
   public unshift(path: DataPathElementCompatible): this {

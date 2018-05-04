@@ -1,6 +1,7 @@
 import UIDefinitionConfigObject from '../UIDefinitionConfigObject';
 import { TextUIDefinitionConfigObject } from '../TextUIDefinition';
 import { ContentListUIDefinitionConfigObject } from '../ContentListUIDefinition';
+import { SelectUIDefinitionConfigObject } from '../SelectUIDefinition';
 
 export const sampleUIConfig: UIDefinitionConfigObject = {
   type: 'tab',
@@ -18,7 +19,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
         key: '',
         title: '',
         contents: [
-          <TextUIDefinitionConfigObject> {
+          {
             type: 'text',
             key: '$key',
             title: '物理名',
@@ -28,6 +29,14 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             type: 'text',
             key: 'label',
             title: '論理名'
+          },
+          <SelectUIDefinitionConfigObject> {
+            type: 'select',
+            key: 'category',
+            title: 'カテゴリー',
+            options: {
+              path: 'functions.*.name'
+            }
           },
           {
             type: 'textarea',
@@ -48,6 +57,18 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                 type: 'text',
                 key: 'label',
                 title: '論理名'
+              },
+              {
+                type: 'text',
+                key: 'type',
+                title: '型',
+                options: [
+                  'varchar',
+                  'int',
+                  'smallint',
+                  'text',
+                  'longtext'
+                ],
               },
               {
                 type: 'checkbox',
@@ -83,10 +104,13 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
       key: 'messages',
       title: 'メッセージ',
       contents: [
-        {
-          type: 'text',
+        <SelectUIDefinitionConfigObject> {
+          type: 'select',
           key: 'category',
-          title: 'カテゴリー'
+          title: 'カテゴリー',
+          options: {
+            path: 'functions.*.name'
+          }
         },
         {
           type: 'text',
@@ -99,6 +123,36 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
           title: 'メッセージ'
         }
       ]
+    },
+    {
+      type: 'table',
+      key: 'words',
+      title: '用語集',
+      contents: [
+        {
+          type: 'text',
+          key: 'category',
+          title: 'カテゴリー'
+        },
+      ]
+    },
+    <ContentListUIDefinitionConfigObject> {
+      type: 'contentList',
+      key: 'functions',
+      title: '機能',
+      dataType: 'map',
+      listIndexKey: 'name',
+      content: {
+        type: 'text',
+        key: 'test',
+        title: 'test'
+      },
+      addFormContent: {
+        type: 'text',
+        key: 'test',
+        title: 'test'
+      },
+      addFormDefaultValue: {}
     }
   ]
 };
@@ -111,7 +165,7 @@ export const sampleDataForUIConfig = {
         {
           name: 'id',
           label: 'ID',
-          type: 'integer',
+          type: 'int',
           length: 11,
           nullable: false,
           autoIncrement: true
@@ -131,9 +185,16 @@ export const sampleDataForUIConfig = {
           nullable: false
         },
         {
+          name: 'assignee_user_id',
+          label: '担当者ID',
+          type: 'int',
+          length: 11,
+        },
+        {
           name: 'create_user_id',
           label: '作成者ID',
-          type: 'integer',
+          type: 'int',
+          length: 11,
           nullable: false
         }
       ]
@@ -144,14 +205,28 @@ export const sampleDataForUIConfig = {
         {
           name: 'id',
           label: 'ID',
-          type: 'integer',
+          type: 'int',
           length: 11,
           nullable: false,
           autoIncrement: true
         },
         {
-          name: 'last_name',
-          label: '姓',
+          name: 'name',
+          label: '名前',
+          type: 'varchar',
+          length: 255,
+          nullable: false
+        },
+        {
+          name: 'code',
+          label: 'コード',
+          type: 'varchar',
+          length: 255,
+          nullable: false
+        },
+        {
+          name: 'email',
+          label: 'メールアドレス',
           type: 'varchar',
           length: 255,
           nullable: false
@@ -161,14 +236,39 @@ export const sampleDataForUIConfig = {
   },
   messages: [
     {
-      category: '共通',
+      category: 'common',
       key: 'system-error',
       message: '原因不明のエラーが発生しました。システム管理者にお問い合わせください。'
     },
     {
-      category: '共通',
+      category: 'common',
       key: 'network-offline',
       message: 'インターネットに接続できません。'
     }
-  ]
+  ],
+  functions: {
+    common: {
+      name: '共通機能',
+      pages: {}
+    },
+    user: {
+      name: 'ユーザー管理機能',
+      pages: {
+        create_user_form: {
+          type: 'create_form',
+          inputs: [
+            {
+
+            }
+          ]
+        }
+      }
+    },
+    task: {
+      name: 'タスク管理機能',
+      pages: {
+
+      }
+    }
+  }
 };

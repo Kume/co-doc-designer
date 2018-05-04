@@ -54,4 +54,23 @@ describe('Unit tests for ListDataModel', () => {
       expect(moved.getValueForIndex(1)).toEqual(new StringDataModel('first'));
     });
   });
+
+  describe('Unit tests for ListDataModel.collectValue', () => {
+    it('Can collect single value', () => {
+      const model = DataModelFactory.create(['first', 'second', 'third']) as ListDataModel;
+      const path = DataPath.parse('1');
+      const collected = model.collectValue(path);
+      expect(collected.length).toBe(1);
+      expect((<StringDataModel> collected[0]).value).toBe('second');
+    });
+
+    it('Can collect with single wild card', () => {
+      const model = DataModelFactory.create(['first', 'second', 'third']) as ListDataModel;
+      const path = DataPath.parse('*');
+      const collected = model.collectValue(path);
+      expect(collected.length).toBe(3);
+      expect((<StringDataModel> collected[1]).value).toBe('second');
+      expect((<StringDataModel> collected[2]).value).toBe('third');
+    });
+  });
 });

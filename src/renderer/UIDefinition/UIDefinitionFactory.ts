@@ -9,6 +9,7 @@ import FormUIDefinition from './FormUIDefinition';
 import TabUIDefinition from './TabUIDefinition';
 import SingleContentUIDefinition from './SingleContentUIDefinition';
 import TextAreaUIDefinition from './TextAreaUIDefinition';
+import SelectUIDefinition, { SelectUIDefinitionConfigObject } from './SelectUIDefinition';
 
 export class UIDefinitionFactory {
   public static create(config: UIDefinitionConfigObject): UIDefinitionBase {
@@ -32,6 +33,10 @@ export class UIDefinitionFactory {
 
       case 'checkbox':
         model = new CheckBoxUIDefinition(config as CheckBoxUIDefinitionConfigObject);
+        break;
+
+      case 'select':
+        model = new SelectUIDefinition(config as SelectUIDefinitionConfigObject);
         break;
 
       case 'form':

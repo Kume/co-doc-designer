@@ -30,6 +30,7 @@ export class UIModelManager {
   public constructor() {
     this.dispatch = this.dispatch.bind(this);
     this.dispatchForModal = this.dispatchForModal.bind(this);
+    this.collectValue = this.collectValue.bind(this);
   }
 
   public initialize(data: DataModelBase, definition: UIDefinitionBase) {
@@ -45,7 +46,11 @@ export class UIModelManager {
     this._editContext = EditContext.empty;
   }
 
-  public dispatch(action: UIModelAction) {
+  public collectValue(targetPath: DataPath, basePath: DataPath): DataModelBase[] {
+    return this._data.collectValue(targetPath);
+  }
+
+  public dispatch(action: UIModelAction): void {
     switch (action.type) {
       case ActionType.SetValue:
         const setValueAction = action as SetValueAction;

@@ -2,7 +2,7 @@ import * as React from 'react';
 import DataModelBase from '../DataModel/DataModelBase';
 import DataPath from '../DataModel/DataPath';
 import EditContext from '../UIModel/EditContext';
-import { ActionDispatch, default as UIModel } from '../UIModel/UIModel';
+import { ActionDispatch, CollectValue, default as UIModel } from '../UIModel/UIModel';
 
 export interface OnUpdateData {
   (path: DataPath, model: DataModelBase): void;
@@ -19,6 +19,7 @@ export interface OpenModal {
 export interface UIViewBaseProps {
   model: UIModel;
   dispatch: ActionDispatch;
+  collectValue: CollectValue;
 }
 
 export interface UIViewBaseState {}

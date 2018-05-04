@@ -23,6 +23,10 @@ export interface ActionDispatch {
   (action: UIModelAction): void;
 }
 
+export interface CollectValue {
+  (targetPath: DataPath, basePath: DataPath): DataModelBase[];
+}
+
 export default interface UIModel {
   readonly data: DataModelBase | undefined;
   readonly definition: UIDefinitionBase;

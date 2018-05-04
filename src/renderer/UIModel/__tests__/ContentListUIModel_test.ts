@@ -35,7 +35,7 @@ const simpleProps = {
   editContext: new EditContext(),
   dataPath: new DataPath([])
 };
-const simpleModel = new ContentListUIModel(simpleProps);
+const simpleModel = new ContentListUIModel(simpleProps, undefined);
 
 describe('Test for ContentListUIModel', () => {
   describe('Test ContentListUIModel.constructor', () => {

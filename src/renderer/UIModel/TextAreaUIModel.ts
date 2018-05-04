@@ -23,13 +23,6 @@ export default class TextAreaUIModel extends TextAreaUIModelRecord implements UI
   public readonly dataPath: DataPath;
 
   //#region private static function for props
-  private static castState(state: UIModelState | undefined): TextAreaUIModelState | undefined {
-    if (state && state.type === 'textarea') {
-      return state as TextAreaUIModelState;
-    }
-    return undefined;
-  }
-
   //#endregion
 
   public constructor(props: UIModelProps, lastState: UIModelState | undefined) {
@@ -62,17 +55,7 @@ export default class TextAreaUIModel extends TextAreaUIModelRecord implements UI
   }
 
   public getState(lastState: UIModelState | undefined): TextAreaUIModelState | undefined {
-    let isChanged = false;
-    const lastTextAreaState = TextAreaUIModel.castState(lastState);
-
-    if (isChanged) {
-      return {
-        type: 'textarea'
-      };
-    } else {
-      return lastTextAreaState;
-    }
+    return undefined;
   }
-
   //#endregion
 }

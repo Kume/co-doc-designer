@@ -42,6 +42,14 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
     }
   }
 
+  public collectValue(path: DataPath): Array<DataModelBase> {
+    if (path.elements.isEmpty()) {
+      return [this];
+    } else {
+      return [];
+    }
+  }
+
   public removeValue(path: DataPath): this {
     throw Error();
   }

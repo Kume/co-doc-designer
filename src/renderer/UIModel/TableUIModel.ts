@@ -77,7 +77,10 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
     }
   }
 
-  constructor(props: UIModelProps, lastState: UIModelState | undefined) {
+  constructor(
+    props: UIModelProps,
+    lastState: UIModelState | undefined)
+  {
     super({
       ...props,
       children: TableUIModel.children(props)

@@ -1,4 +1,5 @@
 import { isUnsignedIntegerString } from '../../common/util';
+import DataPath from './DataPath';
 
 export type DataPathElementSource = string | number;
 export type DataPathElementCompatible = DataPathElementSource | DataPathElement;
@@ -34,6 +35,10 @@ class DataPathElement {
     } else {
       return new DataPathElement(value, DataPathElement.Type.MapKey);
     }
+  }
+
+  public static variable(path: DataPath): DataPathElement {
+    return new DataPathElement(path, DataPathElement.Type.Variable);
   }
 
   public constructor(value: any, type: DataPathElement.Type) {
@@ -78,6 +83,10 @@ class DataPathElement {
   public get isKey(): boolean {
     return this._type === DataPathElement.Type.Key;
   }
+
+  public get isWildCard(): boolean {
+    return this._type === DataPathElement.Type.WildCard;
+  }
 }
 
 namespace DataPathElement {
@@ -88,10 +97,13 @@ namespace DataPathElement {
     Both,
     Before,
     After,
-    Key
+    Key,
+    WildCard,
+    Variable
   }
   export const before = new DataPathElement(undefined, DataPathElement.Type.Before);
   export const after = new DataPathElement(undefined, DataPathElement.Type.After);
+  export const wildCard = new DataPathElement(undefined, DataPathElement.Type.WildCard);
 }
 
 export default DataPathElement;

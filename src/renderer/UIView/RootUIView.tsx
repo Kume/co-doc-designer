@@ -55,11 +55,16 @@ export default class RootUIView extends React.Component<Props, State> {
           <CurrentComponent
             model={model}
             dispatch={this._manager.dispatch}
+            collectValue={this._manager.collectValue}
           />
           {ModalContentComponent && (
             <div className="ui-root--modal-background" onClick={() => this._manager.closeModal()}>
               <div className="ui-root-modal-content" onClick={(e) => e.stopPropagation()}>
-                <ModalContentComponent model={modalModel!} dispatch={this._manager.dispatchForModal} />
+                <ModalContentComponent
+                  model={modalModel!}
+                  dispatch={this._manager.dispatchForModal}
+                  collectValue={this._manager.collectValue}
+                />
                 <input
                   type="button"
                   onClick={() => this._manager.onModalSubmit(this._manager.modalData!)}

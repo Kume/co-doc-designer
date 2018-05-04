@@ -2,11 +2,10 @@ import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import * as Handsontable from 'handsontable';
-import TextUIDefinition from '../UIDefinition/TextUIDefinition';
-import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import TableUIModel from '../UIModel/TableUIModel';
 import TextUIModel from '../UIModel/TextUIModel';
 import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
+import SelectUIModel from '../UIModel/SelectUIModel';
 
 // 定数未定義エラーを防ぐために適当に定義しておく。
 /* tslint:disable */
@@ -68,17 +67,30 @@ export default class TableUIView extends UIViewBase<Props, State> {
   }
 
   private getColumnSettings(row?: number, col?: number, prop?: object) {
-    const model = this.props.model.definition.contents.get(col as number);
-    if (model instanceof TextUIDefinition) {
-      return {
-        type: 'text'
-      };
-    } else if (model instanceof CheckBoxUIDefinition) {
+    const model = this.props.model.dataAt(row!, col!);
+    if (model instanceof TextUIModel) {
+      if (model.definition.options) {
+        return {
+          type: 'autocomplete',
+          source: model.definition.options,
+          strict: false
+        };
+      } else {
+        return {
+          type: 'text'
+        };
+      }
+    } else if (model instanceof CheckBoxUIModel) {
       return {
         type: 'checkbox'
       };
+    } else if (model instanceof SelectUIModel) {
+      return {
+        type: 'dropdown',
+        source: model.options(this.props.collectValue).map(option => option.value)
+      };
     }
-    throw new Error();
+    return {};
   }
 
   private get columnHeaders(): Array<string> {

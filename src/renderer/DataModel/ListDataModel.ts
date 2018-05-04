@@ -6,6 +6,7 @@ import { List, Record } from 'immutable';
 import DataModelFactory from './DataModelFactory';
 import DataPath from './DataPath';
 import DataPathElement from './DataPathElement';
+import { IntegerDataModel } from './ScalarDataModel';
 
 const ListDataModelRecord = Record({
   list: List<DataModelBase>()
@@ -82,6 +83,34 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       } else {
         return undefined;
       }
+    }
+  }
+
+  public collectValue(path: DataPath): Array<DataModelBase> {
+    if (path.elements.isEmpty()) {
+      return [this];
+    }
+
+    const firstElement = path.firstElement;
+    if (firstElement.isWildCard) {
+      if (path.elements.size === 1 && path.pointsKey) {
+        return this.mapDataWithIndex((value, index) => new IntegerDataModel(index as number));
+      } else {
+        let values: Array<DataModelBase> = [];
+        const childPath = path.shift();
+        this.forEachData(data => {
+          values = values.concat(data.collectValue(childPath));
+        });
+        return values;
+      }
+    } else if (firstElement.canBeListIndex && this.isValidIndex(firstElement.asListIndex)) {
+      if (path.elements.size === 1 && path.pointsKey) {
+        return [new IntegerDataModel(firstElement.asListIndex)];
+      } else {
+        return this.list.get(firstElement.asListIndex).collectValue(path.shift());
+      }
+    } else {
+      return [];
     }
   }
 

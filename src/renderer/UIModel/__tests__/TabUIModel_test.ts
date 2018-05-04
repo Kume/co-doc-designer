@@ -37,7 +37,7 @@ const simpleProps = {
 describe('Unit tests for TabUIModel', () => {
   describe('Unit tests for ContentListUIModel.constructor', () => {
     it('Can construct', () => {
-      const model = new TabUIModel(simpleProps);
+      const model = new TabUIModel(simpleProps, undefined);
       expect(model.tabs[0].key).toBe('first_tab');
       expect(model.tabs[0].title).toBe('FirstTab');
       expect(model.tabs[0].isSelected).toBe(true);

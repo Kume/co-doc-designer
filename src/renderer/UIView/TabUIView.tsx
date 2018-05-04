@@ -32,6 +32,7 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
           <CurrentComponent
             model={model.childModel}
             dispatch={dispatch}
+            collectValue={this.props.collectValue}
           />
         </div>
       </div>

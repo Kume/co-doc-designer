@@ -141,6 +141,37 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
+  public collectValue(path: DataPath): Array<DataModelBase> {
+    if (path.elements.isEmpty()) {
+      return [this];
+    }
+
+    if (path.firstElement.isWildCard) {
+      if (path.elements.size === 1 && path.pointsKey) {
+        return this.list.map(node => node!.keyAsDataModel).toArray();
+      } else {
+        let values: Array<DataModelBase> = [];
+        const childPath = path.shift();
+        this.forEachData(data => {
+          values = values.concat(data.collectValue(childPath));
+        });
+        return values;
+      }
+    } else {
+      const index = this.indexForPath(path.firstElement);
+      if (index >= 0) {
+        const node = this.list.get(index);
+        if (path.elements.size === 1 && path.pointsKey) {
+          return [node.keyAsDataModel];
+        } else {
+          return node.value.collectValue(path.shift());
+        }
+      } else {
+        return [];
+      }
+    }
+  }
+
   moveUpForCollectionIndex(index: CollectionIndex): CollectionDataModel {
     if (typeof index === 'string') {
       return this.moveUpForKey(index);

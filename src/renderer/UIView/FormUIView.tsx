@@ -23,6 +23,7 @@ export default class FormUIView extends UIViewBase<Props, UIViewBaseState> {
                 <ContentComponent
                   model={childModel!}
                   dispatch={this.props.dispatch}
+                  collectValue={this.props.collectValue}
                 />
               </div>
             </div>
