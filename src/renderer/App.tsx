@@ -1,6 +1,5 @@
 import * as React from 'react';
 import './App.css';
-import * as CodeMirror from 'react-codemirror';
 import RootUIView from './UIView/RootUIView';
 import * as fs from 'fs';
 import * as Yaml from 'js-yaml';
@@ -10,28 +9,25 @@ import FileDataStorage from './DataModel/FileDataStorage';
 import { UIDefinitionFactory } from './UIDefinition/UIDefinitionFactory';
 import UIDefinitionConfigObject from './UIDefinition/UIDefinitionConfigObject';
 
-const logo = require('./logo.svg');
-
 class App extends React.Component {
-  private editor: CodeMirror.EditorFromTextArea;
+  // private editor: CodeMirror.EditorFromTextArea;
   private root: RootUIView | null = null;
   private dataMapper: DataMapper;
 
-  _initCodemirror(component: any) {
-    if (!component) { return; }
-    this.editor = component.getCodeMirror();
-    const label: HTMLSpanElement = document.createElement('span');
-    label.innerText = 'dddd';
-    label.className = 'label';
-
-    this.editor.getDoc().markText({line: 0, ch: 2}, {line: 0, ch: 5}, {
-      replacedWith: label
-    });
-  }
+  // _initCodemirror(component: any) {
+  //   if (!component) { return; }
+  //   this.editor = component.getCodeMirror();
+  //   const label: HTMLSpanElement = document.createElement('span');
+  //   label.innerText = 'dddd';
+  //   label.className = 'label';
+  //
+  //   this.editor.getDoc().markText({line: 0, ch: 2}, {line: 0, ch: 5}, {
+  //     replacedWith: label
+  //   });
+  // }
 
   _openFile() {
     const electron = require('electron');
-    console.log(electron.remote);
     const dialog = electron.remote.dialog;
     dialog.showOpenDialog({}, (fileNames?: string[]) => {
       if (!fileNames) { return; }
@@ -53,18 +49,18 @@ class App extends React.Component {
   }
 
   render() {
-    const code: string = 'aaaa\nbbbccddc';
+    // const code: string = 'aaaa\nbbbccddc';
 
     return (
       <div className="App">
         <RootUIView ref={ref => this.root = ref}/>
         <input type="button" value="Open" onClick={() => this._openFile()} />
         <input type="button" value="Save" onClick={() => this._saveFile()} />
-        <CodeMirror
-          value={code}
-          options={{lineNumbers: true}}
-          ref={(ref: any) => this._initCodemirror(ref)}
-        />
+        {/*<CodeMirror*/}
+          {/*value={code}*/}
+          {/*options={{lineNumbers: true}}*/}
+          {/*ref={(ref: any) => this._initCodemirror(ref)}*/}
+        {/*/>*/}
       </div>
     );
   }
