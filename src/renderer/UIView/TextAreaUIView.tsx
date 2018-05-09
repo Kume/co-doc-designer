@@ -13,40 +13,12 @@ export default class TextAreaUIView extends UIViewBase<Props, UIViewBaseState> {
   private _codeMirror: CodeMirror.EditorFromTextArea;
   private _textArea: HTMLTextAreaElement;
 
-  // _initCodeMirror(component: any) {
-  //   if (!component || this._codeMirror) { return; }
-  //   this._codeMirror = component.getCodeMirror();
-  //   const label: HTMLSpanElement = document.createElement('span');
-  //   label.innerText = 'dddd';
-  //   label.className = 'label';
-  //
-  //   this._codeMirror.getDoc().markText({line: 0, ch: 2}, {line: 0, ch: 5}, {
-  //     replacedWith: label
-  //   });
-  //   this._codeMirror.on('change', (codeMirror: CodeMirror.Editor) => {
-  //     console.log('onChange', codeMirror, codeMirror.getDoc(), codeMirror.getDoc().getCursor());
-  //     OriginalCodeMirror.showHint(codeMirror, {
-  //       completeSingle: false,
-  //       hint: () => {
-  //         return {
-  //           from: CodeMirror.Pos(1, 3),
-  //           to: CodeMirror.Pos(1, 10),
-  //           list: ['test']
-  //         };
-  //       }
-  //     });
-  //     // codeMirror.showHint({
-  //     //   completeSingle: false,
-  //     //   hint: () => {
-  //     //     return {
-  //     //       from: Pos(1, 3),
-  //     //       to: Pos(1, 10),
-  //     //       list: ['test']
-  //     //     };
-  //     //   }
-  //     // });
-  //   });
-  // }
+  private static _makeTokenElement(text: string): HTMLSpanElement {
+    const span = document.createElement('span');
+    span.innerText = text;
+    span.className = 'label';
+    return span;
+  }
 
   render(): React.ReactNode {
     const { model, dispatch } = this.props;
@@ -70,24 +42,53 @@ export default class TextAreaUIView extends UIViewBase<Props, UIViewBaseState> {
     });
     this._codeMirror.setOption('lineNumbers', true);
     this._codeMirror.setOption('autoCloseBrackets', true);
+    this._codeMirror.on('pick', () => {console.log('pig')});
     this._codeMirror.on('change', (codeMirror) => {
       const doc = codeMirror.getDoc();
       const cursor = doc.getCursor();
-      const line = codeMirror.getDoc().getLine(cursor.line);
-      console.log('onChange', codeMirror, codeMirror.getDoc(), {cursor, line});
+      const line = doc.getLine(cursor.line);
       const templateLine = new TemplateLine(line);
       const currentToken = templateLine.getTemplateTokenOn(cursor.ch);
+      console.log('onChange', {cursor, line, currentToken});
       if (currentToken) {
         codeMirror.showHint({
           completeSingle: false,
           hint: () => {
             return {
               from: CodeMirror.Pos(cursor.line, currentToken.start + 2),
-              to: CodeMirror.Pos(cursor.line, currentToken.end - 2),
-              list: ['test', 'test2']
+              to: CodeMirror.Pos(cursor.line, currentToken.end),
+              list: [
+                {
+                  text: 'test }}',
+                  displayText: 'test'
+                },
+                {
+                  text: 'test2 }}',
+                  displayText: 'test2'
+                }
+              ]
             };
           }
         });
+      }
+
+      const viewPort = this._codeMirror.getViewport();
+      for (let lineIndex = viewPort.from; lineIndex < viewPort.to; lineIndex++) {
+        const currentLine = doc.getLine(lineIndex);
+        const templateLine = new TemplateLine(currentLine);
+        for (const token of templateLine.tokens) {
+          if (cursor.line === lineIndex && currentToken && currentToken.start === token.start) {
+            continue;
+          }
+          const span = TextAreaUIView._makeTokenElement(token.key);
+          doc.markText(
+            CodeMirror.Pos(lineIndex, token.start),
+            CodeMirror.Pos(lineIndex, token.end),
+            {
+              replacedWith: span
+            }
+          )
+        }
       }
     });
   }

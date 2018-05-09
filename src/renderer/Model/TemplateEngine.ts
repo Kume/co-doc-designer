@@ -26,7 +26,7 @@ export class TemplateLine {
       }
       tokens.push({
         start,
-        end: nextEnd + 1,
+        end: nextEnd + 2,
         headKey: '',
         key: line.substr(start + 2, nextEnd - start - 2).trim()
       });
@@ -37,6 +37,10 @@ export class TemplateLine {
   public constructor(line: string) {
     this._line = line;
     this._tokens = TemplateLine.parse(line);
+  }
+
+  get tokens(): TemplateToken[] {
+    return this._tokens;
   }
 
   public getTemplateTokenOn(ch: number): TemplateToken | undefined {
