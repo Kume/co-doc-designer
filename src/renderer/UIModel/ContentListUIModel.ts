@@ -45,24 +45,26 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   public readonly selectedIndex: CollectionIndex | undefined;
 
   //#region private static function for props
-  private static childProps(props: UIModelProps, lastState: UIModelState | undefined): UIModelProps | undefined {
-    const collectionData = CollectionDataModelUtil.asCollectionDataModel(props.data);
-    const index = this.selectedIndex(
-      props.definition as ContentListUIDefinition, props.editContext, collectionData, lastState);
-    if (index === undefined) {
-      return undefined;
-    }
-    const definition = props.definition as ContentListUIDefinition;
-    return {
-      editContext: props.editContext && props.editContext.shift(),
-      dataPath: props.dataPath.push(index),
-      data: CollectionDataModelUtil.getValueForIndex(collectionData, index),
+  private static childProps(
+    definition: ContentListUIDefinition,
+    editContext: EditContext | undefined,
+    data: DataModelBase | undefined,
+    dataPath: DataPath,
+    lastState: UIModelState | undefined
+  ): UIModelProps | undefined {
+    const collectionData = CollectionDataModelUtil.asCollectionDataModel(data);
+    const selectedItem = this.selectedItem(definition, editContext, collectionData, lastState);
+    return selectedItem && {
+      editContext: editContext && editContext.shift(),
+      dataPath: dataPath.push(selectedItem.index),
+      data: selectedItem.data,
       definition: definition.content
     };
   }
 
   private static childModel(props: UIModelProps, lastState: UIModelState | undefined): UIModel | undefined {
-    const childProps = ContentListUIModel.childProps(props, lastState);
+    const childProps = ContentListUIModel.childProps(
+      props.definition as ContentListUIDefinition, props.editContext, props.data, props.dataPath, lastState);
     const contentListLastState = this.castState(lastState);
     return childProps && UIModelFactory.create(childProps, contentListLastState && contentListLastState.child);
   }
@@ -72,6 +74,20 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
       return state as ContentListUIModelState;
     }
     return undefined;
+  }
+
+  private static selectedItem(
+    definition: ContentListUIDefinition,
+    editContext: EditContext | undefined,
+    data: CollectionDataModel | undefined,
+    lastState: UIModelState | undefined
+  ): {index: CollectionIndex, data: DataModelBase | undefined} | undefined {
+    const index = this.selectedIndex(definition, editContext, data, lastState);
+    if (index === undefined) {
+      return undefined;
+    } else {
+      return {index, data: CollectionDataModelUtil.getValueForIndex(data, index)};
+    }
   }
 
   private static selectedIndex(
@@ -248,8 +264,18 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
       return this;
     } else {
       const newModel = this.set('data', data) as this;
-      const childModel = ContentListUIModel.childModel({...(this.propsObject), data}, lastState);
-      return newModel.set('childModel', childModel) as this;
+
+      const collectionData = CollectionDataModelUtil.asCollectionDataModel(this.data);
+      const item = ContentListUIModel.selectedItem(this.definition, this.editContext, collectionData, lastState);
+      if (item) {
+        const contentListLastState = ContentListUIModel.castState(lastState);
+        const childModel = this.childModel
+          ? this.childModel.updateData(item.data, contentListLastState)
+          : ContentListUIModel.childModel({...(this.propsObject), data}, contentListLastState);
+        return newModel.set('childModel', childModel) as this;
+      } else {
+        return newModel.set('childModel', undefined) as this;
+      }
     }
   }
 

@@ -1,4 +1,4 @@
-import DataModelBase from './DataModelBase';
+import DataModelBase, { DataCollectionElement } from './DataModelBase';
 import { Record } from 'immutable';
 import DataPath from './DataPath';
 
@@ -42,9 +42,9 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
     }
   }
 
-  public collectValue(path: DataPath): Array<DataModelBase> {
+  public collectValue(path: DataPath): DataCollectionElement[] {
     if (path.elements.isEmpty()) {
-      return [this];
+      return [{data: this}];
     } else {
       return [];
     }

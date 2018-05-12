@@ -1,5 +1,5 @@
 import DataModelBase, {
-  CollectionDataModel, CollectionIndex,
+  CollectionDataModel, CollectionIndex, DataCollectionElement,
   DataModelConvert,
   DataModelConvertWithIndex,
   DataModelSideEffect
@@ -101,7 +101,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
 
   public toJsonObject(): any {
     const object = {};
-    this.list.forEach((item: MapDataModelElement) => {
+    this._validList.forEach((item: MapDataModelElement) => {
       object[item.key] = item.value.toJsonObject();
     });
     return object;
@@ -141,19 +141,26 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
-  public collectValue(path: DataPath): Array<DataModelBase> {
+  public collectValue(path: DataPath): DataCollectionElement[] {
     if (path.elements.isEmpty()) {
-      return [this];
+      return [{data: this}];
     }
 
     if (path.firstElement.isWildCard) {
       if (path.elements.size === 1 && path.pointsKey) {
-        return this.list.map(node => node!.keyAsDataModel).toArray();
+        return this._validList.map(node => ({
+          index: node!.key,
+          data: node!.keyAsDataModel
+        })).toArray();
       } else {
-        let values: Array<DataModelBase> = [];
+        let values: DataCollectionElement[] = [];
         const childPath = path.shift();
-        this.forEachData(data => {
-          values = values.concat(data.collectValue(childPath));
+        this.forEachData((data, index) => {
+          let tmpValues = data.collectValue(childPath);
+          if (path.isSingleElement) {
+            tmpValues = tmpValues.map(value => ({index, data: value.data}));
+          }
+          values = values.concat(tmpValues);
         });
         return values;
       }
@@ -162,9 +169,14 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       if (index >= 0) {
         const node = this.list.get(index);
         if (path.elements.size === 1 && path.pointsKey) {
-          return [node.keyAsDataModel];
+          return [{ index, data: node.keyAsDataModel}];
         } else {
-          return node.value.collectValue(path.shift());
+          let values = node.value.collectValue(path.shift());
+          if (path.isSingleElement) {
+            return values.map(value => ({index, data: value.data}));
+          } else {
+            return values;
+          }
         }
       } else {
         return [];
@@ -223,7 +235,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
   }
 
   public forEachData(sideEffect: DataModelSideEffect): void {
-    this.list.forEach(item => sideEffect(item!.value));
+    this.list.forEach((item, index) => sideEffect(item!.value, item!.key || index!));
   }
 
   public mapData<T>(converter: DataModelConvert<T>): Array<T> {
@@ -292,5 +304,9 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       map.setIn(['list', index1], value2)
         .setIn(['list', index2], value1)
     ) as this;
+  }
+
+  private get _validList(): List<MapDataModelElement> {
+    return this.list.filter(node => !!node!.key) as List<MapDataModelElement>;
   }
 }

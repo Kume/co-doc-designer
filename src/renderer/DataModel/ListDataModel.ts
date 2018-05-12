@@ -1,5 +1,5 @@
 import DataModelBase, {
-  CollectionDataModel, CollectionIndex, DataModelConvert, DataModelConvertWithIndex,
+  CollectionDataModel, CollectionIndex, DataCollectionElement, DataModelConvert, DataModelConvertWithIndex,
   DataModelSideEffect
 } from './DataModelBase';
 import { List, Record } from 'immutable';
@@ -86,28 +86,40 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     }
   }
 
-  public collectValue(path: DataPath): Array<DataModelBase> {
+  public collectValue(path: DataPath): DataCollectionElement[] {
     if (path.elements.isEmpty()) {
-      return [this];
+      return [{ data: this }];
     }
 
     const firstElement = path.firstElement;
     if (firstElement.isWildCard) {
-      if (path.elements.size === 1 && path.pointsKey) {
-        return this.mapDataWithIndex((value, index) => new IntegerDataModel(index as number));
+      if (path.isSingleElement && path.pointsKey) {
+        return this.mapDataWithIndex((value, index) => ({
+          index, data: new IntegerDataModel(index as number)
+        }));
       } else {
-        let values: Array<DataModelBase> = [];
+        let values: DataCollectionElement[] = [];
         const childPath = path.shift();
-        this.forEachData(data => {
-          values = values.concat(data.collectValue(childPath));
+        this.forEachData((data, index) => {
+          let tmpValues = data.collectValue(childPath);
+          if (path.isSingleElement) {
+            tmpValues = tmpValues.map(value => ({index, data: value.data}));
+          }
+          values = values.concat(tmpValues);
         });
         return values;
       }
     } else if (firstElement.canBeListIndex && this.isValidIndex(firstElement.asListIndex)) {
-      if (path.elements.size === 1 && path.pointsKey) {
-        return [new IntegerDataModel(firstElement.asListIndex)];
+      const index = firstElement.asListIndex;
+      if (path.isSingleElement && path.pointsKey) {
+        return [{ index, data: new IntegerDataModel(index)}];
       } else {
-        return this.list.get(firstElement.asListIndex).collectValue(path.shift());
+        const values = this.list.get(index).collectValue(path.shift());
+        if (path.isSingleElement) {
+          return values.map(value => ({index, data: value.data}));
+        } else {
+          return values;
+        }
       }
     } else {
       return [];
@@ -162,7 +174,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
   }
 
   public forEachData(sideEffect: DataModelSideEffect): void {
-    this.list.forEach(item => sideEffect(item!));
+    this.list.forEach((item, index) => sideEffect(item!, index!));
   }
 
   public mapData<T>(converter: DataModelConvert<T>): Array<T> {

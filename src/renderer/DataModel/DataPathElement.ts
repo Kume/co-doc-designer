@@ -21,15 +21,14 @@ class DataPathElement {
       return value;
     } else if (typeof value === 'number') {
       return new DataPathElement(value, DataPathElement.Type.ListIndex);
-    } else if (typeof value === 'string') {
+    } else {
       return new DataPathElement(value, DataPathElement.Type.MapKey);
     }
-    throw new Error();
   }
 
   public static parse(value: string): DataPathElement {
     if (value === DataPathElement.SpecialName.Key) {
-      return new DataPathElement('', DataPathElement.Type.Key);
+      return DataPathElement.key;
     } else if (isUnsignedIntegerString(value)) {
       return new DataPathElement(value, DataPathElement.Type.Both);
     } else {
@@ -69,7 +68,7 @@ class DataPathElement {
   }
 
   public toString(): string {
-    return this._value.toString();
+    return this._value ? this._value.toString() : "???";
   }
 
   public get canBeMapKey(): boolean {
@@ -101,6 +100,7 @@ namespace DataPathElement {
     WildCard,
     Variable
   }
+  export const key = new DataPathElement(undefined, DataPathElement.Type.Key);
   export const before = new DataPathElement(undefined, DataPathElement.Type.Before);
   export const after = new DataPathElement(undefined, DataPathElement.Type.After);
   export const wildCard = new DataPathElement(undefined, DataPathElement.Type.WildCard);

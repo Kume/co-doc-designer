@@ -26,6 +26,9 @@ export default class DataPath extends DataPathRecord {
   public readonly pointsKey: boolean;
 
   public static parse(value: string): DataPath {
+    if (value === DataPathElement.SpecialName.Key) {
+      return new DataPath(DataPathElement.key);
+    }
     const parsed = PathParser.parse(value) as ParsedPath;
     return this._parse(parsed);
   }
@@ -85,6 +88,14 @@ export default class DataPath extends DataPathRecord {
 
   public get firstElement(): DataPathElement {
     return this.elements.first();
+  }
+
+  public get isSingleElement(): boolean {
+    return this.elements.size === 1;
+  }
+
+  public get isEmptyPath(): boolean {
+    return this.elements.isEmpty();
   }
 
   public unshift(path: DataPathElementCompatible): this {

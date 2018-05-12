@@ -100,11 +100,14 @@ export default class FormUIModel extends FormUIModelRecord implements UIModel, U
     const mapData = data instanceof MapDataModel ? data : undefined;
     const formLastState = FormUIModel.castState(lastState);
     return this.set('data', data).set('children', List(this.children.map(child => {
-      const childNewData = mapData ? mapData.valueForKey('') : undefined;
+      const key = child!.definition.key;
+      const childNewData = mapData
+        ? key.isKey ? '' : mapData.valueForKey(key.asMapKey)
+        : undefined;
       if (DataModelUtil.equals(childNewData, child!.data)) {
         return child;
       } else {
-        return child!.updateData(childNewData, formLastState && formLastState[child!.definition.key.asMapKey]);
+        return child!.updateData(childNewData, formLastState && formLastState[key.asMapKey]);
       }
     }))) as this;
   }

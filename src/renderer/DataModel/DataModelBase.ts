@@ -1,21 +1,38 @@
 import DataPath from './DataPath';
+import DataModelFactory from './DataModelFactory';
+
+export interface DataCollectionElement {
+  index?: CollectionIndex;
+  data: DataModelBase;
+}
+
+export namespace DataCollectionElement {
+  export function getValue(element: DataCollectionElement, path: DataPath): DataModelBase | undefined {
+    if (!element.data) { return undefined; }
+    if (path.isEmptyPath && path.pointsKey) {
+      return DataModelFactory.create(element.index);
+    }
+    return element.data.getValue(path);
+  }
+}
 
 export default abstract class DataModelBase {
   public abstract setValue(path: DataPath, value: DataModelBase): DataModelBase;
   public abstract getValue(path: DataPath): DataModelBase | undefined;
-  public abstract collectValue(path: DataPath): Array<DataModelBase>;
+  public abstract collectValue(path: DataPath): DataCollectionElement[];
   public abstract removeValue(path: DataPath): DataModelBase;
   public abstract toJS(): string;
   public abstract toJsonObject(): any;
+  public abstract toString(): string;
   public abstract equals(e: any): boolean;
 }
 
 export interface DataModelSideEffect {
-  (data: DataModelBase): void;
+  (data: DataModelBase, index: CollectionIndex): void;
 }
 
 export interface DataModelAsyncSideEffect {
-  (data: DataModelBase): Promise<void>;
+  (data: DataModelBase, index: CollectionIndex): Promise<void>;
 }
 
 export interface DataModelConvert<T> {

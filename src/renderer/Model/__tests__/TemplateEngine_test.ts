@@ -1,20 +1,20 @@
 import { TemplateLine } from '../TemplateEngine';
 
 describe('Unit tests for TemplateLine', () => {
-  describe('Unit tests for TemplateLine.parse', () => {
+  describe('Unit tests for TemplateLine.constructor', () => {
     it('Can parse line only has one token.', () => {
-      const tokens = TemplateLine.parse('{{ test }}');
-      expect(tokens.length).toBe(1);
-      expect(tokens[0].start).toBe(0);
-      expect(tokens[0].key).toBe('test');
+      const line = new TemplateLine('{{ test }}');
+      expect(line.tokens.length).toBe(1);
+      expect(line.tokens[0].start).toBe(0);
+      expect(line.tokens[0].key).toBe('test');
     });
 
     it('Can parse line has multi tokens.', () => {
-      const tokens = TemplateLine.parse('{{ test }}{{foo}}{{bar}}');
-      expect(tokens.length).toBe(3);
-      expect(tokens[1].start).toBe(10);
-      expect(tokens[1].key).toBe('foo');
-      expect(tokens[2].key).toBe('bar');
+      const line = new TemplateLine('{{ test }}{{foo}}{{bar}}');
+      expect(line.tokens.length).toBe(3);
+      expect(line.tokens[1].start).toBe(10);
+      expect(line.tokens[1].key).toBe('foo');
+      expect(line.tokens[2].key).toBe('bar');
     });
   });
   describe('Unit tests for TemplateLine.getTemplateTokenOn', () => {

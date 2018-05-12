@@ -2,12 +2,12 @@ import { Record } from 'immutable';
 import UIModel, { ActionDispatch, CollectValue, UIModelProps, UIModelPropsDefault } from './UIModel';
 import DataPath from '../DataModel/DataPath';
 import EditContext from './EditContext';
-import DataModelBase from '../DataModel/DataModelBase';
-import SelectUIDefinition, { SelectOption } from '../UIDefinition/SelectUIDefinition';
+import DataModelBase, { DataCollectionElement } from '../DataModel/DataModelBase';
+import SelectUIDefinition, { SelectOption, SelectUIDynamicOptions } from '../UIDefinition/SelectUIDefinition';
 import UIModelState from './UIModelState';
 import { createSetValueAction } from './UIModelAction';
 import DataModelFactory from '../DataModel/DataModelFactory';
-import { NumberDataModel, StringDataModel } from '../DataModel/ScalarDataModel';
+import { NullDataModel, NumberDataModel, StringDataModel } from '../DataModel/ScalarDataModel';
 
 interface SelectUIModelState extends UIModelState {
 
@@ -26,6 +26,27 @@ export default class SelectUIModel extends SelectUIModelRecord implements UIMode
   //#region private static function for props
   //#endregion
 
+  private static _toOptionValue(data: DataModelBase | undefined): string | number {
+    if (data instanceof NumberDataModel) {
+      return data.value;
+    } else if (data instanceof StringDataModel) {
+      return data.value;
+    } else if (data) {
+      return data.toString();
+    } else {
+      return "";
+    }
+  }
+
+  private static _toSelectOption(data: DataCollectionElement, options: SelectUIDynamicOptions): SelectOption {
+    const labelData = options.labelPath ? DataCollectionElement.getValue(data, options.labelPath) : data.data;
+    const valueData = options.valuePath ? DataCollectionElement.getValue(data, options.valuePath) : data.data;
+    return {
+      label: labelData ? labelData.toString() : "",
+      value: SelectUIModel._toOptionValue(valueData)
+    };
+  }
+
   public constructor(props: UIModelProps, lastState: UIModelState | undefined) {
     super({
       ...props
@@ -42,19 +63,21 @@ export default class SelectUIModel extends SelectUIModelRecord implements UIMode
     }
   }
 
+  public labelForValue(collectValue: CollectValue, value: any): string {
+    const options = this.options(collectValue);
+    const option = options.find(option => option!.value === value);
+    console.log('labelForValue', {options, option, value});
+    return option ? option.label : "";
+  }
+
   public options(collectValue: CollectValue): SelectOption[] {
     if (this.definition.staticOptions) {
       return this.definition.staticOptions;
-    } else if (this.definition.dynamicOptions) {
-      return collectValue(this.definition.dynamicOptions.path, this.dataPath).map(value => {
-        if (value instanceof NumberDataModel) {
-          return { label: value.value.toString(), value: value.value };
-        } else if (value instanceof StringDataModel) {
-          return { label: value.value, value: value.value };
-        } else {
-          throw new Error();
-        }
-      });
+    }
+    const dynamicOptions = this.definition.dynamicOptions;
+    if (dynamicOptions) {
+      return collectValue(dynamicOptions.path, this.dataPath)
+        .map(value => SelectUIModel._toSelectOption(value, dynamicOptions));
     }
     return [];
   }
@@ -62,6 +85,13 @@ export default class SelectUIModel extends SelectUIModelRecord implements UIMode
   //#region manipulation
   public inputValue(dispatch: ActionDispatch, value: string | number): void {
     dispatch(createSetValueAction(this.dataPath, DataModelFactory.create(value)));
+  }
+
+  public inputLabel(dispatch: ActionDispatch, collectValue: CollectValue, label: string): void {
+    const matchOption = this.options(collectValue).find(option => option.label === label);
+    const value = matchOption ? DataModelFactory.create(matchOption.value) : NullDataModel.null;
+    console.log('inputLabel', {label, value});
+    dispatch(createSetValueAction(this.dataPath, value));
   }
   //#endregion
 
@@ -78,4 +108,5 @@ export default class SelectUIModel extends SelectUIModelRecord implements UIMode
     return undefined;
   }
   //#endregion
+
 }

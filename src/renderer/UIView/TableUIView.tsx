@@ -1,20 +1,13 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
-import * as Handsontable from 'handsontable';
+import 'handsontable/dist/handsontable.css'
+import Handsontable from 'handsontable';
 import TableUIModel from '../UIModel/TableUIModel';
 import TextUIModel from '../UIModel/TextUIModel';
 import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
 import SelectUIModel from '../UIModel/SelectUIModel';
-
-// 定数未定義エラーを防ぐために適当に定義しておく。
-/* tslint:disable */
-window['__HOT_BUILD_DATE__'] = '';
-window['__HOT_PACKAGE_NAME__'] = '';
-window['__HOT_VERSION__'] = '';
-window['__HOT_BASE_VERSION__'] = '';
-const HotTable = require('react-handsontable');
-/* tslint:enable */
+import '../View/HandsonTable/HandsonKeyValueSelectEditor';
 
 interface Props extends UIViewBaseProps {
   model: TableUIModel;
@@ -25,34 +18,34 @@ interface State extends UIViewBaseState {
 }
 
 export default class TableUIView extends UIViewBase<Props, State> {
-  private static getData(model: TableUIModel): Array<Array<any>> {
-    return model.children.map(row => {
-      return row!.map(cell => {
-        if (cell instanceof TextUIModel) {
-          return cell.text;
-        } else if (cell instanceof CheckBoxUIModel) {
-          return cell.isChecked;
-        }
-        return '';
-      }).toArray();
-    }).toArray();
-  }
+  private _handsonTable: Handsontable;
 
   constructor(props: Props, context?: any) {
     super(props, context);
     this.state = {
-      hottableData: TableUIView.getData(props.model)
+      hottableData: this.getData(props.model)
     };
   }
 
   render(): React.ReactNode {
     return (
-      <HotTable data={TableUIView.getData(this.props.model)} settings={this.settings} />
+      <div ref={(ref) => this.initHandsontable(ref)} />
     );
   }
 
-  private get settings(): Handsontable._Handsontable.DefaultSettings {
-    const settings: Handsontable._Handsontable.DefaultSettings = {
+  private initHandsontable(container: HTMLElement | null) {
+    if (!container) { return; }
+    if (this._handsonTable) {
+      this._handsonTable.updateSettings(this.settings, false);
+    } else {
+      this._handsonTable = new Handsontable(container, this.settings);
+    }
+  }
+
+
+  private get settings(): Handsontable.DefaultSettings {
+    const settings: Handsontable.DefaultSettings = {
+      data: this.getData(this.props.model),
       afterChange: this.onChange.bind(this),
       cells: this.getColumnSettings.bind(this),
       colHeaders: this.columnHeaders
@@ -60,10 +53,26 @@ export default class TableUIView extends UIViewBase<Props, State> {
     return settings;
   }
 
+  private getData(model: TableUIModel): Array<Array<any>> {
+    return model.children.map(row => {
+      return row!.map(cell => {
+        if (cell instanceof TextUIModel) {
+          return cell.text;
+        } else if (cell instanceof CheckBoxUIModel) {
+          return cell.isChecked;
+        } else if (cell instanceof SelectUIModel) {
+          console.log('SelectUIModel @TableUIView', cell.value);
+          return cell.labelForValue(this.props.collectValue, cell.value);
+        }
+        return '';
+      }).toArray();
+    }).toArray();
+  }
+
   private onChange(changes: any[], source: string): void {
     if (!changes) { return; }
     console.log({changes});
-    this.props.model.inputChanges(this.props.dispatch, changes);
+    this.props.model.inputChanges(this.props.dispatch, this.props.collectValue, changes);
   }
 
   private getColumnSettings(row?: number, col?: number, prop?: object) {
@@ -87,7 +96,7 @@ export default class TableUIView extends UIViewBase<Props, State> {
     } else if (model instanceof SelectUIModel) {
       return {
         type: 'dropdown',
-        source: model.options(this.props.collectValue).map(option => option.value)
+        source: model.options(this.props.collectValue).map(option => option.label)
       };
     }
     return {};

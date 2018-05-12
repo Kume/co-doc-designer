@@ -109,7 +109,9 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
           key: 'category',
           title: 'カテゴリー',
           options: {
-            path: 'functions.*.name'
+            path: 'functions.*',
+            valuePath: '$key',
+            labelPath: 'name'
           }
         },
         {

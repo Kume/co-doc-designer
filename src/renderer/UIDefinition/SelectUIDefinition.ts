@@ -3,13 +3,18 @@ import UIDefinitionBase from './UIDefinitionBase';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 import DataPath from '../DataModel/DataPath';
 
-export type SelectOption = { label: string, value: string | number };
+export interface SelectOption {
+  label: string,
+  value: string | number
+}
 
 interface SelectOptionFullDefinition {
   path: string;
+  labelPath?: string;
+  valuePath?: string;
 }
 
-interface DynamicOption {
+export interface SelectUIDynamicOptions {
   path: DataPath;
   labelPath?: DataPath;
   valuePath?: DataPath;
@@ -21,8 +26,9 @@ export interface SelectUIDefinitionConfigObject extends UIDefinitionConfigObject
 }
 
 export default class SelectUIDefinition extends UIDefinitionBase {
+  public readonly labelPath?: DataPath;
   private _staticOptions?: Array<SelectOption>;
-  private _dynamicOptions?: DynamicOption;
+  private _dynamicOptions?: SelectUIDynamicOptions;
 
   private static parseStaticOptions(options: Array<string | SelectOption>): Array<SelectOption> {
     return options.map(option => {
@@ -40,12 +46,14 @@ export default class SelectUIDefinition extends UIDefinitionBase {
       this._staticOptions = SelectUIDefinition.parseStaticOptions(config.options);
     } else if (config.options) {
       this._dynamicOptions = {
-        path: DataPath.parse(config.options.path)
+        path: DataPath.parse(config.options.path),
+        labelPath: config.options.labelPath ? DataPath.parse(config.options.labelPath) : undefined,
+        valuePath: config.options.valuePath ? DataPath.parse(config.options.valuePath) : undefined,
       };
     }
   }
 
-  get dynamicOptions(): DynamicOption | undefined {
+  get dynamicOptions(): SelectUIDynamicOptions | undefined {
     return this._dynamicOptions;
   }
   get staticOptions(): Array<SelectOption> | undefined {

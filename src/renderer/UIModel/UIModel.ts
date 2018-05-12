@@ -1,4 +1,4 @@
-import DataModelBase from '../DataModel/DataModelBase';
+import DataModelBase, { DataCollectionElement } from '../DataModel/DataModelBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import EditContext from './EditContext';
 import { UIModelAction } from './UIModelAction';
@@ -24,7 +24,7 @@ export interface ActionDispatch {
 }
 
 export interface CollectValue {
-  (targetPath: DataPath, basePath: DataPath): DataModelBase[];
+  (targetPath: DataPath, basePath: DataPath): DataCollectionElement[];
 }
 
 export default interface UIModel {

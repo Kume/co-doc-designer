@@ -1,5 +1,5 @@
 import { List, Record } from 'immutable';
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from './UIModel';
+import UIModel, { ActionDispatch, CollectValue, UIModelProps, UIModelPropsDefault } from './UIModel';
 import DataPath from '../DataModel/DataPath';
 import EditContext from './EditContext';
 import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
@@ -14,6 +14,7 @@ import DataModelFactory from '../DataModel/DataModelFactory';
 import DataPathElement from '../DataModel/DataPathElement';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import UIModelState from './UIModelState';
+import SelectUIModel from './SelectUIModel';
 
 const TableUIModelRecord = Record({
   ...UIModelPropsDefault,
@@ -65,7 +66,7 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
     return UIModelFactory.create(props, undefined);
   }
 
-  private static inputValueForModel(dispatch: ActionDispatch, model: UIModel, value: any) {
+  private static inputValueForModel(dispatch: ActionDispatch, collectValue: CollectValue, model: UIModel, value: any) {
     if (model instanceof TextUIModel) {
       if (typeof value === 'string') {
         model.inputText(dispatch, value);
@@ -74,6 +75,8 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
       if (model.canInputValue(value)) {
         model.inputValue(dispatch, value);
       }
+    } else if (model instanceof SelectUIModel) {
+      model.inputLabel(dispatch, collectValue, value.toString());
     }
   }
 
@@ -97,11 +100,11 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
     return undefined;
   }
 
-  public inputChanges(dispatch: ActionDispatch, changes: Array<TableChange>) {
+  public inputChanges(dispatch: ActionDispatch, collectValue: CollectValue, changes: Array<TableChange>) {
     const insertChanges: Map<number, Array<InsertChange>> = new Map();
     this.eachChanges(changes, (i, row, column, after, model) => {
       if (model) {
-        TableUIModel.inputValueForModel(dispatch, model, after);
+        TableUIModel.inputValueForModel(dispatch, collectValue, model, after);
       } else {
         if (insertChanges.has(row)) {
           insertChanges.get(row)!.push({ changeIndex: i, row, column, after });
@@ -116,7 +119,7 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
       rowChanges.forEach(change => {
         const content = this.definition.contents.get(change.column);
         const model = TableUIModel.createChildModel(row, undefined, content, this.dataPath, this.editContext);
-        TableUIModel.inputValueForModel(dispatch, model, change.after);
+        TableUIModel.inputValueForModel(dispatch, collectValue, model, change.after);
       });
     });
   }

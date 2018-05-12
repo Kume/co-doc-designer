@@ -1,5 +1,5 @@
 import DataPath from '../DataModel/DataPath';
-import DataModelBase from '../DataModel/DataModelBase';
+import DataModelBase, { DataCollectionElement } from '../DataModel/DataModelBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import UIModel, { UIModelProps } from './UIModel';
 import {
@@ -46,7 +46,7 @@ export class UIModelManager {
     this._editContext = EditContext.empty;
   }
 
-  public collectValue(targetPath: DataPath, basePath: DataPath): DataModelBase[] {
+  public collectValue(targetPath: DataPath, basePath: DataPath): DataCollectionElement[] {
     return this._data.collectValue(targetPath);
   }
 
@@ -99,10 +99,11 @@ export class UIModelManager {
       this._model = this._model.updateData(newData, this._modelState);
       this._data = newData;
       if (this.notifyModelChanged) {
+        console.log('data updated', this._data.toJsonObject());
         this.notifyModelChanged();
       }
     } catch (error) {
-      console.log('error', error);
+      console.log('error on setValue', error, path.toString(), data.toJsonObject());
       // TODO Error Handling
     }
   }
