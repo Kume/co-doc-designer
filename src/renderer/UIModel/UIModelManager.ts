@@ -1,7 +1,7 @@
 import DataPath from '../DataModel/DataPath';
 import DataModelBase, { DataCollectionElement } from '../DataModel/DataModelBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
-import UIModel, { UIModelProps } from './UIModel';
+import UIModel, { UIModelProps, UpdateUIModelParams } from './UIModel';
 import {
   ActionType, ChangeEditContextAction, NotifyDataFunction, OpenModalAction, SetValueAction,
   UIModelAction
@@ -95,8 +95,9 @@ export class UIModelManager {
   public setValue(path: DataPath, data: DataModelBase) {
     try {
       const newData = this._data.setValue(path, data);
+      // console.log('setValue', {path: path.toString(), data: data.toJsonObject(), oldData: this._data.toJsonObject(), newData: newData.toJsonObject()});
       this._modelState = this._model.getState(this._modelState);
-      this._model = this._model.updateData(newData, this._modelState);
+      this._model = this._model.updateModel(UpdateUIModelParams.updateData(newData, this._modelState));
       this._data = newData;
       if (this.notifyModelChanged) {
         console.log('data updated', this._data.toJsonObject());
@@ -111,7 +112,7 @@ export class UIModelManager {
   public changeEditContext(editContext: EditContext): void {
     try {
       this._modelState = this._model.getState(this._modelState);
-      this._model = this._model.updateEditContext(editContext, this._modelState);
+      this._model = this._model.updateModel(UpdateUIModelParams.updateContext(editContext, this._modelState));
       this._editContext = editContext;
       if (this.notifyModelChanged) {
         this.notifyModelChanged();
@@ -146,7 +147,7 @@ export class UIModelManager {
   public setValueForModal(path: DataPath, data: DataModelBase) {
     try {
       const newData = this._modalData!.setValue(path, data);
-      this._modalModel = this._modalModel!.updateData(newData, undefined);
+      this._modalModel = this._modalModel!.updateModel(UpdateUIModelParams.updateData(newData, undefined));
       this._modalData = newData;
       if (this.notifyModelChanged) {
         this.notifyModelChanged();

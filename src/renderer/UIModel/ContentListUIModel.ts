@@ -5,7 +5,7 @@ import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
 import MapDataModel from '../DataModel/MapDataModel';
 import DataPath from '../DataModel/DataPath';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from './UIModel';
+import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
 import EditContext from './EditContext';
 import CollectionDataModelUtil, { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
 import { UIModelFactory } from './UIModelFactory';
@@ -39,7 +39,7 @@ const ContentListUIModelRecord = Record({
 export default class ContentListUIModel extends ContentListUIModelRecord implements UIModel, UIModelProps {
   public readonly data: DataModelBase | undefined;
   public readonly definition: ContentListUIDefinition;
-  public readonly editContext: EditContext;
+  public readonly editContext: EditContext | undefined;
   public readonly childModel: UIModel | undefined;
   public readonly dataPath: DataPath;
   public readonly selectedIndex: CollectionIndex | undefined;
@@ -229,7 +229,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   public moveUp(dispatch: ActionDispatch): void {
     const moved = this._data!.moveUpForCollectionIndex(this.selectedIndex!);
     dispatch(createSetValueAction(this.dataPath, moved));
-    if (moved !== this._data && !this.editContext.pathIsEmpty) {
+    if (moved !== this._data && this.editContext && !this.editContext.pathIsEmpty) {
       if (typeof this.selectedIndex === 'number') {
         dispatch(createChangeEditContextAction(new EditContext({path: this.dataPath}).push(this.selectedIndex - 1)));
       }
@@ -239,7 +239,7 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   public moveDown(dispatch: ActionDispatch): void {
     const moved = this._data!.moveDownForCollectionIndex(this.selectedIndex!);
     dispatch(createSetValueAction(this.dataPath, moved));
-    if (moved !== this._data && !this.editContext.pathIsEmpty) {
+    if (moved !== this._data && this.editContext && !this.editContext.pathIsEmpty) {
       if (typeof this.selectedIndex === 'number') {
         dispatch(createChangeEditContextAction(new EditContext({path: this.dataPath}).push(this.selectedIndex + 1)));
       }
@@ -259,18 +259,18 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
   }
   //#endregion
 
-  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): UIModel {
+  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): this {
     if (DataModelUtil.equals(this.data, data)) {
       return this;
     } else {
       const newModel = this.set('data', data) as this;
 
-      const collectionData = CollectionDataModelUtil.asCollectionDataModel(this.data);
+      const collectionData = CollectionDataModelUtil.asCollectionDataModel(data);
       const item = ContentListUIModel.selectedItem(this.definition, this.editContext, collectionData, lastState);
       if (item) {
         const contentListLastState = ContentListUIModel.castState(lastState);
         const childModel = this.childModel
-          ? this.childModel.updateData(item.data, contentListLastState)
+          ? this.childModel.updateModel(UpdateUIModelParams.updateData(item.data, contentListLastState))
           : ContentListUIModel.childModel({...(this.propsObject), data}, contentListLastState);
         return newModel.set('childModel', childModel) as this;
       } else {
@@ -279,8 +279,8 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
     }
   }
 
-  updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): UIModel {
-    if (this.editContext.equals(editContext)) {
+  updateEditContext(editContext: EditContext | undefined, lastState: UIModelState | undefined): this {
+    if (EditContext.equals(this.editContext, editContext)) {
       return this;
     } else {
       const childModel = ContentListUIModel.childModel({...(this.propsObject), editContext}, lastState);
@@ -291,6 +291,13 @@ export default class ContentListUIModel extends ContentListUIModelRecord impleme
         .set('childModel', childModel)
         .set('selectedIndex', selectedIndex)) as this;
     }
+  }
+
+  public updateModel(params: UpdateUIModelParams): UIModel {
+    let newModel: this = params.dataPath ? this.set('dataPath', params.dataPath.value) as this : this;
+    newModel = params.data ? this.updateData(params.data.value, params.lastState) : newModel;
+    newModel = params.editContext ? this.updateEditContext(params.editContext.value, params.lastState) : newModel;
+    return newModel;
   }
 
   getState(lastState: UIModelState | undefined): ContentListUIModelState | undefined {

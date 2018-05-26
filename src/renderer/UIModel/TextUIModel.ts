@@ -1,5 +1,5 @@
 import { Record } from 'immutable';
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from './UIModel';
+import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
 import { StringDataModel } from '../DataModel/ScalarDataModel';
 import DataPath from '../DataModel/DataPath';
 import DataModelBase from '../DataModel/DataModelBase';
@@ -35,12 +35,19 @@ export default class TextUIModel extends TextUIModelRecord implements UIModel {
     dispatch(createSetValueAction(this.dataPath, new StringDataModel(text)));
   }
 
-  updateData(data: DataModelBase, lastState: UIModelState | undefined): UIModel {
+  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): this {
     return this.set('data', data) as this;
   }
 
-  updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): UIModel {
+  updateEditContext(editContext: EditContext | undefined, lastState: UIModelState | undefined): this {
     return this.set('editContext', editContext) as this;
+  }
+
+  updateModel(params: UpdateUIModelParams): this {
+    let newModel: this = params.dataPath ? this.set('dataPath', params.dataPath.value) as this : this;
+    newModel = params.data ? this.updateData(params.data.value, params.lastState) : newModel;
+    newModel = params.editContext ? this.updateEditContext(params.editContext.value, params.lastState) : newModel;
+    return newModel;
   }
 
   getState(): UIModelState | undefined {

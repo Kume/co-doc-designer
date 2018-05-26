@@ -6,6 +6,7 @@ import ScalarDataModel, {
 import ListDataModel from './ListDataModel';
 import MapDataModel from './MapDataModel';
 import DataModelBase from './DataModelBase';
+import DataPathElement from './DataPathElement';
 
 export default class DataModelFactory {
   public static create(source: any): DataModelBase {
@@ -41,6 +42,16 @@ export default class DataModelFactory {
         }
       default:
         throw new Error();
+    }
+  }
+
+  public static fromDataPathElement(element: DataPathElement): DataModelBase | undefined {
+    if (element.canBeMapKey) {
+      return this.create(element.asMapKey);
+    } else if (element.canBeListIndex) {
+      return this.create(element.asListIndex);
+    } else {
+      return undefined;
     }
   }
 

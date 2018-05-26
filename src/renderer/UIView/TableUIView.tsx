@@ -7,7 +7,6 @@ import TableUIModel from '../UIModel/TableUIModel';
 import TextUIModel from '../UIModel/TextUIModel';
 import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
 import SelectUIModel from '../UIModel/SelectUIModel';
-import '../View/HandsonTable/HandsonKeyValueSelectEditor';
 
 interface Props extends UIViewBaseProps {
   model: TableUIModel;
@@ -18,12 +17,12 @@ interface State extends UIViewBaseState {
 }
 
 export default class TableUIView extends UIViewBase<Props, State> {
-  private _handsonTable: Handsontable;
+  private _handsontable: Handsontable;
 
   constructor(props: Props, context?: any) {
     super(props, context);
     this.state = {
-      hottableData: this.getData(props.model)
+      hottableData: props.model.rawData(props.collectValue)
     };
   }
 
@@ -35,38 +34,22 @@ export default class TableUIView extends UIViewBase<Props, State> {
 
   private initHandsontable(container: HTMLElement | null) {
     if (!container) { return; }
-    if (this._handsonTable) {
-      this._handsonTable.updateSettings(this.settings, false);
+    if (this._handsontable) {
+      this._handsontable.updateSettings(this.settings, false);
     } else {
-      this._handsonTable = new Handsontable(container, this.settings);
+      this._handsontable = new Handsontable(container, this.settings);
     }
   }
 
 
   private get settings(): Handsontable.DefaultSettings {
     const settings: Handsontable.DefaultSettings = {
-      data: this.getData(this.props.model),
+      data: this.props.model.rawData(this.props.collectValue),
       afterChange: this.onChange.bind(this),
       cells: this.getColumnSettings.bind(this),
       colHeaders: this.columnHeaders
     };
     return settings;
-  }
-
-  private getData(model: TableUIModel): Array<Array<any>> {
-    return model.children.map(row => {
-      return row!.map(cell => {
-        if (cell instanceof TextUIModel) {
-          return cell.text;
-        } else if (cell instanceof CheckBoxUIModel) {
-          return cell.isChecked;
-        } else if (cell instanceof SelectUIModel) {
-          console.log('SelectUIModel @TableUIView', cell.value);
-          return cell.labelForValue(this.props.collectValue, cell.value);
-        }
-        return '';
-      }).toArray();
-    }).toArray();
   }
 
   private onChange(changes: any[], source: string): void {

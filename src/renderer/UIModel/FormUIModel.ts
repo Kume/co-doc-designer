@@ -1,5 +1,5 @@
 import { List, Record } from 'immutable';
-import UIModel, { UIModelProps, UIModelPropsDefault } from './UIModel';
+import UIModel, { UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
 import DataPath from '../DataModel/DataPath';
 import EditContext from './EditContext';
 import DataModelBase from '../DataModel/DataModelBase';
@@ -8,8 +8,9 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { UIModelFactory } from './UIModelFactory';
 import MapDataModel from '../DataModel/MapDataModel';
 import DataModelUtil from '../DataModel/DataModelUtil';
-import { StringDataModel } from '../DataModel/ScalarDataModel';
 import UIModelState from './UIModelState';
+import DataModelFactory from '../DataModel/DataModelFactory';
+import DataPathElement from '../DataModel/DataPathElement';
 
 interface FormUIModelState extends UIModelState {
   children: {[key: string]: UIModelState};
@@ -41,20 +42,24 @@ export default class FormUIModel extends FormUIModelRecord implements UIModel, U
 
   private static childProps(definition: UIDefinitionBase, props: UIModelProps): UIModelProps {
     const data = props.data instanceof MapDataModel ? props.data : undefined;
-    let childData: DataModelBase | undefined = undefined;
-    if (data) {
-      if (definition.key.isKey) {
-        childData = new StringDataModel(props.dataPath.elements.last().toString());
-      } else {
-        childData = data.valueForKey(definition.key.asMapKey);
-      }
-    }
     return {
       dataPath: props.dataPath.push(definition.key),
-      data: childData,
+      data: this.childData(definition.key, props.dataPath, data),
       definition,
       editContext: FormUIModel.editContextForChild(definition, props.editContext)
     };
+  }
+
+  private static childData(
+    childKey: DataPathElement,
+    dataPath: DataPath,
+    data: MapDataModel | undefined
+  ): DataModelBase | undefined {
+    if (childKey.isKey) {
+      return DataModelFactory.fromDataPathElement(dataPath.elements.last());
+    } else {
+      return data && data.valueForKey(childKey.asMapKey);
+    }
   }
 
   private static editContextForChild(
@@ -101,18 +106,16 @@ export default class FormUIModel extends FormUIModelRecord implements UIModel, U
     const formLastState = FormUIModel.castState(lastState);
     return this.set('data', data).set('children', List(this.children.map(child => {
       const key = child!.definition.key;
-      const childNewData = mapData
-        ? key.isKey ? '' : mapData.valueForKey(key.asMapKey)
-        : undefined;
+      const childNewData = FormUIModel.childData(key, this.dataPath, mapData);
       if (DataModelUtil.equals(childNewData, child!.data)) {
         return child;
       } else {
-        return child!.updateData(childNewData, formLastState && formLastState[key.asMapKey]);
+        return child!.updateModel(UpdateUIModelParams.updateData(childNewData, formLastState && formLastState[key.asMapKey]));
       }
     }))) as this;
   }
 
-  public updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): this {
+  public updateEditContext(editContext: EditContext | undefined, lastState: UIModelState | undefined): this {
     const formLastState = FormUIModel.castState(lastState);
     return this.set('editContext', editContext).set('children', List(this.children.map(child => {
       const childDefinition = child!.definition;
@@ -120,9 +123,17 @@ export default class FormUIModel extends FormUIModelRecord implements UIModel, U
       if (EditContext.equals(child!.editContext, childNewEditContext)) {
         return child;
       } else {
-        return child!.updateEditContext(editContext, formLastState && formLastState[child!.definition.key.asMapKey]);
+        const childState = formLastState && formLastState[child!.definition.key.asMapKey];
+        return child!.updateModel(UpdateUIModelParams.updateContext(childNewEditContext, childState));
       }
     }))) as this;
+  }
+
+  public updateModel(params: UpdateUIModelParams): UIModel {
+    let newModel: this = params.dataPath ? this.set('dataPath', params.dataPath.value) as this : this;
+    newModel = params.data ? this.updateData(params.data.value, params.lastState) : newModel;
+    newModel = params.editContext ? this.updateEditContext(params.editContext.value, params.lastState) : newModel;
+    return newModel;
   }
 
   public getState(lastState: UIModelState | undefined): FormUIModelState | undefined {

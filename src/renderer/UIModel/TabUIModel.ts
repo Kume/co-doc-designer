@@ -1,5 +1,5 @@
 import { Record } from 'immutable';
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault } from './UIModel';
+import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
 import DataPath from '../DataModel/DataPath';
 import DataModelBase from '../DataModel/DataModelBase';
 import EditContext from './EditContext';
@@ -133,7 +133,7 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
   //#endregion
 
   //#region implementation for UIModel
-  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): UIModel {
+  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): this {
     let newModel = this.set('data', data) as this;
     const tabLastState = TabUIModel.castState(lastState);
     const selectedContent = TabUIModel.selectedContent(this.definition, this.editContext, tabLastState);
@@ -141,12 +141,13 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
     if (!DataModelUtil.equals(selectedData, this.childModel.data)) {
       const lastTabState = TabUIModel.castState(lastState);
       const lastChildState = TabUIModel.childStateForContent(lastTabState, selectedContent);
-      newModel = newModel.set('childModel', this.childModel.updateData(selectedData, lastChildState)) as this;
+      const updateChildParams = UpdateUIModelParams.updateData(selectedData, lastChildState);
+      newModel = newModel.set('childModel', this.childModel.updateModel(updateChildParams)) as this;
     }
     return newModel;
   }
 
-  updateEditContext(editContext: EditContext, lastState: UIModelState | undefined): this {
+  updateEditContext(editContext: EditContext | undefined, lastState: UIModelState | undefined): this {
     let newModel = this.set('editContext', editContext) as this;
     const tabLastState = TabUIModel.castState(lastState);
     const selectedContent = TabUIModel.selectedContent(this.definition, editContext, tabLastState);
@@ -159,8 +160,16 @@ export default class TabUIModel extends TabUIModelRecord implements UIModel, UIM
         .set('selectedTab', selectedContent.key.asMapKey)) as this;
     } else {
       const childState = TabUIModel.childStateForContent(lastTabState, selectedContent);
-      newModel = newModel.set('childModel', this.childModel.updateEditContext(editContext.shift(), childState)) as this;
+      const updateChildParams = UpdateUIModelParams.updateContext(editContext && editContext.shift(), childState);
+      newModel = newModel.set('childModel', this.childModel.updateModel(updateChildParams)) as this;
     }
+    return newModel;
+  }
+
+  updateModel(params: UpdateUIModelParams): UIModel {
+    let newModel: this = params.dataPath ? this.set('dataPath', params.dataPath.value) as this : this;
+    newModel = params.data ? this.updateData(params.data.value, params.lastState) : newModel;
+    newModel = params.editContext ? this.updateEditContext(params.editContext.value, params.lastState) : newModel;
     return newModel;
   }
 

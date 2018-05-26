@@ -48,6 +48,7 @@ const MapDataModelRecord = Record({
 
 export default class MapDataModel extends MapDataModelRecord implements CollectionDataModel {
   public readonly list: List<MapDataModelElement>;
+  public static readonly empty = new MapDataModel({});
 
   private static formatValues(list: object) {
     let formattedValues: List<MapDataModelElement> = List.of<MapDataModelElement>();
