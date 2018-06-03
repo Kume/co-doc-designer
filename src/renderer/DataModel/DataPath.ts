@@ -90,6 +90,10 @@ export default class DataPath extends DataPathRecord {
     return this.elements.first();
   }
 
+  public get lastElement(): DataPathElement {
+    return this.elements.last();
+  }
+
   public get isSingleElement(): boolean {
     return this.elements.size === 1;
   }

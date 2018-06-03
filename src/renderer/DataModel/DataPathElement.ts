@@ -86,6 +86,14 @@ class DataPathElement {
   public get isWildCard(): boolean {
     return this._type === DataPathElement.Type.WildCard;
   }
+
+  public get isAfter(): boolean {
+    return this._type === DataPathElement.Type.After;
+  }
+
+  public get isBefore(): boolean {
+    return this._type === DataPathElement.Type.Before;
+  }
 }
 
 namespace DataPathElement {

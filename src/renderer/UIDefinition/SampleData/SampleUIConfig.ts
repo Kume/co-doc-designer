@@ -2,6 +2,7 @@ import UIDefinitionConfigObject from '../UIDefinitionConfigObject';
 import { TextUIDefinitionConfigObject } from '../TextUIDefinition';
 import { ContentListUIDefinitionConfigObject } from '../ContentListUIDefinition';
 import { SelectUIDefinitionConfigObject } from '../SelectUIDefinition';
+import { TableUIDefinitionConfigObject } from '../TableUIDefinition';
 
 export const sampleUIConfig: UIDefinitionConfigObject = {
   type: 'tab',
@@ -155,6 +156,41 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
         title: 'test'
       },
       addFormDefaultValue: {}
+    },
+    {
+      type: 'form',
+      key: 'sample1',
+      title: 'サンプル1',
+      contents: [
+        <TableUIDefinitionConfigObject> {
+          type: 'table',
+          key: 'map_table',
+          title: 'Table with Map',
+          dataType: 'map',
+          contents: [
+            {
+              type: 'text',
+              key: '$key',
+              title: 'キー'
+            },
+            {
+              type: 'text',
+              key: 'col1',
+              title: 'カラム１'
+            },
+            {
+              type: 'text',
+              key: 'col2',
+              title: 'カラム２'
+            },
+            {
+              type: 'checkbox',
+              key: 'col3',
+              title: 'カラム３'
+            },
+          ]
+        }
+      ]
     }
   ]
 };
@@ -270,6 +306,20 @@ export const sampleDataForUIConfig = {
       name: 'タスク管理機能',
       pages: {
 
+      }
+    }
+  },
+  sample1: {
+    map_table: {
+      row1: {
+        col1: 'col1_value',
+        col2: 'col2_value',
+        col3: true,
+      },
+      row2: {
+        col1: 'col1_value2',
+        col2: 'col2_value2',
+        col3: false,
       }
     }
   }

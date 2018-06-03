@@ -1,7 +1,7 @@
 import DataModelBase, {
   CollectionDataModel, CollectionIndex, DataCollectionElement,
   DataModelConvert,
-  DataModelConvertWithIndex,
+  DataModelConvertWithIndex, DataModelConvertWithListIndex,
   DataModelSideEffect
 } from './DataModelBase';
 import { List, Record } from 'immutable';
@@ -16,26 +16,38 @@ const MapDataModelElementRecord = Record({
 });
 
 export class MapDataModelElement extends MapDataModelElementRecord {
-  public readonly key: string;
+  public readonly key: string | undefined;
   public readonly value: DataModelBase;
 
-  private _keyAsDataModel?: ScalarDataModel;
+  protected _keyAsDataModel?: ScalarDataModel;
 
-  public constructor(key: string, value: DataModelBase) {
+  public constructor(key: string | undefined, value: DataModelBase) {
     super({key, value});
   }
 
-  public set(key: string, value: any): MapDataModelElement {
-    return super.set(key, value) as this;
-  }
-
   public setValue(path: DataPath, value: DataModelBase): MapDataModelElement {
-    return this.set('value', this.value.setValue(path, value));
+    return this.set('value', this.value.setValue(path, value)) as this;
   }
 
-  public setKey(key: string): MapDataModelElement {
-    return this.set('key', key);
+  public setKey(key: string | undefined): MapDataModelElement {
+    return this.set('key', key) as this;
   }
+
+  public get hasKey(): boolean {
+    return !!this.key;
+  }
+
+  public get keyAsDataModel(): ScalarDataModel | undefined {
+    if (this.key) {
+      return this._keyAsDataModel ? this._keyAsDataModel : this._keyAsDataModel = new StringDataModel(this.key);
+    } else {
+      return undefined;
+    }
+  }
+}
+
+export class ValidMapDataModelElement extends MapDataModelElement {
+  public readonly key: string;
 
   public get keyAsDataModel(): ScalarDataModel {
     return this._keyAsDataModel ? this._keyAsDataModel : this._keyAsDataModel = new StringDataModel(this.key);
@@ -73,6 +85,11 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return this.set('list', this.list.set(index, new MapDataModelElement(key, value)));
   }
 
+  public valueForListIndex(index: number): DataModelBase | undefined {
+    const node = this.list.get(index);
+    return node && node.value;
+  }
+
   public set(key: string, value: any): this {
     return super.set(key, value) as this;
   }
@@ -95,14 +112,20 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       }
       return this.set('list', this.list.set(index, node));
     } else {
-      const pushedList = this.list.push(new MapDataModelElement(key.asMapKey, value));
-      return this.set('list', pushedList);
+      if (key.canBeMapKey) {
+        return this.set('list', this.list.push(new MapDataModelElement(key.asMapKey, value)));
+      } else if (key.isAfter) {
+        return this.set('list', this.list.push(new MapDataModelElement(undefined, value)));
+      } else {
+        // TODO 警告
+        return this;
+      }
     }
   }
 
   public toJsonObject(): any {
     const object = {};
-    this._validList.forEach((item: MapDataModelElement) => {
+    this._validList.forEach((item: ValidMapDataModelElement) => {
       object[item.key] = item.value.toJsonObject();
     });
     return object;
@@ -168,7 +191,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     } else {
       const index = this.indexForPath(path.firstElement);
       if (index >= 0) {
-        const node = this.list.get(index);
+        const node = this.list.get(index) as ValidMapDataModelElement;
         if (path.elements.size === 1 && path.pointsKey) {
           return [{ index, data: node.keyAsDataModel}];
         } else {
@@ -236,21 +259,31 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
   }
 
   public forEachData(sideEffect: DataModelSideEffect): void {
-    this.list.forEach((item, index) => sideEffect(item!.value, item!.key || index!));
+    this._validList.forEach((item, index) => sideEffect(item!.value, item!.key || index!));
   }
 
   public mapData<T>(converter: DataModelConvert<T>): Array<T> {
     const list: Array<T> = [];
     this.list.forEach(item => {
-      list.push(converter(item!.value));
+      if (item && item.hasKey) {
+        list.push(converter(item!.value));
+      }
     });
     return list;
   }
 
   public mapDataWithIndex<T>(converter: DataModelConvertWithIndex<T>): Array<T> {
     const list: Array<T> = [];
-    this.list.forEach(item => {
+    this._validList.forEach(item => {
       list.push(converter(item!.value, item!.key));
+    });
+    return list;
+  }
+
+  mapAllData<T>(converter: DataModelConvertWithListIndex<T>): T[] {
+    const list: T[] = [];
+    this.list.forEach((item, index) => {
+      list.push(converter(item!.value, index!));
     });
     return list;
   }
@@ -259,11 +292,16 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return this.list.isEmpty();
   }
 
+  public get dataSize(): number {
+    return this._validList.size;
+  }
+
   public get firstKey(): string | undefined {
     if (this.list.isEmpty()) {
       return undefined;
     } else {
-      return this.list.first().key;
+      const firstValid = this.list.find(node => !!node!.key);
+      return firstValid && firstValid.key;
     }
   }
 
@@ -307,7 +345,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     ) as this;
   }
 
-  private get _validList(): List<MapDataModelElement> {
-    return this.list.filter(node => !!node!.key) as List<MapDataModelElement>;
+  private get _validList(): List<ValidMapDataModelElement> {
+    return this.list.filter(node => !!node!.key) as List<ValidMapDataModelElement>;
   }
 }

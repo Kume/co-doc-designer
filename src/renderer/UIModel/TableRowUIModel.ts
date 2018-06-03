@@ -13,6 +13,7 @@ import UIModel from './UIModel';
 import { UIModelFactory } from './UIModelFactory';
 import UIModelState from './UIModelState';
 import DataModelBase from '../DataModel/DataModelBase';
+import DataModelFactory from '../DataModel/DataModelFactory';
 
 const TableRowUIModelRecord = Record({
   ...UIModelPropsDefault,
@@ -36,7 +37,13 @@ export default class TableRowUIModel extends TableRowUIModelRecord implements UI
     const mapData = props.data instanceof MapDataModel ? props.data : undefined;
     const definition = props.definition as TableUIDefinition;
     return definition.contents.map(cellDefinition => {
-      const cellData = mapData && mapData.valueForKey(cellDefinition!.key.asMapKey);
+      const key = cellDefinition!.key;
+      let cellData: DataModelBase | undefined = undefined;
+      if (key.isKey) {
+        cellData = DataModelFactory.fromDataPathElement(props.dataPath.lastElement);
+      } else if (key.canBeMapKey) {
+        cellData = mapData && mapData.valueForKey(cellDefinition!.key.asMapKey);
+      }
       return this.cell(cellData, cellDefinition!, props.dataPath, props.editContext);
     }) as List<UIModel>;
   }
@@ -86,10 +93,6 @@ export default class TableRowUIModel extends TableRowUIModelRecord implements UI
     }
   }
 
-  public cellForKey(key: string): UIModel | undefined {
-    return this.cells.find(value => value!.definition.key.asMapKey === key);
-  }
-
   public input(dispatch: ActionDispatch, collectValue: CollectValue, changes: TableChangeForRow[]): void {
     if (!(this.data instanceof MapDataModel)) {
       dispatch(createSetValueAction(this.dataPath, MapDataModel.empty))
@@ -119,13 +122,23 @@ export default class TableRowUIModel extends TableRowUIModelRecord implements UI
 
   updateModel(params: UpdateUIModelParams): this {
     let newModel = this;
+    if (params.dataPath) {
+      newModel = newModel.set('dataPath', params.dataPath.value) as this;
+    }
     if (params.data) {
       newModel = newModel.set('data', params.data.value) as this;
       const mapData = params.data.value instanceof MapDataModel ? params.data.value : undefined;
       if (mapData) {
         const newCells = this.cells.map((oldCell, oldCellIndex) => {
+          const key = oldCell!.definition.key;
+          let data: DataModelBase | undefined = undefined;
+          if (key.isKey) {
+            data = DataModelFactory.fromDataPathElement(newModel.dataPath.lastElement);
+          } else {
+            data = mapData.valueForKey(oldCell!.definition.key.asMapKey);
+          }
           return oldCell!.updateModel({
-            data: { value: mapData.valueForKey(oldCell!.definition.key.asMapKey) },
+            data: { value: data },
             lastState: undefined
           });
         });

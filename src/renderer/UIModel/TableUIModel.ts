@@ -112,24 +112,27 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
       return this;
     } else {
       let newModel = this.set('data', data) as this;
-      const listData = data instanceof ListDataModel ? data : undefined; // TODO Mapにも対応
-      if (listData) {
-        const newRows = listData.mapDataWithIndex((rowData, rowIndex) => {
-          const oldRowModel = this.rows.get(rowIndex as number);
-          if (oldRowModel) {
-            return oldRowModel.updateModel({
-              data: { value: rowData },
-              lastState: undefined // TODO
-            });
-          } else {
-            return new TableRowUIModel({
-              definition: this.definition,
-              dataPath: this.dataPath.push(rowIndex),
-              data: rowData,
-              editContext: undefined, // TODO
-            }, undefined); // TODO
-          }
-        });
+      const rowConverter = (rowData: DataModelBase, rowIndex: number) => {
+        const oldRowModel = this.rows.get(rowIndex);
+        if (oldRowModel) {
+          return oldRowModel.updateModel({
+            data: {value: rowData},
+            lastState: undefined // TODO
+          });
+        } else {
+          return new TableRowUIModel({
+            definition: this.definition,
+            dataPath: this.dataPath.push(rowIndex),
+            data: rowData,
+            editContext: undefined, // TODO
+          }, undefined); // TODO
+        }
+      };
+      if (data instanceof ListDataModel) {
+        const newRows = data.mapDataWithIndex(rowConverter);
+        newModel = newModel.set('rows', List(newRows)) as this;
+      } else if (data instanceof MapDataModel) {
+        const newRows = data.mapAllData(rowConverter);
         newModel = newModel.set('rows', List(newRows)) as this;
       } else {
         if (this.rows.size > 0) {

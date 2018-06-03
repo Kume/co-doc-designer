@@ -45,6 +45,10 @@ export interface DataModelConvertWithIndex<T> {
   (data: DataModelBase, index: CollectionIndex): T;
 }
 
+export interface DataModelConvertWithListIndex<T> {
+  (data: DataModelBase, index: number): T;
+}
+
 export interface DataModelAsyncConvert<T> {
   (data: DataModelBase): Promise<T>;
 }
@@ -57,4 +61,5 @@ export abstract class CollectionDataModel extends DataModelBase {
   public abstract get dataIsEmpty(): boolean;
   public abstract moveUpForCollectionIndex(index: CollectionIndex): CollectionDataModel;
   public abstract moveDownForCollectionIndex(index: CollectionIndex): CollectionDataModel;
+  public abstract mapAllData<T>(converter: DataModelConvertWithListIndex<T>): T[];
 }

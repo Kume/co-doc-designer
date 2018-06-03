@@ -1,5 +1,10 @@
 import DataModelBase, {
-  CollectionDataModel, CollectionIndex, DataCollectionElement, DataModelConvert, DataModelConvertWithIndex,
+  CollectionDataModel,
+  CollectionIndex,
+  DataCollectionElement,
+  DataModelConvert,
+  DataModelConvertWithIndex,
+  DataModelConvertWithListIndex,
   DataModelSideEffect
 } from './DataModelBase';
 import { List, Record } from 'immutable';
@@ -191,6 +196,10 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       list.push(converter(item!, index!));
     });
     return list;
+  }
+
+  mapAllData<T>(converter: DataModelConvertWithListIndex<T>): T[] {
+    return this.mapDataWithIndex(converter);
   }
 
   public get dataIsEmpty(): boolean {

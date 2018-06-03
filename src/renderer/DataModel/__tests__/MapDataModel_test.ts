@@ -2,9 +2,11 @@ import MapDataModel from '../MapDataModel';
 import { IntegerDataModel, NumberDataModel } from '../ScalarDataModel';
 import ListDataModel from '../ListDataModel';
 import DataPath from '../DataPath';
+import DataPathElement from '../DataPathElement';
+import DataModelFactory from '../DataModelFactory';
 
 describe('Unit tests for MapDataModel', () => {
-  describe('Test for valueForKey', () => {
+  describe('Unit tests for valueForKey', () => {
     it('Can get value', () => {
       const model = new MapDataModel({a: 2});
       expect(model.valueForKey('a')).toEqual(new IntegerDataModel(2));
@@ -21,7 +23,7 @@ describe('Unit tests for MapDataModel', () => {
     });
   });
 
-  describe('Test for getValue', () => {
+  describe('Unit tests for getValue', () => {
     it('Can get value', () => {
       const model = new MapDataModel({a: 2});
       const path = new DataPath(['a']);
@@ -35,7 +37,7 @@ describe('Unit tests for MapDataModel', () => {
     });
   });
 
-  describe('Test for setValue', () => {
+  describe('Unit tests for setValue', () => {
     it('Can set value for key', () => {
       const model = new MapDataModel({a: 2});
       const path = new DataPath('a');
@@ -64,7 +66,7 @@ describe('Unit tests for MapDataModel', () => {
       const path = DataPath.parse('b');
       const collected = model.collectValue(path);
       expect(collected.length).toBe(1);
-      expect((<NumberDataModel> collected[0]).value).toBe(5);
+      expect((<NumberDataModel> collected[0].data).value).toBe(5);
     });
 
     it('Can collect with single wild card', () => {
@@ -72,8 +74,8 @@ describe('Unit tests for MapDataModel', () => {
       const path = DataPath.parse('*');
       const collected = model.collectValue(path);
       expect(collected.length).toBe(2);
-      expect((<NumberDataModel> collected[0]).value).toBe(1);
-      expect((<NumberDataModel> collected[1]).value).toBe(5);
+      expect((<NumberDataModel> collected[0].data).value).toBe(1);
+      expect((<NumberDataModel> collected[1].data).value).toBe(5);
     });
 
     it('Can collect with wild card at deep layer', () => {
@@ -81,8 +83,32 @@ describe('Unit tests for MapDataModel', () => {
       const path = DataPath.parse('a.b.*');
       const collected = model.collectValue(path);
       expect(collected.length).toBe(2);
-      expect((<NumberDataModel> collected[0]).value).toBe(1);
-      expect((<NumberDataModel> collected[1]).value).toBe(5);
+      expect((<NumberDataModel> collected[0].data).value).toBe(1);
+      expect((<NumberDataModel> collected[1].data).value).toBe(5);
+    });
+  });
+
+  describe('Unit tests for empty key element', () => {
+    it('Can set empty key', () => {
+      let model = new MapDataModel({a: 1});
+      model = model.setValue(new DataPath(DataPathElement.after), DataModelFactory.create(3)) as MapDataModel;
+      expect((<NumberDataModel> model.valueForListIndex(1)).value).toBe(3);
+    });
+
+    it('Empty key item is ignored on mapData', () => {
+      let model = new MapDataModel({a: 1});
+      model = model.setValue(new DataPath(DataPathElement.after), DataModelFactory.create(3)) as MapDataModel;
+      const mapped = model.mapData(x => x);
+      expect(mapped.length).toBe(1);
+      expect((<NumberDataModel> mapped[0]).value).toBe(1);
+    });
+
+    it('Empty key item is appeared on mapAllData', () => {
+      let model = new MapDataModel({a: 1});
+      model = model.setValue(new DataPath(DataPathElement.after), DataModelFactory.create(3)) as MapDataModel;
+      const mapped = model.mapAllData(x => x);
+      expect(mapped.length).toBe(2);
+      expect((<NumberDataModel> mapped[1]).value).toBe(3);
     });
   });
 });
