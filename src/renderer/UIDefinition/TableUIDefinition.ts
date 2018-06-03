@@ -29,7 +29,7 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
 
   public toTableData(data: CollectionDataModel): Array<any> {
     if (data instanceof ListDataModel) {
-      return data.mapData(item => {
+      return data.mapDataWithIndex(item => {
         const map = {};
         this.contents.forEach((content: UIDefinitionBase) => {
           if (!(item instanceof MapDataModel)) {

@@ -1,6 +1,11 @@
 import { isUnsignedIntegerString } from '../../common/util';
 import DataPath from './DataPath';
 
+export interface IndexWithKey {
+  index: number;
+  key: string | undefined;
+}
+
 export type DataPathElementSource = string | number;
 export type DataPathElementCompatible = DataPathElementSource | DataPathElement;
 
@@ -24,6 +29,10 @@ class DataPathElement {
     } else {
       return new DataPathElement(value, DataPathElement.Type.MapKey);
     }
+  }
+
+  public static indexWithKey(index: number, key: string | undefined): DataPathElement {
+    return new DataPathElement({ index, key }, DataPathElement.Type.IndexWithKey);
   }
 
   public static parse(value: string): DataPathElement {
@@ -51,6 +60,13 @@ class DataPathElement {
         return this._value as string;
       case DataPathElement.Type.Both:
         return this._value;
+      case DataPathElement.Type.IndexWithKey:
+        const key = (<IndexWithKey>this._value).key;
+        if (key) {
+          return key;
+        } else {
+          throw new Error('This cannot be map key');
+        }
       default:
         throw new Error('This cannot be map key');
     }
@@ -62,6 +78,8 @@ class DataPathElement {
         return this._value as number;
       case DataPathElement.Type.Both:
         return parseInt(this._value, 10);
+      case DataPathElement.Type.IndexWithKey:
+        return (<IndexWithKey>this._value).index;
       default:
         throw new Error('This cannot be list index');
     }
@@ -72,11 +90,15 @@ class DataPathElement {
   }
 
   public get canBeMapKey(): boolean {
-    return this._type === DataPathElement.Type.MapKey || this._type === DataPathElement.Type.Both;
+    return this._type === DataPathElement.Type.MapKey ||
+      this._type === DataPathElement.Type.Both ||
+      (this._type === DataPathElement.Type.IndexWithKey && !!(<IndexWithKey>this._value).key);
   }
 
   public get canBeListIndex(): boolean {
-    return this._type === DataPathElement.Type.ListIndex || this._type === DataPathElement.Type.Both;
+    return this._type === DataPathElement.Type.ListIndex ||
+      this._type === DataPathElement.Type.Both ||
+      this._type === DataPathElement.Type.IndexWithKey;
   }
 
   public get isKey(): boolean {
@@ -87,12 +109,20 @@ class DataPathElement {
     return this._type === DataPathElement.Type.WildCard;
   }
 
-  public get isAfter(): boolean {
-    return this._type === DataPathElement.Type.After;
+  public get isLast(): boolean {
+    return this._type === DataPathElement.Type.Last;
   }
 
-  public get isBefore(): boolean {
-    return this._type === DataPathElement.Type.Before;
+  public get isFirst(): boolean {
+    return this._type === DataPathElement.Type.First;
+  }
+
+  public get isIndexWithKey(): boolean {
+    return this._type === DataPathElement.Type.IndexWithKey;
+  }
+
+  public get isListIndex(): boolean {
+    return this._type === DataPathElement.Type.ListIndex;
   }
 }
 
@@ -102,15 +132,16 @@ namespace DataPathElement {
     MapKey,
     ListIndex,
     Both,
-    Before,
-    After,
+    IndexWithKey,
+    First,
+    Last,
     Key,
     WildCard,
     Variable
   }
   export const key = new DataPathElement(undefined, DataPathElement.Type.Key);
-  export const before = new DataPathElement(undefined, DataPathElement.Type.Before);
-  export const after = new DataPathElement(undefined, DataPathElement.Type.After);
+  export const first = new DataPathElement(undefined, DataPathElement.Type.First);
+  export const last = new DataPathElement(undefined, DataPathElement.Type.Last);
   export const wildCard = new DataPathElement(undefined, DataPathElement.Type.WildCard);
 }
 

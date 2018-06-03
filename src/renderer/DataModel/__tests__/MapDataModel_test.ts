@@ -91,21 +91,21 @@ describe('Unit tests for MapDataModel', () => {
   describe('Unit tests for empty key element', () => {
     it('Can set empty key', () => {
       let model = new MapDataModel({a: 1});
-      model = model.setValue(new DataPath(DataPathElement.after), DataModelFactory.create(3)) as MapDataModel;
+      model = model.setValue(new DataPath(DataPathElement.last), DataModelFactory.create(3)) as MapDataModel;
       expect((<NumberDataModel> model.valueForListIndex(1)).value).toBe(3);
     });
 
-    it('Empty key item is ignored on mapData', () => {
+    it('Empty key item is ignored on mapDataWithIndex', () => {
       let model = new MapDataModel({a: 1});
-      model = model.setValue(new DataPath(DataPathElement.after), DataModelFactory.create(3)) as MapDataModel;
-      const mapped = model.mapData(x => x);
+      model = model.setValue(new DataPath(DataPathElement.last), DataModelFactory.create(3)) as MapDataModel;
+      const mapped = model.mapDataWithIndex(x => x);
       expect(mapped.length).toBe(1);
       expect((<NumberDataModel> mapped[0]).value).toBe(1);
     });
 
     it('Empty key item is appeared on mapAllData', () => {
       let model = new MapDataModel({a: 1});
-      model = model.setValue(new DataPath(DataPathElement.after), DataModelFactory.create(3)) as MapDataModel;
+      model = model.setValue(new DataPath(DataPathElement.last), DataModelFactory.create(3)) as MapDataModel;
       const mapped = model.mapAllData(x => x);
       expect(mapped.length).toBe(2);
       expect((<NumberDataModel> mapped[1]).value).toBe(3);

@@ -1,6 +1,5 @@
 import DataModelBase, {
   CollectionDataModel, CollectionIndex, DataCollectionElement,
-  DataModelConvert,
   DataModelConvertWithIndex, DataModelConvertWithListIndex,
   DataModelSideEffect
 } from './DataModelBase';
@@ -90,6 +89,11 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return node && node.value;
   }
 
+  public keyForIndex(index: number): string | undefined {
+    const node = this.list.get(index);
+    return node && node.key;
+  }
+
   public set(key: string, value: any): this {
     return super.set(key, value) as this;
   }
@@ -114,7 +118,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     } else {
       if (key.canBeMapKey) {
         return this.set('list', this.list.push(new MapDataModelElement(key.asMapKey, value)));
-      } else if (key.isAfter) {
+      } else if (key.isLast) {
         return this.set('list', this.list.push(new MapDataModelElement(undefined, value)));
       } else {
         // TODO 警告
@@ -262,16 +266,6 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     this._validList.forEach((item, index) => sideEffect(item!.value, item!.key || index!));
   }
 
-  public mapData<T>(converter: DataModelConvert<T>): Array<T> {
-    const list: Array<T> = [];
-    this.list.forEach(item => {
-      if (item && item.hasKey) {
-        list.push(converter(item!.value));
-      }
-    });
-    return list;
-  }
-
   public mapDataWithIndex<T>(converter: DataModelConvertWithIndex<T>): Array<T> {
     const list: Array<T> = [];
     this._validList.forEach(item => {
@@ -317,8 +311,15 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return this.indexForKey(key) >= 0;
   }
 
+  public isValidIndex(index: number): boolean {
+    return Number.isInteger(index) && index >= 0 && index < this.list.size;
+  }
+
   private indexForPath(pathElement: DataPathElement): number {
-    if (pathElement.canBeMapKey) {
+    if (pathElement.isIndexWithKey || pathElement.isListIndex) {
+      const index = pathElement.asListIndex;
+      return this.isValidIndex(index) ? index : -1;
+    } else if (pathElement.canBeMapKey) {
       return this.indexForKey(pathElement.asMapKey);
     } else {
       return -1;

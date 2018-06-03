@@ -2,7 +2,6 @@ import DataModelBase, {
   CollectionDataModel,
   CollectionIndex,
   DataCollectionElement,
-  DataModelConvert,
   DataModelConvertWithIndex,
   DataModelConvertWithListIndex,
   DataModelSideEffect
@@ -67,9 +66,9 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     }
     const pathElement = path.elements.first();
 
-    if (pathElement.type === DataPathElement.Type.After) {
+    if (pathElement.type === DataPathElement.Type.Last) {
       return this.set('list', this.list.push(value));
-    } else if (pathElement.type === DataPathElement.Type.Before) {
+    } else if (pathElement.type === DataPathElement.Type.First) {
       // TODO
     }
 
@@ -180,14 +179,6 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
 
   public forEachData(sideEffect: DataModelSideEffect): void {
     this.list.forEach((item, index) => sideEffect(item!, index!));
-  }
-
-  public mapData<T>(converter: DataModelConvert<T>): Array<T> {
-    const list: Array<T> = [];
-    this.list.forEach(item => {
-      list.push(converter(item!));
-    });
-    return list;
   }
 
   public mapDataWithIndex<T>(converter: DataModelConvertWithIndex<T>): Array<T> {

@@ -16,7 +16,6 @@ import { createSetValueAction } from './UIModelAction';
 import DataPathElement from '../DataModel/DataPathElement';
 import UIModelState from './UIModelState';
 import DataModelUtil from '../DataModel/DataModelUtil';
-import ListDataModel from '../DataModel/ListDataModel';
 import TableRowUIModel, { CellData, TableChangeForRow } from './TableRowUIModel';
 
 
@@ -47,10 +46,14 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
     const data = CollectionDataModelUtil.asCollectionDataModel(props.data);
     if (!data) { return List(); }
     const definition = props.definition as TableUIDefinition;
-    return List(data.mapDataWithIndex((row, index) => {
+    const mapData = data instanceof MapDataModel ? data : undefined;
+    return List(data.mapAllData((row, index) => {
+      const pathElement = mapData
+        ? DataPathElement.indexWithKey(index, mapData.keyForIndex(index))
+        : DataPathElement.create(index);
       return new TableRowUIModel({
         definition,
-        dataPath: props.dataPath.push(index),
+        dataPath: props.dataPath.push(pathElement),
         data: row,
         editContext: undefined // TODO
       }, undefined); // TODO lastState
@@ -95,7 +98,7 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
         row.input(dispatch, collectValue, value);
       } else {
         console.log('');
-        dispatch(createSetValueAction(this.dataPath.push(DataPathElement.after), MapDataModel.empty));
+        dispatch(createSetValueAction(this.dataPath.push(DataPathElement.last), MapDataModel.empty));
         const newRow = new TableRowUIModel({
           definition: this.definition,
           dataPath: this.dataPath.push(key),
@@ -112,27 +115,30 @@ export default class TableUIModel extends TableUIModelRecord implements UIModel,
       return this;
     } else {
       let newModel = this.set('data', data) as this;
+      const collectionData = CollectionDataModelUtil.asCollectionDataModel(data);
+      const mapData = data instanceof MapDataModel ? data : undefined;
       const rowConverter = (rowData: DataModelBase, rowIndex: number) => {
         const oldRowModel = this.rows.get(rowIndex);
+        const pathElement = mapData
+          ? DataPathElement.indexWithKey(rowIndex, mapData.keyForIndex(rowIndex))
+          : DataPathElement.create(rowIndex);
         if (oldRowModel) {
           return oldRowModel.updateModel({
+            dataPath: {value: this.dataPath.push(pathElement)},
             data: {value: rowData},
             lastState: undefined // TODO
           });
         } else {
           return new TableRowUIModel({
             definition: this.definition,
-            dataPath: this.dataPath.push(rowIndex),
+            dataPath: this.dataPath.push(pathElement),
             data: rowData,
             editContext: undefined, // TODO
           }, undefined); // TODO
         }
       };
-      if (data instanceof ListDataModel) {
-        const newRows = data.mapDataWithIndex(rowConverter);
-        newModel = newModel.set('rows', List(newRows)) as this;
-      } else if (data instanceof MapDataModel) {
-        const newRows = data.mapAllData(rowConverter);
+      if (collectionData) {
+        const newRows = collectionData.mapAllData(rowConverter);
         newModel = newModel.set('rows', List(newRows)) as this;
       } else {
         if (this.rows.size > 0) {
