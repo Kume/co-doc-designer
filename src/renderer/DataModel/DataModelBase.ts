@@ -1,6 +1,7 @@
-import DataPath from './DataPath';
+import DataPath from './Path/DataPath';
 import DataModelFactory from './DataModelFactory';
-import DataPathElement from './DataPathElement';
+import DataPathElement from './Path/DataPathElement';
+import { DataAction } from './DataAction';
 
 export interface DataCollectionElement {
   index?: CollectionIndex;
@@ -20,6 +21,7 @@ export namespace DataCollectionElement {
 export default abstract class DataModelBase {
   public abstract setValue(path: DataPath, value: DataModelBase): DataModelBase;
   public abstract getValue(path: DataPath): DataModelBase | undefined;
+  public abstract applyAction(path: DataPath, action: DataAction): DataModelBase;
   public abstract collectValue(path: DataPath): DataCollectionElement[];
   public abstract removeValue(path: DataPath): DataModelBase;
   public abstract toJS(): string;

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import DataModelBase from '../DataModel/DataModelBase';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import EditContext from '../UIModel/EditContext';
 import { ActionDispatch, CollectValue, default as UIModel } from '../UIModel/UIModel';
 

@@ -3,7 +3,7 @@ import DataModelBase, { CollectionDataModel, CollectionIndex } from '../DataMode
 import { applyMixins } from '../../common/util';
 import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
 import MapDataModel from '../DataModel/MapDataModel';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
 import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
 import EditContext from './EditContext';

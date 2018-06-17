@@ -1,6 +1,6 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
-import DataPathElement from '../DataModel/DataPathElement';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 
 export interface FormUIDefinitionConfigObject extends UIDefinitionConfigObject {
 

@@ -1,6 +1,7 @@
 import DataPathElement, { DataPathElementCompatible } from './DataPathElement';
 import { List, Record } from 'immutable';
-import * as PathParser from './Path/PathParser';
+import * as PathParser from './PathParser';
+import InvalidCallError from '../../../common/Error/InvalidCallError';
 
 const DataPathRecord = Record({
   elements: List<DataPathElement>(),
@@ -103,10 +104,13 @@ export default class DataPath extends DataPathRecord {
   }
 
   public unshift(path: DataPathElementCompatible): this {
+    if (this.isAbsolute) {
+      throw new InvalidCallError('Cannot unshift to absolute path.');
+    }
     const pathElement = DataPathElement.create(path);
     if (pathElement.isKey) {
       if (this.elements.size > 0 || this.pointsKey) {
-        throw new Error('Cannot unshift $key');
+        throw new InvalidCallError('Cannot unshift $key');
       }
       return this.set('pointsKey', true);
     } else {

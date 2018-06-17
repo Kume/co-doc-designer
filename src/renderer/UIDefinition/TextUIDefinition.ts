@@ -1,6 +1,6 @@
 import UIDefinitionBase from './UIDefinitionBase';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
-import DataPathElement from '../DataModel/DataPathElement';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 
 export interface TextUIDefinitionConfigObject extends UIDefinitionConfigObject {
   emptyToNull: boolean;

@@ -1,5 +1,5 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
-import DataPathElement from '../DataModel/DataPathElement';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 
 export interface TabUIDefinitionConfigObject extends UIDefinitionConfigObject {

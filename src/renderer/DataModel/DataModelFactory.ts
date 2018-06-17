@@ -6,7 +6,7 @@ import ScalarDataModel, {
 import ListDataModel from './ListDataModel';
 import MapDataModel from './MapDataModel';
 import DataModelBase from './DataModelBase';
-import DataPathElement from './DataPathElement';
+import DataPathElement from './Path/DataPathElement';
 
 export default class DataModelFactory {
   public static create(source: any): DataModelBase {

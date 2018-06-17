@@ -1,4 +1,4 @@
-import { isUnsignedIntegerString } from '../../common/util';
+import { isUnsignedIntegerString } from '../../../common/util';
 import DataPath from './DataPath';
 
 export interface IndexWithKey {

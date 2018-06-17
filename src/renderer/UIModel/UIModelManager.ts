@@ -1,4 +1,4 @@
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import DataModelBase, { DataCollectionElement } from '../DataModel/DataModelBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import UIModel, { UIModelProps, UpdateUIModelParams } from './UIModel';

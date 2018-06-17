@@ -1,8 +1,9 @@
 import MapDataModel from '../MapDataModel';
 import { IntegerDataModel, StringDataModel } from '../ScalarDataModel';
 import ListDataModel from '../ListDataModel';
-import DataPath from '../DataPath';
+import DataPath from '../Path/DataPath';
 import DataModelFactory from '../DataModelFactory';
+import { InsertDataAction } from '../DataAction';
 
 describe('Unit tests for ListDataModel', () => {
   describe('Unit tests for ListDataModel.valueForKey', () => {
@@ -72,5 +73,60 @@ describe('Unit tests for ListDataModel', () => {
       expect((<StringDataModel> collected[1].data).value).toBe('second');
       expect((<StringDataModel> collected[2].data).value).toBe('third');
     });
+  });
+
+  describe('Unit tests for ListDataModel.applyInsertAction', () => {
+    const insertData = new StringDataModel('***');
+    (<{description: string, action: InsertDataAction, expect: string[]}[]> [
+      {
+        description: 'Can insert with target index',
+        action: {type: 'Insert', data: insertData, targetIndex: 1},
+        expect: ['first', '***', 'second', 'third']
+      },
+      {
+        description: 'Can insert after with target index',
+        action: {type: 'Insert', data: insertData, targetIndex: 1, isAfter: true},
+        expect: ['first', 'second', '***', 'third']
+      },
+      {
+        description: 'Can insert last with target index',
+        action: {type: 'Insert', data: insertData, targetIndex: 3},
+        expect: ['first', 'second', 'third', '***']
+      },
+      {
+        description: 'Can insert first with target index',
+        action: {type: 'Insert', data: insertData, targetIndex: 0},
+        expect: ['***', 'first', 'second', 'third']
+      },
+      {
+        description: 'Can insert last with target index with isAfter option',
+        action: {type: 'Insert', data: insertData, targetIndex: 2, isAfter: true},
+        expect: ['first', 'second', 'third', '***']
+      },
+      {
+        description: 'Can insert to first without index',
+        action: {type: 'Insert', data: insertData},
+        expect: ['***', 'first', 'second', 'third']
+      },
+      {
+        description: 'Can insert to last without index',
+        action: {type: 'Insert', data: insertData, isAfter: true},
+        expect: ['first', 'second', 'third', '***']
+      }
+    ]).map((item) => {
+      it(item.description, () => {
+        const model = new ListDataModel(['first', 'second', 'third']);
+        const inserted = model.applyInsertAction(item.action);
+        expect(inserted.toJsonObject()).toEqual(item.expect)
+      });
+    });
+  });
+
+  describe('Unit tests for ListDataModel.applyDeleteAction', () => {
+    it('Can delete', () => {
+      const model = new ListDataModel(['first', 'second', 'third']);
+      const deleted = model.applyDeleteAction({type: 'Delete', targetIndex: 1});
+      expect(deleted.toJsonObject()).toEqual(['first', 'third']);
+    })
   });
 });

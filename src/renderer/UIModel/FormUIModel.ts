@@ -1,6 +1,6 @@
 import { List, Record } from 'immutable';
 import UIModel, { UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import EditContext from './EditContext';
 import DataModelBase from '../DataModel/DataModelBase';
 import FormUIDefinition from '../UIDefinition/FormUIDefinition';
@@ -10,7 +10,7 @@ import MapDataModel from '../DataModel/MapDataModel';
 import DataModelUtil from '../DataModel/DataModelUtil';
 import UIModelState from './UIModelState';
 import DataModelFactory from '../DataModel/DataModelFactory';
-import DataPathElement from '../DataModel/DataPathElement';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 
 interface FormUIModelState extends UIModelState {
   children: {[key: string]: UIModelState};

@@ -1,6 +1,6 @@
 import { Record } from 'immutable';
 import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import EditContext from './EditContext';
 import DataModelBase from '../DataModel/DataModelBase';
 import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';

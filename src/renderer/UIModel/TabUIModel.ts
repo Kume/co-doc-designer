@@ -1,6 +1,6 @@
 import { Record } from 'immutable';
 import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import DataModelBase from '../DataModel/DataModelBase';
 import EditContext from './EditContext';
 import TabUIDefinition from '../UIDefinition/TabUIDefinition';

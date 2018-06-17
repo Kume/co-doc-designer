@@ -1,6 +1,6 @@
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
 import DataModelFactory from '../../DataModel/DataModelFactory';
-import DataPath from '../../DataModel/DataPath';
+import DataPath from '../../DataModel/Path/DataPath';
 import EditContext from '../EditContext';
 import TabUIModel from '../TabUIModel';
 import TextUIModel from '../TextUIModel';

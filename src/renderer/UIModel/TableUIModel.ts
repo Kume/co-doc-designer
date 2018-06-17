@@ -6,14 +6,14 @@ import UIModel, {
   UIModelPropsDefault,
   UpdateUIModelParams
 } from './UIModel';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import EditContext from './EditContext';
 import DataModelBase from '../DataModel/DataModelBase';
 import TableUIDefinition from '../UIDefinition/TableUIDefinition';
 import CollectionDataModelUtil from '../DataModel/CollectionDataModelUtil';
 import MapDataModel from '../DataModel/MapDataModel';
 import { createSetValueAction } from './UIModelAction';
-import DataPathElement from '../DataModel/DataPathElement';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 import UIModelState from './UIModelState';
 import DataModelUtil from '../DataModel/DataModelUtil';
 import TableRowUIModel, { CellData, TableChangeForRow } from './TableRowUIModel';

@@ -1,9 +1,10 @@
 import MapDataModel from '../MapDataModel';
-import { IntegerDataModel, NumberDataModel } from '../ScalarDataModel';
+import { IntegerDataModel, NumberDataModel, StringDataModel } from '../ScalarDataModel';
 import ListDataModel from '../ListDataModel';
-import DataPath from '../DataPath';
-import DataPathElement from '../DataPathElement';
+import DataPath from '../Path/DataPath';
+import DataPathElement from '../Path/DataPathElement';
 import DataModelFactory from '../DataModelFactory';
+import { InsertDataAction } from '../DataAction';
 
 describe('Unit tests for MapDataModel', () => {
   describe('Unit tests for valueForKey', () => {
@@ -92,7 +93,14 @@ describe('Unit tests for MapDataModel', () => {
     it('Can set empty key', () => {
       let model = new MapDataModel({a: 1});
       model = model.setValue(new DataPath(DataPathElement.last), DataModelFactory.create(3)) as MapDataModel;
-      expect((<NumberDataModel> model.valueForListIndex(1)).value).toBe(3);
+      expect(model.valueForListIndex(1)!.toJsonObject()).toBe(3);
+    });
+
+    it('Can create from private object', () => {
+      const source = [{k: 'a', v: 1}, {v: 3}, {k: 'c', v: 7}, {k: 'c', v: 99}];
+      let model = MapDataModel.create(source);
+      expect(model.toJsonObject()).toEqual({a: 1, c: 7});
+      expect(model.toPrivateJsonObject()).toEqual(source);
     });
 
     it('Empty key item is ignored on mapDataWithIndex', () => {
@@ -109,6 +117,88 @@ describe('Unit tests for MapDataModel', () => {
       const mapped = model.mapAllData(x => x);
       expect(mapped.length).toBe(2);
       expect((<NumberDataModel> mapped[1]).value).toBe(3);
+    });
+  });
+
+  describe('Unit tests for MapDataModel.applyInsertAction', () => {
+    const insertActionBase = {type: 'Insert', data: new StringDataModel('***'), key: 'i'};
+    (<{description: string, source: MapDataModel, action: InsertDataAction, expect: any}[]> [
+      {
+        description: 'Can insert by number index',
+        source: new MapDataModel({a: 1, b: 3, c: 7}),
+        action: {...insertActionBase, targetIndex: 1},
+        expect: {a: 1, i: '***', b: 3, c: 7}
+      },
+      {
+        description: 'Can insert by number index after',
+        source: new MapDataModel({a: 1, b: 3, c: 7}),
+        action: {...insertActionBase, targetIndex: 1},
+        expect: {a: 1, b: 3, i: '***', c: 7}
+      },
+      {
+        description: 'Can insert by string key',
+        source: new MapDataModel({a: 1, b: 3, c: 7}),
+        action: {...insertActionBase, targetIndex: 'b'},
+        expect: {a: 1, i: '***', b: 3, c: 7}
+      },
+      {
+        description: 'Can insert by string key after',
+        source: new MapDataModel({a: 1, b: 3, c: 7}),
+        action: {...insertActionBase, targetIndex: 'b', isAfter: true},
+        expect: {a: 1, b: 3, i: '***', c: 7}
+      },
+      {
+        description: 'Can insert by string key to last',
+        source: new MapDataModel({a: 1, b: 3, c: 7}),
+        action: {...insertActionBase, targetIndex: 'c', isAfter: true},
+        expect: {a: 1, b: 3, c: 7, i: '***'}
+      },
+      {
+        description: 'Can insert by string key to first',
+        source: new MapDataModel({a: 1, b: 3, c: 7}),
+        action: {...insertActionBase, targetIndex: 'a'},
+        expect: {i: '***', a: 1, b: 3, c: 7}
+      },
+    ]).map(item => {
+      it(item.description, () => {
+        const inserted = item.source.applyInsertAction(item.action);
+        expect(inserted.toJsonObject()).toEqual(item.expect);
+      });
+    });
+
+
+    (<{description: string, source: MapDataModel, action: InsertDataAction, expect: any}[]> [
+      {
+        description: 'Can insert by number index with no key',
+        source: new MapDataModel([{v: 1}, {v: 7}]),
+        action: {...insertActionBase, key: undefined, targetIndex: 1},
+        expect: [{v: 1}, {v: '***'}, {v: 7}]
+      },
+      {
+        description: 'Can insert by number index with duplicated key',
+        source: new MapDataModel([{k: 'a', v: 1}, {k: 'a', v: 7}]),
+        action: {...insertActionBase, key: 'a', targetIndex: 1},
+        expect: [{k: 'a', v: 1}, {k: 'a', v: '***'}, {k: 'a', v: 7}]
+      },
+    ]).map(item => {
+      it(item.description, () => {
+        const inserted = item.source.applyInsertAction(item.action);
+        expect((<MapDataModel>inserted).toPrivateJsonObject()).toEqual(item.expect);
+      });
+    })
+  });
+
+  describe('Unit tests for MapDataModel.applyDeleteAction', () => {
+    it('Can apply delete data action with number index', () => {
+      const model = new MapDataModel({a: 1, b: 3, c: 7});
+      const deleted = model.applyDeleteAction({type: 'Delete', targetIndex: 'b'});
+      expect(deleted.toJsonObject()).toEqual({a: 1, c: 7});
+    });
+
+    it('Can apply delete data action with string key', () => {
+      const model = new MapDataModel({a: 1, b: 3, c: 7});
+      const deleted = model.applyDeleteAction({type: 'Delete', targetIndex: 1});
+      expect(deleted.toJsonObject()).toEqual({a: 1, c: 7});
     });
   });
 });

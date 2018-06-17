@@ -6,7 +6,7 @@ import UIModel, {
   UIModelPropsDefault,
   UpdateUIModelParams
 } from './UIModel';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import EditContext from './EditContext';
 import DataModelBase, { DataCollectionElement } from '../DataModel/DataModelBase';
 import SelectUIDefinition, { SelectOption, SelectUIDynamicOptions } from '../UIDefinition/SelectUIDefinition';

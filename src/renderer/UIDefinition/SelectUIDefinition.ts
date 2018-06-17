@@ -1,7 +1,7 @@
-import DataPathElement from '../DataModel/DataPathElement';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 import UIDefinitionBase from './UIDefinitionBase';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 
 export interface SelectOption {
   label: string,

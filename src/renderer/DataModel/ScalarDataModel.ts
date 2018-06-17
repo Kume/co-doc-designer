@@ -1,6 +1,8 @@
 import DataModelBase, { DataCollectionElement } from './DataModelBase';
 import { Record } from 'immutable';
-import DataPath from './DataPath';
+import DataPath from './Path/DataPath';
+import { DataAction, SetDataAction } from './DataAction';
+import DataOperationError from './Error/DataOperationError';
 
 export type ScalarDataSource = number | string | boolean | null | Date;
 
@@ -31,6 +33,23 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
       return value;
     } else {
       throw new Error();
+    }
+  }
+
+  applyAction(path: DataPath, action: DataAction): DataModelBase {
+    switch (action.type) {
+      case 'Insert':
+        throw new DataOperationError('Cannot insert into scalar data.', {action, path, targetData: this});
+      case 'Delete':
+        throw new DataOperationError('Cannot delete from scalar data.', {action, path, targetData: this});
+      case 'Set':
+        if (path.isEmptyPath) {
+          return (<SetDataAction>action).data;
+        } else {
+          throw new DataOperationError('Cannot set under scalar data.', {action, path, targetData: this});
+        }
+      default:
+        throw new DataOperationError('Invalid data action.', {action, path, targetData: this});
     }
   }
 
@@ -71,6 +90,14 @@ export class StringDataModel extends ScalarDataModel {
   public static readonly empty: StringDataModel = new StringDataModel('');
 
   public readonly value: string;
+
+  public static create(value: string): StringDataModel {
+    if (value === '') {
+      return this.empty;
+    } else {
+      return new StringDataModel(value);
+    }
+  }
 
   constructor(value: string) {
     super(value, ScalarDataModelType.String);

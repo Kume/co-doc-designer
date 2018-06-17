@@ -1,7 +1,7 @@
 import DataStorage from './DataStorage';
 import * as util from 'util';
 import * as fs from 'fs';
-import * as path from 'path';
+import * as path from '../Path';
 
 const readFile = util.promisify(fs.readFile);
 const writeFile = util.promisify(fs.writeFile);

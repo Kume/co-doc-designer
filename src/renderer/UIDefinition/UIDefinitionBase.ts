@@ -1,4 +1,4 @@
-import DataPathElement from '../DataModel/DataPathElement';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 
 export default abstract class UIDefinitionBase {
   private _title: string;

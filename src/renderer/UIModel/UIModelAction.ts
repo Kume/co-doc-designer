@@ -1,4 +1,4 @@
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import DataModelBase from '../DataModel/DataModelBase';
 import EditContext from './EditContext';
 import { UIModelProps } from './UIModel';

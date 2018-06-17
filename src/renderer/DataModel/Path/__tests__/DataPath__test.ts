@@ -1,5 +1,5 @@
-import DataPath from '../../DataPath';
-import DataPathElement from '../../DataPathElement';
+import DataPath from '../DataPath';
+import DataPathElement from '../DataPathElement';
 
 describe('Unit tests for DataPath', () => {
   describe('Unit tests for DataPath.parse', () => {

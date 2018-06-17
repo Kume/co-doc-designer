@@ -6,7 +6,7 @@ import { UIModelManager } from '../UIModelManager';
 import ContentListUIModel from '../ContentListUIModel';
 import EditContext from '../EditContext';
 import TextUIModel from '../TextUIModel';
-import DataPath from '../../DataModel/DataPath';
+import DataPath from '../../DataModel/Path/DataPath';
 import { StringDataModel } from '../../DataModel/ScalarDataModel';
 
 const simpleUIDefinition = UIDefinitionFactory.create(<ContentListUIDefinitionConfigObject> {

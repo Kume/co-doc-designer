@@ -2,7 +2,7 @@ import DataModelBase, { DataCollectionElement } from '../DataModel/DataModelBase
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import EditContext from './EditContext';
 import { UIModelAction } from './UIModelAction';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import UIModelState from './UIModelState';
 
 export interface UIModelProps {

@@ -1,6 +1,6 @@
 import SingleContentUIDefinition from './SingleContentUIDefinition';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
-import DataPathElement from '../DataModel/DataPathElement';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 import DataModelBase, { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import UIDefinitionBase from './UIDefinitionBase';

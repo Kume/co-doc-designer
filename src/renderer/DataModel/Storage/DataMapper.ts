@@ -1,11 +1,11 @@
 import DataStorage from './DataStorage';
-import DataModelBase from './DataModelBase';
-import DataPath from './DataPath';
+import DataModelBase from '../DataModelBase';
+import DataPath from '../Path/DataPath';
 import { DataFormatter } from './DataFormatter';
 import YamlDataFormatter from './YamlDataFormatter';
-import MapDataModel from './MapDataModel';
-import { StringDataModel } from './ScalarDataModel';
-import DataModelFactory from './DataModelFactory';
+import MapDataModel from '../MapDataModel';
+import { StringDataModel } from '../ScalarDataModel';
+import DataModelFactory from '../DataModelFactory';
 
 abstract class MappingNodeBase {
   protected path: DataPath;

@@ -4,15 +4,22 @@ import DataModelBase, {
   DataModelSideEffect
 } from './DataModelBase';
 import { List, Record } from 'immutable';
-import ScalarDataModel, { NullDataModel, StringDataModel } from './ScalarDataModel';
-import DataPath from './DataPath';
-import DataPathElement from './DataPathElement';
+import ScalarDataModel, { NullDataModel, ScalarDataSource, StringDataModel } from './ScalarDataModel';
+import DataPath from './Path/DataPath';
+import DataPathElement from './Path/DataPathElement';
 import DataModelFactory from './DataModelFactory';
+import { DataAction, DeleteDataAction, InsertDataAction, SetDataAction } from './DataAction';
+import DataOperationError from './Error/DataOperationError';
 
 const MapDataModelElementRecord = Record({
   key: StringDataModel.empty,
   value: NullDataModel.null
 });
+
+export interface MapDataModelPrivateItem {
+  k?: string;
+  v: ScalarDataSource | object;
+}
 
 export class MapDataModelElement extends MapDataModelElementRecord {
   public readonly key: string | undefined;
@@ -26,6 +33,10 @@ export class MapDataModelElement extends MapDataModelElementRecord {
 
   public setValue(path: DataPath, value: DataModelBase): MapDataModelElement {
     return this.set('value', this.value.setValue(path, value)) as this;
+  }
+
+  public setValue2(value: DataModelBase): MapDataModelElement {
+    return this.set('value', value) as this;
   }
 
   public setKey(key: string | undefined): MapDataModelElement {
@@ -61,16 +72,27 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
   public readonly list: List<MapDataModelElement>;
   public static readonly empty = new MapDataModel({});
 
-  private static formatValues(list: object) {
+  private static formatValues(list: object | MapDataModelPrivateItem[]) {
     let formattedValues: List<MapDataModelElement> = List.of<MapDataModelElement>();
-    for (const key of Object.keys(list)) {
-      const value = list[key];
-      formattedValues = formattedValues.push(new MapDataModelElement(key, DataModelFactory.create(value)));
+    if (Array.isArray(list)) {
+      for (const item of list) {
+        const element = new MapDataModelElement(item.k, DataModelFactory.create(item.v));
+        formattedValues = formattedValues.push(element);
+      }
+    } else {
+      for (const key of Object.keys(list)) {
+        const value = list[key];
+        formattedValues = formattedValues.push(new MapDataModelElement(key, DataModelFactory.create(value)));
+      }
     }
     return formattedValues;
   }
 
-  constructor(list: object) {
+  public static create(list: object | MapDataModelPrivateItem[]) {
+    return new MapDataModel(list);
+  }
+
+  constructor(list: object | MapDataModelPrivateItem[]) {
     super({list: MapDataModel.formatValues(list)});
   }
 
@@ -127,12 +149,100 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
-  public toJsonObject(): any {
+  applyAction(path: DataPath, action: DataAction): DataModelBase {
+    if (path.isEmptyPath) {
+      switch (action.type) {
+        case 'Insert':
+          return this.applyInsertAction(action as InsertDataAction);
+        case 'Delete':
+          return this.applyDeleteAction(action as DeleteDataAction);
+        case 'Set':
+          return (<SetDataAction>action).data;
+        default:
+          throw new DataOperationError('Invalid operation', {path, action, targetData: this});
+      }
+    } else {
+      const pathElement = path.firstElement;
+      const index = this.indexForPath(pathElement);
+      if (index >= 0) {
+        let node = this.list.get(index);
+        if (action.type === 'Set' && path.pointsKey && path.elements.size === 1) {
+          const newKey = (<SetDataAction>action).data;
+          if (this.validateCanSetKey(index, newKey)) {
+            node = node.setKey(newKey.value);
+          }
+        } else {
+          node = node.setValue2(node.value.applyAction(path.shift(), action));
+        }
+        return this.set('list', this.list.set(index, node));
+      } else {
+        throw new DataOperationError('Invalid path for action', {path, action, targetData: this});
+      }
+    }
+  }
+
+  public applyDeleteAction(action: DeleteDataAction): DataModelBase {
+    if (typeof action.targetIndex === 'number') {
+      if (this.isValidIndex(action.targetIndex)) {
+        return this.set('list', this.list.delete(action.targetIndex));
+      } else {
+        throw new DataOperationError('Invalid index.', {action, targetData: this});
+      }
+    } else {
+      const index = this.indexForKey(action.targetIndex);
+      if (index >= 0) {
+        return this.set('list', this.list.delete(index));
+      } else {
+        throw new DataOperationError('Invalid key.', {action, targetData: this});
+      }
+    }
+  }
+
+  public applyInsertAction(action: InsertDataAction): DataModelBase {
+    const node = new MapDataModelElement(action.key, action.data);
+    if (action.targetIndex === undefined) {
+      const newList = action.isAfter ? this.list.push(node) : this.list.unshift(node);
+      return this.set('list', newList);
+    } else if (typeof action.targetIndex === 'number') {
+      if (action.isAfter) {
+        if (action.targetIndex >= 0 && action.targetIndex < this.list.size) {
+          return this.set('list', this.list.insert(action.targetIndex + 1, node));
+        } else {
+          throw new DataOperationError('Invalid index.', {action, targetData: this});
+        }
+      } else {
+        if (action.targetIndex >= 0 && action.targetIndex <= this.list.size) {
+          return this.set('list', this.list.insert(action.targetIndex, node));
+        } else {
+          throw new DataOperationError('Invalid index.', {action, targetData: this});
+        }
+      }
+    } else {
+      const index = this.indexForKey(action.targetIndex);
+      if (index >= 0) {
+        return this.set('list', this.list.insert(action.isAfter ? index + 1 : index, node));
+      } else {
+        throw new DataOperationError('Invalid key.', {action, targetData: this});
+      }
+    }
+  }
+
+  public toJsonObject(): object {
     const object = {};
-    this._validList.forEach((item: ValidMapDataModelElement) => {
-      object[item.key] = item.value.toJsonObject();
+    this.list.forEach((item: ValidMapDataModelElement) => {
+      if (item.key && object[item.key] === undefined) {
+        object[item.key] = item.value.toJsonObject();
+      }
     });
     return object;
+  }
+
+  public toPrivateJsonObject(): MapDataModelPrivateItem[] {
+    const objects: MapDataModelPrivateItem[] = [];
+    this.list.forEach(item => {
+      objects.push({k: item!.key, v: item!.value.toJsonObject()})
+    });
+    return objects;
   }
 
   public getValue(path: DataPath): DataModelBase | undefined {

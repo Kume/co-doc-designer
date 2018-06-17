@@ -8,9 +8,11 @@ import DataModelBase, {
 } from './DataModelBase';
 import { List, Record } from 'immutable';
 import DataModelFactory from './DataModelFactory';
-import DataPath from './DataPath';
-import DataPathElement from './DataPathElement';
+import DataPath from './Path/DataPath';
+import DataPathElement from './Path/DataPathElement';
 import { IntegerDataModel } from './ScalarDataModel';
+import { DataAction, DeleteDataAction, InsertDataAction, SetDataAction } from './DataAction';
+import DataOperationError from './Error/DataOperationError';
 
 const ListDataModelRecord = Record({
   list: List<DataModelBase>()
@@ -75,6 +77,69 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     return this.set('list', this.list.set(
       pathElement.asListIndex,
       this.list.get(pathElement.asListIndex).setValue(path.shift(), value)));
+  }
+
+  public applyAction(path: DataPath, action: DataAction): DataModelBase {
+    if (path.isEmptyPath) {
+      switch (action.type) {
+        case 'Insert':
+          return this.applyInsertAction(action as InsertDataAction);
+        case 'Delete':
+          return this.applyDeleteAction(action as DeleteDataAction);
+        case 'Set':
+          return (<SetDataAction>action).data;
+        default:
+          throw new DataOperationError('Invalid operation', {path, action, targetData: this});
+      }
+    } else {
+      const pathElement = path.firstElement;
+      if (pathElement.canBeListIndex) {
+        const index = pathElement.asListIndex;
+        if (this.isValidIndex(index)) {
+          const item = this.list.get(index);
+          return this.set('list', this.list.set(index, item.applyAction(path.shift(), action)));
+        } else {
+          throw new DataOperationError('Invalid index', {path, action, targetData: this});
+        }
+      } else {
+        throw new DataOperationError('Invalid path', {path, action, targetData: this});
+      }
+    }
+  }
+
+  public applyInsertAction(action: InsertDataAction): this {
+    if (action.targetIndex === undefined) {
+      const newList = action.isAfter ? this.list.push(action.data) : this.list.unshift(action.data);
+      return this.set('list', newList);
+    } else if (typeof action.targetIndex === 'number') {
+      if (action.isAfter) {
+        if (action.targetIndex >= 0 && action.targetIndex < this.list.size) {
+          return this.set('list', this.list.insert(action.targetIndex + 1, action.data));
+        } else {
+          throw new DataOperationError('Invalid index.', {action, targetData: this});
+        }
+      } else {
+        if (action.targetIndex >= 0 && action.targetIndex <= this.list.size) {
+          return this.set('list', this.list.insert(action.targetIndex, action.data));
+        } else {
+          throw new DataOperationError('Invalid index.', {action, targetData: this});
+        }
+      }
+    } else {
+      throw new DataOperationError('Can not insert by key to list.', {action, targetData: this});
+    }
+  }
+
+  public applyDeleteAction(action: DeleteDataAction): this {
+    if (typeof action.targetIndex === 'number') {
+      if (this.isValidIndex(action.targetIndex)) {
+        return this.set('list', this.list.delete(action.targetIndex));
+      } else {
+        throw new DataOperationError('Invalid index.', {action, targetData: this});
+      }
+    } else {
+      throw new DataOperationError('Can not delete by key from list.', {action, targetData: this});
+    }
   }
 
   public getValue(path: DataPath): DataModelBase | undefined {

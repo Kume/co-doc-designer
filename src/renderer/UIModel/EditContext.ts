@@ -1,6 +1,6 @@
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import { Record } from 'immutable';
-import { default as DataPathElement, DataPathElementCompatible } from '../DataModel/DataPathElement';
+import { default as DataPathElement, DataPathElementCompatible } from '../DataModel/Path/DataPathElement';
 import { CollectionDataModel, CollectionIndex, default as DataModelBase } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';

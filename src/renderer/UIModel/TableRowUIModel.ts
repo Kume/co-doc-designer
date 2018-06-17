@@ -6,7 +6,7 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { createSetValueAction } from './UIModelAction';
 import { List, Record } from 'immutable';
 import EditContext from './EditContext';
-import DataPath from '../DataModel/DataPath';
+import DataPath from '../DataModel/Path/DataPath';
 import MapDataModel from '../DataModel/MapDataModel';
 import TextUIModel from './TextUIModel';
 import UIModel from './UIModel';

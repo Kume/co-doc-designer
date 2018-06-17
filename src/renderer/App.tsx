@@ -3,9 +3,9 @@ import './App.css';
 import RootUIView from './UIView/RootUIView';
 import * as fs from 'fs';
 import * as Yaml from 'js-yaml';
-import DataMapper from './DataModel/DataMapper';
+import DataMapper from './DataModel/Storage/DataMapper';
 import * as path from 'path';
-import FileDataStorage from './DataModel/FileDataStorage';
+import FileDataStorage from './DataModel/Storage/FileDataStorage';
 import { UIDefinitionFactory } from './UIDefinition/UIDefinitionFactory';
 import UIDefinitionConfigObject from './UIDefinition/UIDefinitionConfigObject';
 

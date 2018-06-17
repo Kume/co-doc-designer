@@ -1,6 +1,6 @@
 import ObjectDataStorage from '../ObjectDataStorage';
 import DataMapper, { DataMapperConfig } from '../DataMapper';
-import DataModelFactory from '../DataModelFactory';
+import DataModelFactory from '../../DataModelFactory';
 
 describe('Unit Test for DataMapper', () => {
   describe('Common save and load test', () => {
