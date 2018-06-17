@@ -1,5 +1,6 @@
 import { isUnsignedIntegerString } from '../../../common/util';
 import DataPath from './DataPath';
+import { Record } from 'immutable';
 
 export interface IndexWithKey {
   index: number;
@@ -9,7 +10,12 @@ export interface IndexWithKey {
 export type DataPathElementSource = string | number;
 export type DataPathElementCompatible = DataPathElementSource | DataPathElement;
 
-class DataPathElement {
+const DataPathElementRecord = Record({
+  _type: 0,
+  _value: null
+});
+
+class DataPathElement extends DataPathElementRecord {
   public static readonly SpecialName = {
     Key: '$key'
   };
@@ -18,8 +24,8 @@ class DataPathElement {
     return this._type;
   }
 
-  private _value: any;
-  private _type: DataPathElement.Type;
+  private readonly _value: any;
+  private readonly _type: DataPathElement.Type;
 
   public static create(value: DataPathElementCompatible): DataPathElement {
     if (value instanceof DataPathElement) {
@@ -50,8 +56,7 @@ class DataPathElement {
   }
 
   public constructor(value: any, type: DataPathElement.Type) {
-    this._value = value;
-    this._type = type;
+    super({ _value: value, _type: type });
   }
 
   public get asMapKey(): string {

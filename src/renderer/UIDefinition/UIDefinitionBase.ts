@@ -1,8 +1,8 @@
 import DataPathElement from '../DataModel/Path/DataPathElement';
 
 export default abstract class UIDefinitionBase {
-  private _title: string;
-  private _key: DataPathElement;
+  private readonly _title: string;
+  private readonly _key: DataPathElement;
 
   public constructor(title: string, key: DataPathElement) {
     this._title = title;

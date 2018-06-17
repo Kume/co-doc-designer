@@ -1,5 +1,6 @@
 import DataPath from '../DataPath';
 import DataPathElement from '../DataPathElement';
+import { is } from 'immutable'
 
 describe('Unit tests for DataPath', () => {
   describe('Unit tests for DataPath.parse', () => {
@@ -26,6 +27,15 @@ describe('Unit tests for DataPath', () => {
       expect(() => {
         DataPath.parse('..bar');
       }).toThrow();
+    });
+  });
+
+  describe('Unit tests for equals', () => {
+    it('Equals same path', () => {
+      const path1 = DataPath.empty.push('a');
+      const path2 = DataPath.empty.push('a');
+      expect(path1).toEqual(path2);
+      expect(is(path1, path2)).toBe(true);
     });
   });
 });

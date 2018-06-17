@@ -39,6 +39,7 @@ export interface DataModelAsyncSideEffect {
 }
 
 export type CollectionIndex = number | string;
+export type CollectionIndexes = number[] | string[];
 
 export interface DataModelConvertWithIndex<T> {
   (data: DataModelBase, index: CollectionIndex): T;
