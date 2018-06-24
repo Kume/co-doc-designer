@@ -5,6 +5,7 @@ import { List, Map } from 'immutable';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { UIModel2Factory } from './UIModel2Factory';
 import DataPath from '../DataModel/Path/DataPath';
+import { DataAction } from '../DataModel/DataAction';
 
 interface GroupedActions {
   updateDataActions: UIModelUpdateDataAction[];
@@ -58,6 +59,14 @@ export default class UIModel2Manager {
   public applyActions(actions: UIModelAction[]): void {
     const groupedActions = UIModel2Manager.groupActions(actions);
     for (const action of groupedActions.updateDataActions) {
+      for (const constructDefaultAction of this._rootUIModel.constructDefaultValue(action.path)) {
+        if (constructDefaultAction.path.isEmptyPath && DataAction.isSetDataAction(constructDefaultAction.dataAction)) {
+          this._dataModel = constructDefaultAction.dataAction.data;
+        } else {
+          this._dataModel = this._dataModel!.applyAction(
+            constructDefaultAction.path, constructDefaultAction.dataAction);
+        }
+      }
       this._dataModel = this._dataModel!.applyAction(action.path, action.dataAction);
     }
     if (groupedActions.updateStateActions.length > 0) {

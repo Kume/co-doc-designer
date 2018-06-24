@@ -8,12 +8,29 @@ import UIModel2 from '../UIModel2/UIModel2';
 import { FormUIDefinitionConfigObject } from '../UIDefinition/FormUIDefinition';
 
 const basicDefinition: FormUIDefinitionConfigObject = {
-  type: 'form',
+  type: 'tab',
   key: '',
   title: 'test',
   contents: [
-    { type: 'text', key: 'a', title: 'A' },
-    { type: 'text', key: 'b', title: 'B' },
+    {
+      type: 'form',
+      key: 'a',
+      title: 'Tab A',
+      contents: [
+        { type: 'text', key: 'a1', title: 'A1' },
+        { type: 'text', key: 'a2', title: 'A2' },
+      ]
+    },
+    {
+      type: 'form',
+      key: 'b',
+      title: 'Tab B',
+      contents: [
+        { type: 'text', key: 'b1', title: 'B1' },
+        { type: 'text', key: 'b2', title: 'B2' },
+        { type: 'text', key: 'b3', title: 'B3' },
+      ]
+    }
   ]
 };
 interface Props {

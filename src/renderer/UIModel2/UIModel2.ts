@@ -4,6 +4,7 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { is, Iterable, List, Map as ImmutableMap } from 'immutable';
 import { UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModel2Actions';
 import { UIModel2State } from './types';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 
 export const stateKey = Symbol('stateKey');
 
@@ -170,7 +171,19 @@ export abstract class MultiContentUIModel<D extends UIDefinitionBase> extends Co
     return actions;
   }
 
+  protected constructChildDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
+    if (!dataPath.isEmptyPath) {
+      const index = this.dataPathElementToChildIndex(dataPath.firstElement);
+      if (index !== undefined) {
+        const child = this.children.get(index);
+        return child!.constructDefaultValue(dataPath.shift());
+      }
+    }
+    return [];
+  }
+
   protected abstract childIndexes(): CollectionIndex[];
   protected abstract childPropsAt(index: CollectionIndex): UIModel2Props;
   protected abstract childDefinitionAt(index: CollectionIndex): UIDefinitionBase;
+  protected abstract dataPathElementToChildIndex(element: DataPathElement): CollectionIndex | undefined;
 }

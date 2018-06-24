@@ -5,6 +5,7 @@ import MapDataModel from '../DataModel/MapDataModel';
 import { Record } from 'immutable';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import { UIModelAction, UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModel2Actions';
+import DataPath from '../DataModel/Path/DataPath';
 
 const TabUIModelStateRecord = Record({
   selectedTab: undefined
@@ -61,11 +62,12 @@ export default class TabUIModel2 extends SingleContentUIModel<TabUIDefinition> {
     })).toArray();
   }
 
-  public constructDefaultValue(): UIModelUpdateDataAction[] {
+  public constructDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
+    const childResult = dataPath.isEmptyPath ? [] : this.child.constructDefaultValue(dataPath.shift());
     if (this.props.data instanceof MapDataModel) {
-      return [];
+      return childResult;
     } else {
-      return [UIModelAction.Creators.setData(this.props.dataPath, new MapDataModel({}))];
+      return [UIModelAction.Creators.setData(this.props.dataPath, new MapDataModel({})), ...childResult];
     }
   }
 
@@ -108,7 +110,7 @@ export default class TabUIModel2 extends SingleContentUIModel<TabUIDefinition> {
     const selectedTab = this.selectedTab;
     return new UIModel2Props({
       stateNode: stateNode && stateNode.get(selectedTab),
-      data: this.mapData && this.mapData.get(selectedTab as string),
+      data: this.mapData && this.mapData.valueForKey(selectedTab as string),
       modelPath: modelPath.push(selectedTab),
       dataPath: dataPath.push(selectedTab),
       focusedPath: focusedPath && focusedPath.shift()

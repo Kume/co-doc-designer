@@ -1,6 +1,7 @@
 import { isUnsignedIntegerString } from '../../../common/util';
 import DataPath from './DataPath';
 import { Record } from 'immutable';
+import { CollectionIndex } from '../DataModelBase';
 
 export interface IndexWithKey {
   index: number;
@@ -62,11 +63,10 @@ class DataPathElement extends DataPathElementRecord {
   public get asMapKey(): string {
     switch (this._type) {
       case DataPathElement.Type.MapKey:
-        return this._value as string;
       case DataPathElement.Type.Both:
         return this._value;
       case DataPathElement.Type.IndexWithKey:
-        const key = (<IndexWithKey>this._value).key;
+        const key = (<IndexWithKey> this._value).key;
         if (key) {
           return key;
         } else {
@@ -77,6 +77,10 @@ class DataPathElement extends DataPathElementRecord {
     }
   }
 
+  public get asMapKeyOrUndefined(): string | undefined {
+    return this.canBeMapKey ? this.asMapKey : undefined;
+  }
+
   public get asListIndex(): number {
     switch (this._type) {
       case DataPathElement.Type.ListIndex:
@@ -84,26 +88,61 @@ class DataPathElement extends DataPathElementRecord {
       case DataPathElement.Type.Both:
         return parseInt(this._value, 10);
       case DataPathElement.Type.IndexWithKey:
-        return (<IndexWithKey>this._value).index;
+        return (<IndexWithKey> this._value).index;
       default:
         throw new Error('This cannot be list index');
     }
   }
 
+  public get asListIndexOrUndefined(): number | undefined {
+    return this.canBeListIndex ? this.asListIndex : undefined;
+  }
+
+  public asCollectionIndex(prioritizeListIndex?: boolean): CollectionIndex {
+    switch (this._type) {
+      case DataPathElement.Type.MapKey:
+      case DataPathElement.Type.ListIndex:
+        return this._value as CollectionIndex;
+      case DataPathElement.Type.Both:
+        return prioritizeListIndex ? Number(this._value) : this._value;
+      case DataPathElement.Type.IndexWithKey:
+        if (prioritizeListIndex) {
+          return (<IndexWithKey> this._value).index;
+        } else {
+          const key = (<IndexWithKey> this._value).key;
+          if (key) {
+            return key;
+          } else {
+            throw new Error('This cannot be map key');
+          }
+        }
+      default:
+        throw new Error('This cannot be Collection index');
+    }
+  }
+
   public toString(): string {
-    return this._value ? this._value.toString() : "???";
+    return this._value ? this._value.toString() : '???';
   }
 
   public get canBeMapKey(): boolean {
     return this._type === DataPathElement.Type.MapKey ||
       this._type === DataPathElement.Type.Both ||
-      (this._type === DataPathElement.Type.IndexWithKey && !!(<IndexWithKey>this._value).key);
+      (this._type === DataPathElement.Type.IndexWithKey && !!(<IndexWithKey> this._value).key);
   }
 
   public get canBeListIndex(): boolean {
     return this._type === DataPathElement.Type.ListIndex ||
       this._type === DataPathElement.Type.Both ||
       this._type === DataPathElement.Type.IndexWithKey;
+  }
+
+  public canBeCollectionIndex(prioritizeListIndex?: boolean): boolean {
+    if (prioritizeListIndex) {
+      return this.canBeListIndex || this._type === DataPathElement.Type.MapKey;
+    } else {
+      return this.canBeMapKey || this._type === DataPathElement.Type.ListIndex;
+    }
   }
 
   public get isKey(): boolean {

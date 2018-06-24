@@ -69,8 +69,12 @@ const MapDataModelRecord = Record({
 });
 
 export default class MapDataModel extends MapDataModelRecord implements CollectionDataModel {
-  public readonly list: List<MapDataModelElement>;
   public static readonly empty = new MapDataModel({});
+  public readonly list: List<MapDataModelElement>;
+
+  public static create(list: object | MapDataModelPrivateItem[]) {
+    return new MapDataModel(list);
+  }
 
   private static formatValues(list: object | MapDataModelPrivateItem[]) {
     let formattedValues: List<MapDataModelElement> = List.of<MapDataModelElement>();
@@ -86,10 +90,6 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       }
     }
     return formattedValues;
-  }
-
-  public static create(list: object | MapDataModelPrivateItem[]) {
-    return new MapDataModel(list);
   }
 
   constructor(list: object | MapDataModelPrivateItem[]) {
@@ -157,7 +157,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
         case 'Delete':
           return this.applyDeleteAction(action as DeleteDataAction);
         case 'Set':
-          return (<SetDataAction>action).data;
+          return (<SetDataAction> action).data;
         default:
           throw new DataOperationError('Invalid operation', {path, action, targetData: this});
       }
@@ -176,7 +176,12 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
         }
         return this.set('list', this.list.set(index, node));
       } else {
-        throw new DataOperationError('Invalid path for action', {path, action, targetData: this});
+        if (DataAction.isSetDataAction(action) && path.elements.size === 1) {
+          const newNode = new MapDataModelElement(path.firstElement.asMapKeyOrUndefined, action.data);
+          return this.set('list', this.list.push(newNode));
+        } else {
+          throw new DataOperationError('Invalid path for action', {path, action, targetData: this});
+        }
       }
     }
   }

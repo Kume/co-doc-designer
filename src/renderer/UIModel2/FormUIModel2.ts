@@ -4,6 +4,8 @@ import { CollectionIndex } from '../DataModel/DataModelBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import { UIModelAction, UIModelUpdateDataAction } from './UIModel2Actions';
+import DataPath from '../DataModel/Path/DataPath';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 
 export default class FormUIModel2 extends MultiContentUIModel<FormUIDefinition> {
   private _childKeys?: string[];
@@ -30,12 +32,19 @@ export default class FormUIModel2 extends MultiContentUIModel<FormUIDefinition> 
     });
   }
 
-  public constructDefaultValue(): UIModelUpdateDataAction[] {
+  public constructDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
     if (this.props.data instanceof MapDataModel) {
-      return [];
+      return this.constructChildDefaultValue(dataPath);
     } else {
-      return [UIModelAction.Creators.setData(this.props.dataPath, new MapDataModel({}))];
+      return [
+        UIModelAction.Creators.setData(this.props.dataPath, new MapDataModel({})),
+        ...this.constructChildDefaultValue(dataPath)
+      ];
     }
+  }
+
+  protected dataPathElementToChildIndex(element: DataPathElement): CollectionIndex | undefined {
+    return element.canBeMapKey ? element.asMapKey : undefined;
   }
 
   private childDefinitionAtKey(key: string): UIDefinitionBase | undefined {
