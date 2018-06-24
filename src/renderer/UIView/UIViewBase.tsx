@@ -1,17 +1,12 @@
 import * as React from 'react';
 import DataModelBase from '../DataModel/DataModelBase';
 import DataPath from '../DataModel/Path/DataPath';
-import EditContext from '../UIModel/EditContext';
-import { CollectValue } from '../UIModel/UIModel';
 import { UIModelAction } from '../UIModel2/UIModel2Actions';
 import UIModel2 from '../UIModel2/UIModel2';
+import { CollectValue } from '../UIModel2/types';
 
 export interface OnUpdateData {
   (path: DataPath, model: DataModelBase): void;
-}
-
-export interface OnSetEditContext {
-  (context: EditContext): void;
 }
 
 export interface OpenModal {

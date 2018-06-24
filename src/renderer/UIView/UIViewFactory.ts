@@ -7,6 +7,10 @@ import UIModel2 from '../UIModel2/UIModel2';
 import TextUIModel2 from '../UIModel2/TextUIModel2';
 import TabUIModel2 from '../UIModel2/TabUIModel2';
 import FormUIModel2 from '../UIModel2/FormUIModel2';
+import CheckBoxUIView from './CheckBoxUIView';
+import CheckBoxUIModel2 from '../UIModel2/CheckBoxUIModel2';
+import SelectUIModel2 from '../UIModel2/SelectUIModel2';
+import SelectUIView from './SelectUIView';
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel2): ComponentClass<UIViewBaseProps<UIModel2>> {
@@ -25,12 +29,12 @@ export default class UIViewFactory {
     if (model instanceof FormUIModel2) {
       return FormUIView;
     }
-    // if (model instanceof CheckBoxUIModel) {
-    //   return CheckBoxUIView;
-    // }
-    // if (model instanceof SelectUIModel) {
-    //   return SelectUIView;
-    // }
+    if (model instanceof CheckBoxUIModel2) {
+      return CheckBoxUIView;
+    }
+    if (model instanceof SelectUIModel2) {
+      return SelectUIView;
+    }
     // if (model instanceof TableUIModel) {
     //   return TableUIView;
     // }

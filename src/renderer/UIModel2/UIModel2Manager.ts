@@ -1,6 +1,6 @@
 import { UIModelAction, UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModel2Actions';
 import { default as UIModel2, stateKey, UIModel2Props, UIModelStateNode } from './UIModel2';
-import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
+import DataModelBase, { CollectionIndex, DataCollectionElement } from '../DataModel/DataModelBase';
 import { List, Map } from 'immutable';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { UIModel2Factory } from './UIModel2Factory';
@@ -51,6 +51,7 @@ export default class UIModel2Manager {
 
   constructor(definition: UIDefinitionBase, data?: DataModelBase) {
     this.applyActions = this.applyActions.bind(this);
+    this.collectValue = this.collectValue.bind(this);
     this._rootUIDefinition = definition;
     this._dataModel = data;
     this._rootUIModel = UIModel2Factory.create(definition, UIModel2Props.createSimple({ data }));
@@ -86,6 +87,10 @@ export default class UIModel2Manager {
     });
     this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, nextUIProps, this._rootUIModel);
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
+  }
+
+  public collectValue(targetPath: DataPath, basePath: DataPath): DataCollectionElement[] {
+    return this._dataModel ? this._dataModel.collectValue(targetPath) : [];
   }
 
   get focusedPath(): DataPath | undefined {

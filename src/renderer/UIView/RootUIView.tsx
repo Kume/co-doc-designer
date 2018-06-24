@@ -29,6 +29,8 @@ const basicDefinition: FormUIDefinitionConfigObject = {
         { type: 'text', key: 'b1', title: 'B1' },
         { type: 'text', key: 'b2', title: 'B2' },
         { type: 'text', key: 'b3', title: 'B3' },
+        { type: 'checkbox', key: 'b4', title: 'B4 チェック' },
+        { type: 'select', key: 'b5', title: 'B5 セレクト', options: { path: 'b.*' } } as any,
       ]
     }
   ]

@@ -44,7 +44,7 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
         throw new DataOperationError('Cannot delete from scalar data.', {action, path, targetData: this});
       case 'Set':
         if (path.isEmptyPath) {
-          return (<SetDataAction>action).data;
+          return (<SetDataAction> action).data;
         } else {
           throw new DataOperationError('Cannot set under scalar data.', {action, path, targetData: this});
         }
@@ -121,7 +121,13 @@ export class FloatDataModel extends NumberDataModel {
 }
 
 export class BooleanDataModel extends ScalarDataModel {
+  public static readonly trueModel = new BooleanDataModel(true);
+  public static readonly falseModel = new BooleanDataModel(false);
   public readonly value: boolean;
+
+  public static create(value: boolean): BooleanDataModel {
+    return value ? this.trueModel : this.falseModel;
+  }
 
   constructor(value: boolean) {
     super(value, ScalarDataModelType.Boolean);
