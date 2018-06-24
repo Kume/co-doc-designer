@@ -1,49 +1,39 @@
 import UIViewBase, { UIViewBaseProps } from './UIViewBase';
 import TabUIView from './TabUIView';
 import { ComponentClass } from 'react';
-import ContentListUIView from './ContentListUIView';
 import TextUIView from './TextUIView';
-import UIModel from '../UIModel/UIModel';
-import TextUIModel from '../UIModel/TextUIModel';
-import ContentListUIModel from '../UIModel/ContentListUIModel';
-import TabUIModel from '../UIModel/TabUIModel';
 import FormUIView from './FormUIView';
-import FormUIModel from '../UIModel/FormUIModel';
-import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
-import CheckBoxUIView from './CheckBoxUIView';
-import TableUIModel from '../UIModel/TableUIModel';
-import TableUIView from './TableUIView';
-import TextAreaUIView from './TextAreaUIView';
-import TextAreaUIModel from '../UIModel/TextAreaUIModel';
-import SelectUIModel from '../UIModel/SelectUIModel';
-import SelectUIView from './SelectUIView';
+import UIModel2 from '../UIModel2/UIModel2';
+import TextUIModel2 from '../UIModel2/TextUIModel2';
+import TabUIModel2 from '../UIModel2/TabUIModel2';
+import FormUIModel2 from '../UIModel2/FormUIModel2';
 
 export default class UIViewFactory {
-  public static createUIView(model: UIModel): ComponentClass<UIViewBaseProps> {
-    if (model instanceof ContentListUIModel) {
-      return ContentListUIView;
-    }
-    if (model instanceof TextUIModel) {
+  public static createUIView(model: UIModel2): ComponentClass<UIViewBaseProps<UIModel2>> {
+    // if (model instanceof ContentListUIModel) {
+    //   return ContentListUIView;
+    // }
+    if (model instanceof TextUIModel2) {
       return TextUIView;
     }
-    if (model instanceof TextAreaUIModel) {
-      return TextAreaUIView;
-    }
-    if (model instanceof TabUIModel) {
+    // if (model instanceof TextAreaUIModel) {
+    //   return TextAreaUIView;
+    // }
+    if (model instanceof TabUIModel2) {
       return TabUIView;
     }
-    if (model instanceof FormUIModel) {
+    if (model instanceof FormUIModel2) {
       return FormUIView;
     }
-    if (model instanceof CheckBoxUIModel) {
-      return CheckBoxUIView;
-    }
-    if (model instanceof SelectUIModel) {
-      return SelectUIView;
-    }
-    if (model instanceof TableUIModel) {
-      return TableUIView;
-    }
+    // if (model instanceof CheckBoxUIModel) {
+    //   return CheckBoxUIView;
+    // }
+    // if (model instanceof SelectUIModel) {
+    //   return SelectUIView;
+    // }
+    // if (model instanceof TableUIModel) {
+    //   return TableUIView;
+    // }
     return UIViewBase;
   }
 }

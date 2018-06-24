@@ -8,6 +8,7 @@ import { StringDataModel } from '../../DataModel/ScalarDataModel';
 import { SetDataAction } from '../../DataModel/DataAction';
 import TextUIModel2 from '../TextUIModel2';
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
+import { List } from 'immutable';
 
 require('../UIModel2Factory');
 
@@ -23,9 +24,10 @@ const basicDefinition: FormUIDefinitionConfigObject = <FormUIDefinitionConfigObj
 function createBasicProps(data: DataModelBase): UIModel2Props {
   return new UIModel2Props({
     data,
-    path: DataPath.empty,
-    editContext: undefined,
-    state: undefined
+    dataPath: DataPath.empty,
+    modelPath: List(),
+    focusedPath: undefined,
+    stateNode: undefined
   });
 }
 const basicProps = createBasicProps(MapDataModel.create({ a: 'foo', b: 'bar' }));

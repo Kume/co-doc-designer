@@ -17,7 +17,7 @@ export default class TextUIModel2 extends UIModel2<TextUIDefinition> {
     if (this.text === text) {
       return [];
     } else {
-      return [UIModelAction.Creators.setData(this.props.path, StringDataModel.create(text))];
+      return [UIModelAction.Creators.setData(this.props.dataPath, StringDataModel.create(text))];
     }
   }
 }

@@ -1,9 +1,10 @@
 import DataPath from '../DataModel/Path/DataPath';
 import { DataAction, DeleteDataAction, SetDataAction } from '../DataModel/DataAction';
-import EditContext from '../UIModel/EditContext';
 import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
+import { List } from 'immutable';
+import { UIModel2State } from './types';
 
-type UIModelActionType = 'UpdateData' | 'UpdateEditContext' | 'UpdateState';
+type UIModelActionType = 'UpdateData' | 'UpdateState';
 
 export interface UIModelAction {
   type: UIModelActionType;
@@ -15,15 +16,10 @@ export interface UIModelUpdateDataAction extends UIModelAction {
   dataAction: DataAction;
 }
 
-export interface UIModelUpdateEditContextAction extends UIModelAction {
-  type: 'UpdateEditContext';
-  editContext: EditContext;
-}
-
 export interface UIModelUpdateStateAction extends UIModelAction {
   type: 'UpdateState';
-  path: DataPath;
-  action: DataAction;
+  path: List<CollectionIndex>;
+  state: UIModel2State | undefined;
 }
 
 export namespace UIModelAction {
@@ -43,5 +39,13 @@ export namespace UIModelAction {
         dataAction: <DeleteDataAction> { type: 'Delete', targetIndex }
       };
     }
+  }
+
+  export function isUpdateDataAction(action: UIModelAction): action is UIModelUpdateDataAction {
+    return action.type === 'UpdateData';
+  }
+
+  export function isUpdateStateAction(action: UIModelAction): action is UIModelUpdateStateAction {
+    return action.type === 'UpdateState';
   }
 }

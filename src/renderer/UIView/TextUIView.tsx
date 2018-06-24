@@ -1,20 +1,17 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TextUIModel from '../UIModel/TextUIModel';
+import TextUIModel2 from '../UIModel2/TextUIModel2';
 
-interface Props extends UIViewBaseProps {
-  model: TextUIModel;
-}
-
-export default class TextUIView extends UIViewBase<Props, UIViewBaseState> {
+export default class TextUIView extends UIViewBase<TextUIModel2, UIViewBaseProps<TextUIModel2>, UIViewBaseState> {
   private _textInput: HTMLInputElement;
 
   render(): React.ReactNode {
+    const model = this.props.model;
     return (
       <input
         type="text"
-        value={this.props.model.text}
-        onChange={() => this.props.model.inputText(this.props.dispatch, this._textInput.value)}
+        value={model.text}
+        onChange={() => this.props.applyAction(model.input(this._textInput.value))}
         ref={ref => this._textInput = ref!}
       />
     );

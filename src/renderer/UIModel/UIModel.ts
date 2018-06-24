@@ -28,7 +28,7 @@ export interface CollectValue {
 }
 
 export interface UpdateParams<T> {
-  value: T
+  value: T;
 }
 
 export interface UpdateUIModelParams {

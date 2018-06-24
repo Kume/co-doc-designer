@@ -1,17 +1,13 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
-import FormUIModel from '../UIModel/FormUIModel';
+import FormUIModel2 from '../UIModel2/FormUIModel2';
 
-interface Props extends UIViewBaseProps {
-  model: FormUIModel;
-}
-
-export default class FormUIView extends UIViewBase<Props, UIViewBaseState> {
+export default class FormUIView extends UIViewBase<FormUIModel2, UIViewBaseProps<FormUIModel2>, UIViewBaseState> {
   render() {
     return (
       <div>
-        {this.props.model.children.map(childModel => {
+        {Array.from(this.props.model.children.values()).map(childModel => {
           const ContentComponent = UIViewFactory.createUIView(childModel!);
           const definition = childModel!.definition;
           return (
@@ -22,7 +18,7 @@ export default class FormUIView extends UIViewBase<Props, UIViewBaseState> {
               <div className="ui-form--row-content">
                 <ContentComponent
                   model={childModel!}
-                  dispatch={this.props.dispatch}
+                  applyAction={this.props.applyAction}
                   collectValue={this.props.collectValue}
                 />
               </div>

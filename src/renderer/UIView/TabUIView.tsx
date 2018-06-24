@@ -2,16 +2,12 @@ import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
 import { ReactNode } from 'react';
-import TabUIModel from '../UIModel/TabUIModel';
+import TabUIModel2 from '../UIModel2/TabUIModel2';
 
-interface Props extends UIViewBaseProps {
-  model: TabUIModel;
-}
-
-export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
+export default class TabUIView extends UIViewBase<TabUIModel2, UIViewBaseProps<TabUIModel2>, UIViewBaseState> {
   public render(): ReactNode {
-    const { model, dispatch } = this.props;
-    const CurrentComponent = UIViewFactory.createUIView(model.childModel);
+    const { model, applyAction } = this.props;
+    const CurrentComponent = UIViewFactory.createUIView(model.child);
 
     return (
       <div>
@@ -21,17 +17,17 @@ export default class TabUIView extends UIViewBase<Props, UIViewBaseState> {
               <div
                 className={'ui-tab-tab' + (tab.isSelected ? ' selected' : '')}
                 key={tab.key}
-                onClick={() => model.selectTab(dispatch, tab.key)}
+                onClick={() => applyAction(model.selectTab(tab.key))}
               >
-                {tab.title}
+                {tab.label}
               </div>
             );
           })}
         </div>
         <div className="ui-tab-content">
           <CurrentComponent
-            model={model.childModel}
-            dispatch={dispatch}
+            model={model.child}
+            applyAction={applyAction}
             collectValue={this.props.collectValue}
           />
         </div>
