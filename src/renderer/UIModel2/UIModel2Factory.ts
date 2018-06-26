@@ -10,6 +10,8 @@ import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import CheckBoxUIModel2 from './CheckBoxUIModel2';
 import SelectUIDefinition from '../UIDefinition/SelectUIDefinition';
 import SelectUIModel2 from './SelectUIModel2';
+import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
+import ContentListUIModel2 from './ContentListUIModel2';
 
 export class UIModel2Factory {
   public static create(definition: UIDefinitionBase, props: UIModel2Props, oldModel?: UIModel2<any>): UIModel2<any> {
@@ -27,6 +29,9 @@ export class UIModel2Factory {
     }
     if (definition instanceof SelectUIDefinition) {
       return new SelectUIModel2(definition, props);
+    }
+    if (definition instanceof ContentListUIDefinition) {
+      return new ContentListUIModel2(definition, props);
     }
     throw new Error('Invalid ui definition.');
   }

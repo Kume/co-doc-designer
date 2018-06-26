@@ -6,7 +6,7 @@ import TabUIModel2 from '../UIModel2/TabUIModel2';
 
 export default class TabUIView extends UIViewBase<TabUIModel2, UIViewBaseProps<TabUIModel2>, UIViewBaseState> {
   public render(): ReactNode {
-    const { model, applyAction } = this.props;
+    const { model, applyAction, focus } = this.props;
     const CurrentComponent = UIViewFactory.createUIView(model.child);
 
     return (
@@ -17,7 +17,7 @@ export default class TabUIView extends UIViewBase<TabUIModel2, UIViewBaseProps<T
               <div
                 className={'ui-tab-tab' + (tab.isSelected ? ' selected' : '')}
                 key={tab.key}
-                onClick={() => applyAction(model.selectTab(tab.key))}
+                onClick={() => focus(tab.path)}
               >
                 {tab.label}
               </div>
@@ -29,6 +29,7 @@ export default class TabUIView extends UIViewBase<TabUIModel2, UIViewBaseProps<T
             model={model.child}
             applyAction={applyAction}
             collectValue={this.props.collectValue}
+            focus={focus}
           />
         </div>
       </div>

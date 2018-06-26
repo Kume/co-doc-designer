@@ -20,6 +20,7 @@ export default class FormUIView extends UIViewBase<FormUIModel2, UIViewBaseProps
                   model={childModel!}
                   applyAction={this.props.applyAction}
                   collectValue={this.props.collectValue}
+                  focus={this.props.focus}
                 />
               </div>
             </div>

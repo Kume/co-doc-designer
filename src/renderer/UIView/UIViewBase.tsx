@@ -16,6 +16,7 @@ export interface OpenModal {
 export interface UIViewBaseProps <T extends UIModel2<any>> {
   model: T;
   applyAction: (actions: UIModelAction[]) => void;
+  focus: (path: DataPath) => void;
   collectValue: CollectValue;
 }
 

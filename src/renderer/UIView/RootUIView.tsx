@@ -6,6 +6,7 @@ import { sampleDataForUIConfig, sampleUIConfig } from '../UIDefinition/SampleDat
 import UIModel2Manager from '../UIModel2/UIModel2Manager';
 import UIModel2 from '../UIModel2/UIModel2';
 import { FormUIDefinitionConfigObject } from '../UIDefinition/FormUIDefinition';
+import { ContentListUIDefinitionConfigObject } from '../UIDefinition/ContentListUIDefinition';
 
 const basicDefinition: FormUIDefinitionConfigObject = {
   type: 'tab',
@@ -13,14 +14,29 @@ const basicDefinition: FormUIDefinitionConfigObject = {
   title: 'test',
   contents: [
     {
-      type: 'form',
+      type: 'contentList',
       key: 'a',
       title: 'Tab A',
-      contents: [
-        { type: 'text', key: 'a1', title: 'A1' },
-        { type: 'text', key: 'a2', title: 'A2' },
-      ]
-    },
+      listIndexKey: 'c1',
+      content: {
+        type: 'form',
+        key: 'c',
+        title: 'Tab A',
+        contents: [
+          { type: 'text', key: 'c1', title: 'C1' },
+          { type: 'text', key: 'c2', title: 'C2' },
+        ]
+      },
+      addFormContent: {
+        type: 'form',
+        key: 'c',
+        title: 'Tab A',
+        contents: [
+          { type: 'text', key: 'a1', title: 'A1' },
+          { type: 'text', key: 'a2', title: 'A2' },
+        ]
+      },
+    } as ContentListUIDefinitionConfigObject,
     {
       type: 'form',
       key: 'b',
@@ -35,6 +51,13 @@ const basicDefinition: FormUIDefinitionConfigObject = {
     }
   ]
 };
+
+const basicData = DataModelFactory.create({
+  a: [
+    { c1: 'test c1', c2: 'test c2' },
+    { c1: 'test c1-2', c2: 'test c2-2' }
+  ]
+});
 interface Props {
   // definition: UIDefinitionBase;
 }
@@ -50,7 +73,7 @@ export default class RootUIView extends React.Component<Props, State> {
   constructor(props: Props, context?: any) {
     super(props, context);
     const definition = UIDefinitionFactory.create(basicDefinition);
-    this._manager = new UIModel2Manager(definition);
+    this._manager = new UIModel2Manager(definition, basicData);
     this._manager.notifyModelChanged = () => {
       this.setState({model: this._manager.rootUIModel});
     };
@@ -80,6 +103,7 @@ export default class RootUIView extends React.Component<Props, State> {
             model={model}
             applyAction={this._manager.applyActions}
             collectValue={this._manager.collectValue}
+            focus={this._manager.focus}
           />
           {/*{ModalContentComponent && (*/}
             {/*<div className="ui-root--modal-background" onClick={() => this._manager.closeModal()}>*/}

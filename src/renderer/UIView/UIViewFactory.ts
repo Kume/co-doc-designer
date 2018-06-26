@@ -11,12 +11,14 @@ import CheckBoxUIView from './CheckBoxUIView';
 import CheckBoxUIModel2 from '../UIModel2/CheckBoxUIModel2';
 import SelectUIModel2 from '../UIModel2/SelectUIModel2';
 import SelectUIView from './SelectUIView';
+import ContentListUIModel2 from '../UIModel2/ContentListUIModel2';
+import ContentListUIView from './ContentListUIView';
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel2): ComponentClass<UIViewBaseProps<UIModel2>> {
-    // if (model instanceof ContentListUIModel) {
-    //   return ContentListUIView;
-    // }
+    if (model instanceof ContentListUIModel2) {
+      return ContentListUIView;
+    }
     if (model instanceof TextUIModel2) {
       return TextUIView;
     }

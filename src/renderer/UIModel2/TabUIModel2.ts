@@ -18,6 +18,7 @@ export class TabUIModelState extends TabUIModelStateRecord {
 interface Tab {
   key: string;
   label: string;
+  path: DataPath;
   isSelected: boolean;
 }
 
@@ -30,15 +31,11 @@ export default class TabUIModel2 extends SingleContentUIModel<TabUIDefinition> {
         const focusTab = focusedPath.firstElement.asMapKey;
         const state = this.state;
         if (!state || state.selectedTab !== focusTab) {
-          return super.adjustState().concat(this._selectTab(focusTab));
+          return super.adjustState().concat(this.selectTab(focusTab));
         }
       }
     }
     return super.adjustState();
-  }
-
-  public selectTab(tab: string): UIModelAction[] {
-    return this.selectedTab === tab ? [] : this._selectTab(tab);
   }
 
   public get selectedTab(): string {
@@ -58,6 +55,7 @@ export default class TabUIModel2 extends SingleContentUIModel<TabUIDefinition> {
     return this.definition.contents.map(content => ({
       key: content!.key.asMapKey,
       label: content!.title,
+      path: this.props.dataPath.push(content!.key),
       isSelected: content!.key.asMapKey === selectedTab
     })).toArray();
   }
@@ -71,7 +69,7 @@ export default class TabUIModel2 extends SingleContentUIModel<TabUIDefinition> {
     }
   }
 
-  private _selectTab(tab: string): UIModelUpdateStateAction[] {
+  private selectTab(tab: string): UIModelUpdateStateAction[] {
     const state = this.state;
     const nextState = state ? state.set('selectedTab', tab) : new TabUIModelState({ selectedTab: tab });
     return [<UIModelUpdateStateAction> {

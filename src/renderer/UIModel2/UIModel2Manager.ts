@@ -52,6 +52,7 @@ export default class UIModel2Manager {
   constructor(definition: UIDefinitionBase, data?: DataModelBase) {
     this.applyActions = this.applyActions.bind(this);
     this.collectValue = this.collectValue.bind(this);
+    this.focus = this.focus.bind(this);
     this._rootUIDefinition = definition;
     this._dataModel = data;
     this._rootUIModel = UIModel2Factory.create(definition, UIModel2Props.createSimple({ data }));
@@ -60,32 +61,18 @@ export default class UIModel2Manager {
   public applyActions(actions: UIModelAction[]): void {
     const groupedActions = UIModel2Manager.groupActions(actions);
     for (const action of groupedActions.updateDataActions) {
-      for (const constructDefaultAction of this._rootUIModel.constructDefaultValue(action.path)) {
-        if (constructDefaultAction.path.isEmptyPath && DataAction.isSetDataAction(constructDefaultAction.dataAction)) {
-          this._dataModel = constructDefaultAction.dataAction.data;
-        } else {
-          this._dataModel = this._dataModel!.applyAction(
-            constructDefaultAction.path, constructDefaultAction.dataAction);
-        }
-      }
-      this._dataModel = this._dataModel!.applyAction(action.path, action.dataAction);
+      this.applyUpdateDataAction(action);
     }
-    if (groupedActions.updateStateActions.length > 0) {
-      let state = this._rootStateNode || Map() as UIModelStateNode;
-      for (const action of groupedActions.updateStateActions) {
-        state = digStateNode(state, action.path);
-        state = state.setIn((<List<any>> action.path).push(stateKey), action.state);
-      }
-      this._rootStateNode = state;
-    }
-    const nextUIProps = new UIModel2Props({
-      data: this._dataModel,
-      stateNode: this._rootStateNode,
-      modelPath: List(),
-      focusedPath: this._focusedPath,
-      dataPath: DataPath.empty
-    });
-    this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, nextUIProps, this._rootUIModel);
+    this.applyUpdateStateActions(groupedActions.updateStateActions);
+    this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
+    if (this.notifyModelChanged) { this.notifyModelChanged(); }
+  }
+
+  public focus(path: DataPath): void {
+    console.log('focus', path.toString());
+    this._focusedPath = path;
+    this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
+    this.applyUpdateStateActions(this._rootUIModel.adjustState());
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 
@@ -115,5 +102,38 @@ export default class UIModel2Manager {
 
   get modalUIModel(): UIModel2<any> {
     return this._modalUIModel;
+  }
+
+  private applyUpdateDataAction(action: UIModelUpdateDataAction): void {
+    for (const constructDefaultAction of this._rootUIModel.constructDefaultValue(action.path)) {
+      if (constructDefaultAction.path.isEmptyPath && DataAction.isSetDataAction(constructDefaultAction.dataAction)) {
+        this._dataModel = constructDefaultAction.dataAction.data;
+      } else {
+        this._dataModel = this._dataModel!.applyAction(
+          constructDefaultAction.path, constructDefaultAction.dataAction);
+      }
+    }
+    this._dataModel = this._dataModel!.applyAction(action.path, action.dataAction);
+  }
+
+  private applyUpdateStateActions(actions: UIModelUpdateStateAction[]): void {
+    if (actions.length > 0) {
+      let state = this._rootStateNode || Map() as UIModelStateNode;
+      for (const action of actions) {
+        state = digStateNode(state, action.path);
+        state = state.setIn((<List<any>> action.path).push(stateKey), action.state);
+      }
+      this._rootStateNode = state;
+    }
+  }
+
+  private get propsForRootModel(): UIModel2Props {
+    return new UIModel2Props({
+      data: this._dataModel,
+      stateNode: this._rootStateNode,
+      modelPath: List(),
+      focusedPath: this._focusedPath,
+      dataPath: DataPath.empty
+    });
   }
 }
