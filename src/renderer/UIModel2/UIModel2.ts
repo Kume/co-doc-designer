@@ -10,18 +10,21 @@ export const stateKey = Symbol('stateKey');
 
 export interface UIModelStateNode
   extends ImmutableMap<CollectionIndex | symbol, UIModelStateNode | UIModel2State | undefined> {
-  get(key: string | number): UIModelStateNode | undefined;
+  get(key: string | number | symbol): UIModelStateNode | undefined;
   get(key: symbol): UIModel2State | undefined;
   setIn(path: any[], value: any): UIModelStateNode;
   setIn(path: Iterable<any, any>, value: any): UIModelStateNode;
 }
 
+export type ModelPath = List<CollectionIndex | symbol>;
+
 export interface UIModel2PropsObject {
   data: DataModelBase | undefined;
   dataPath: DataPath;
-  modelPath: List<CollectionIndex>;
+  modelPath: ModelPath;
   focusedPath: DataPath | undefined;
   stateNode: UIModelStateNode | undefined;
+  key?: CollectionIndex;
 }
 
 interface OptionalUIModel2PropsObjectBase extends UIModel2PropsObject {
@@ -35,9 +38,10 @@ type OptionalUIModel2PropsObject = {
 export class UIModel2Props {
   readonly data: DataModelBase | undefined;
   readonly dataPath: DataPath;
-  readonly modelPath: List<CollectionIndex>;
+  readonly modelPath: ModelPath;
   readonly focusedPath: DataPath | undefined;
   readonly stateNode: UIModelStateNode | undefined;
+  readonly key: CollectionIndex | undefined;
 
   public static createSimple(optionalProps: OptionalUIModel2PropsObject): UIModel2Props {
     const stateNode = optionalProps.state
@@ -48,7 +52,8 @@ export class UIModel2Props {
       dataPath: optionalProps.dataPath || DataPath.empty,
       modelPath: optionalProps.modelPath || List(),
       focusedPath: optionalProps.focusedPath,
-      stateNode
+      stateNode,
+      key: optionalProps.key
     });
   }
 
@@ -58,6 +63,7 @@ export class UIModel2Props {
     this.modelPath = props.modelPath;
     this.focusedPath = props.focusedPath;
     this.stateNode = props.stateNode;
+    this.key = props.key;
   }
 
   public fastEquals(another: UIModel2Props): boolean {
@@ -65,7 +71,8 @@ export class UIModel2Props {
       && is(this.dataPath, another.dataPath)
       && is(this.modelPath, another.modelPath)
       && is(this.focusedPath, another.focusedPath)
-      && is(this.stateNode, another.stateNode);
+      && is(this.stateNode, another.stateNode)
+      && this.key === another.key;
   }
 }
 
@@ -129,36 +136,40 @@ export abstract class SingleContentUIModel<D extends UIDefinitionBase> extends C
   protected abstract get childDefinition(): UIDefinitionBase;
 }
 
-export type UIModelChildren = Map<CollectionIndex, UIModel2<any>>;
-export abstract class MultiContentUIModel<D extends UIDefinitionBase> extends ContentUIModel<D> {
-  public readonly children: UIModelChildren;
+export type UIModelChildren<I> = Map<I, UIModel2<any>>;
+export abstract class MultiContentUIModel<D extends UIDefinitionBase, I> extends ContentUIModel<D> {
+  public readonly children: UIModelChildren<I>;
 
-  public static newChildren<D extends UIDefinitionBase>(
-    newModel: MultiContentUIModel<D>,
-    oldModel?: MultiContentUIModel<D>
-  ): UIModelChildren {
+  public static newChildren<D extends UIDefinitionBase, I>(
+    newModel: MultiContentUIModel<D, I>,
+    oldModel?: MultiContentUIModel<D, I>
+  ): UIModelChildren<I> {
     const indexes = newModel.childIndexes();
-    const children: UIModelChildren = new Map();
+    const children: UIModelChildren<I> = new Map();
     if (indexes.length > 0) {
       for (const index of indexes) {
         const oldChild = oldModel && oldModel.children.get(index);
         let newChild = oldChild;
         const newDefinition = newModel.childDefinitionAt(index);
         const newProps = newModel.childPropsAt(index);
-        if (oldChild) {
-          if (oldChild.definition !== newDefinition || !oldChild.props.fastEquals(newProps)) {
+        if (newProps) {
+          if (oldChild) {
+            if (oldChild.definition !== newDefinition || !oldChild.props.fastEquals(newProps)) {
+              newChild = this._factory(newDefinition, newProps);
+            }
+          } else {
             newChild = this._factory(newDefinition, newProps);
           }
+          children.set(index, newChild!);
         } else {
-          newChild = this._factory(newDefinition, newProps);
+          throw new Error();
         }
-        children.set(index, newChild!);
       }
     }
     return children;
   }
 
-  public constructor(definition: D, props: UIModel2Props, oldModel?: MultiContentUIModel<D>) {
+  public constructor(definition: D, props: UIModel2Props, oldModel?: MultiContentUIModel<D, I>) {
     super(definition, props);
     this.children = MultiContentUIModel.newChildren(this, oldModel);
   }
@@ -173,17 +184,19 @@ export abstract class MultiContentUIModel<D extends UIDefinitionBase> extends Co
 
   protected constructChildDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
     if (!dataPath.isEmptyPath) {
-      const index = this.dataPathElementToChildIndex(dataPath.firstElement);
-      if (index !== undefined) {
-        const child = this.children.get(index);
-        return child!.constructDefaultValue(dataPath.shift());
+      const childIndex = this.dataPathToChildIndex(dataPath.firstElement);
+      if (childIndex !== undefined) {
+        const child = this.children.get(childIndex);
+        if (child) {
+          return child.constructDefaultValue(dataPath.shift());
+        }
       }
     }
     return [];
   }
 
-  protected abstract childIndexes(): CollectionIndex[];
-  protected abstract childPropsAt(index: CollectionIndex): UIModel2Props;
-  protected abstract childDefinitionAt(index: CollectionIndex): UIDefinitionBase;
-  protected abstract dataPathElementToChildIndex(element: DataPathElement): CollectionIndex | undefined;
+  protected abstract childIndexes(): I[];
+  protected abstract childPropsAt(index: I): UIModel2Props | undefined;
+  protected abstract childDefinitionAt(index: I): UIDefinitionBase;
+  protected abstract dataPathToChildIndex(element: DataPathElement): I | undefined;
 }

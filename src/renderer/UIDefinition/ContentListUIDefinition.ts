@@ -7,13 +7,17 @@ import UIDefinitionBase from './UIDefinitionBase';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import DataModelFactory from '../DataModel/DataModelFactory';
 import ListDataModel from '../DataModel/ListDataModel';
-import { CollectionDataModelType, default as CollectionDataModelUtil } from '../DataModel/CollectionDataModelUtil';
+import {
+  CollectionDataModelType,
+  CollectionDataModelTypeString,
+  default as CollectionDataModelUtil
+} from '../DataModel/CollectionDataModelUtil';
 
 export interface ContentListUIDefinitionConfigObject extends UIDefinitionConfigObject {
   listIndexKey?: string;
   addFormContent: UIDefinitionConfigObject;
   addFormDefaultValue: Object;
-  dataType?: string;
+  dataType?: CollectionDataModelTypeString;
 }
 
 export default class ContentListUIDefinition extends SingleContentUIDefinition {

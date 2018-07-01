@@ -23,6 +23,7 @@ const basicDefinition: FormUIDefinitionConfigObject = {
         key: 'c',
         title: 'Tab A',
         contents: [
+          { type: 'text', key: '$key', title: 'KEY' },
           { type: 'text', key: 'c1', title: 'C1' },
           { type: 'text', key: 'c2', title: 'C2' },
         ]
@@ -36,6 +37,7 @@ const basicDefinition: FormUIDefinitionConfigObject = {
           { type: 'text', key: 'a2', title: 'A2' },
         ]
       },
+      dataType: 'map'
     } as ContentListUIDefinitionConfigObject,
     {
       type: 'form',
@@ -53,11 +55,12 @@ const basicDefinition: FormUIDefinitionConfigObject = {
 };
 
 const basicData = DataModelFactory.create({
-  a: [
-    { c1: 'test c1', c2: 'test c2' },
-    { c1: 'test c1-2', c2: 'test c2-2' }
-  ]
+  a: {
+    key_c1: { c1: 'test c1', c2: 'test c2' },
+    key_c2: { c1: 'test c1-2', c2: 'test c2-2' }
+  }
 });
+
 interface Props {
   // definition: UIDefinitionBase;
 }

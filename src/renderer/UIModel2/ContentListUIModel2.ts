@@ -6,10 +6,9 @@ import DataModelBase, { CollectionDataModel, CollectionIndex } from '../DataMode
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
 import { UIModelUpdateStateAction } from './UIModel2Actions';
-import { TabUIModelState } from './TabUIModel2';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
 import DataPath from '../DataModel/Path/DataPath';
-import CollectionDataModelUtil from '../DataModel/CollectionDataModelUtil';
+import CollectionDataModelUtil, { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
 
 export interface ContentListIndex {
   index: CollectionIndex;
@@ -33,13 +32,13 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
     const focusedPath = this.props.focusedPath;
     if (focusedPath && !focusedPath.isEmptyPath) {
       const firstElement = focusedPath.firstElement;
-      if (firstElement.canBeListIndex && firstElement.asListIndex !== this.selectedIndex) {
+      if (firstElement.canBeListIndex) {
         const focusIndex = focusedPath.firstElement.asListIndex;
         const state = this.state;
         if (!state || state.selectedIndex !== focusIndex) {
           return [...super.adjustState(), {
             type: 'UpdateState',
-            state: (this.state || new TabUIModelState()).set('selectedIndex', focusIndex),
+            state: (this.state || new ContentListUIModelState()).set('selectedIndex', focusIndex),
             path: this.props.modelPath
           }];
         }
@@ -50,8 +49,8 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
 
   public get indexes(): ContentListIndex[] {
     if (this.collectionData) {
-      return this.collectionData.mapDataWithIndex<ContentListIndex>(
-        (item: DataModelBase, index: CollectionIndex): ContentListIndex => {
+      return this.collectionData.mapAllData(
+        (item: DataModelBase, index: number): ContentListIndex => {
           let isInvalid: boolean = false;
           const isSelected = index === this.selectedIndex;
           const path = this.props.dataPath.push(index);
@@ -96,7 +95,8 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
       data: this.selectedData(selectedIndex),
       modelPath: modelPath.push(selectedIndex),
       dataPath: dataPath.push(selectedIndex),
-      focusedPath: focusedPath && focusedPath.shift()
+      focusedPath: focusedPath && focusedPath.shift(),
+      key: this.selectedKey(selectedIndex)
     });
   }
 
@@ -109,20 +109,27 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
     if (focusedPath && !focusedPath.isEmptyPath && focusedPath.firstElement.canBeListIndex) {
       return focusedPath.firstElement.asListIndex;
     } else {
-      return 0;
+      const state = this.state;
+      return state && state.selectedIndex ? state.selectedIndex : 0;
     }
   }
 
-  private selectedData(selectedIndex?: number): DataModelBase | undefined {
-    if (selectedIndex === undefined) {
-      selectedIndex = this.selectedIndex;
-    }
+  private selectedData(selectedIndex: number): DataModelBase | undefined {
     const { data } = this.props;
-    if (data instanceof MapDataModel) {
+    if (this.definition.dataType === CollectionDataModelType.Map && data instanceof MapDataModel) {
       return data.valueForListIndex(selectedIndex);
-    } else if (data instanceof ListDataModel) {
+    } else if (this.definition.dataType === CollectionDataModelType.List && data instanceof ListDataModel) {
       return data.getValueForIndex(selectedIndex);
     }
     return undefined;
+  }
+
+  private selectedKey(selectedIndex: number): CollectionIndex | undefined {
+    if (this.definition.dataType === CollectionDataModelType.List) { return selectedIndex; }
+    if (this.props.data instanceof MapDataModel) {
+      return this.props.data.keyForIndex(selectedIndex);
+    } else {
+      return undefined;
+    }
   }
 }

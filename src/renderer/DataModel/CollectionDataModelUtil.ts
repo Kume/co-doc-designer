@@ -7,9 +7,11 @@ export enum CollectionDataModelType {
   List
 }
 
+export type CollectionDataModelTypeString = 'list' | 'map';
+
 export default class CollectionDataModelUtil {
   public static parseModelType(
-    str: string | undefined,
+    str: CollectionDataModelTypeString | undefined,
     defaultType: CollectionDataModelType = CollectionDataModelType.List
   ): CollectionDataModelType {
     switch (str) {

@@ -1,5 +1,5 @@
 import { UIModelAction, UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModel2Actions';
-import { default as UIModel2, stateKey, UIModel2Props, UIModelStateNode } from './UIModel2';
+import { default as UIModel2, ModelPath, stateKey, UIModel2Props, UIModelStateNode } from './UIModel2';
 import DataModelBase, { CollectionIndex, DataCollectionElement } from '../DataModel/DataModelBase';
 import { List, Map } from 'immutable';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
@@ -12,9 +12,9 @@ interface GroupedActions {
   updateStateActions: UIModelUpdateStateAction[];
 }
 
-function digStateNode(node: UIModelStateNode, path: List<CollectionIndex>): UIModelStateNode {
+function digStateNode(node: UIModelStateNode, path: ModelPath): UIModelStateNode {
   let currentNode = node;
-  const currentPath: CollectionIndex[] = [];
+  const currentPath: (CollectionIndex | symbol)[] = [];
   path.forEach(index => {
     currentPath.push(index!);
     if (!currentNode.get(index!)) {
@@ -65,14 +65,15 @@ export default class UIModel2Manager {
     }
     this.applyUpdateStateActions(groupedActions.updateStateActions);
     this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
+    console.log('applyActions', this.dataModel && this.dataModel.toJsonObject(), actions);
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 
   public focus(path: DataPath): void {
-    console.log('focus', path.toString());
     this._focusedPath = path;
     this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
     this.applyUpdateStateActions(this._rootUIModel.adjustState());
+    console.log('focus', path.toString(), this._rootStateNode);
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 

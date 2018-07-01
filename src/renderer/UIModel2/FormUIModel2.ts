@@ -1,35 +1,52 @@
 import { MultiContentUIModel, UIModel2Props, UIModelStateNode } from './UIModel2';
 import FormUIDefinition from '../UIDefinition/FormUIDefinition';
-import { CollectionIndex } from '../DataModel/DataModelBase';
+import DataModelBase from '../DataModel/DataModelBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import { UIModelAction, UIModelUpdateDataAction } from './UIModel2Actions';
 import DataPath from '../DataModel/Path/DataPath';
 import DataPathElement from '../DataModel/Path/DataPathElement';
+import DataModelFactory from '../DataModel/DataModelFactory';
 
-export default class FormUIModel2 extends MultiContentUIModel<FormUIDefinition> {
-  private _childKeys?: string[];
+type IndexType = string | symbol;
+export default class FormUIModel2 extends MultiContentUIModel<FormUIDefinition, IndexType> {
+  private _childKeys?: IndexType[];
 
-  protected childDefinitionAt(index: CollectionIndex): UIDefinitionBase {
-    return this.childDefinitionAtKey(index as string)!;
+  protected childDefinitionAt(index: IndexType): UIDefinitionBase {
+    return this.definition.contents.find(content => {
+      const key = content!.key;
+      if (index === DataPathElement.keySymbol) {
+        return key.isKey;
+      } else {
+        return key.canBeMapKey && key.asMapKey === index;
+      }
+    });
   }
 
-  protected childIndexes(): CollectionIndex[] {
+  protected childIndexes(): IndexType[] {
     if (this._childKeys) { return this._childKeys; }
-    return this._childKeys = this.definition.contents.map(content => content!.key.asMapKey).toArray();
+    return this._childKeys = this.definition.contents
+      .map(content => this.dataPathToChildIndex(content!.key)!).toArray();
   }
 
-  protected childPropsAt(index: CollectionIndex): UIModel2Props {
-    const mapData = this.props.data instanceof MapDataModel ? this.props.data : undefined;
-    const childData = mapData && mapData.valueForKey(index as string);
+  protected childPropsAt(index: IndexType): UIModel2Props {
     const {dataPath, modelPath, focusedPath} = this.props;
     return new UIModel2Props({
       stateNode: this.childStateAt(index),
       dataPath: dataPath.push(index),
       modelPath: modelPath.push(index),
       focusedPath: focusedPath && focusedPath.shift(),
-      data: childData
+      data: this.childDataAt(index)
     });
+  }
+
+  protected dataPathToChildIndex(element: DataPathElement): IndexType | undefined {
+    if (element.isKey) {
+      return DataPathElement.keySymbol;
+    } else if (element.canBeMapKey) {
+      return element.asMapKey;
+    }
+    return undefined;
   }
 
   public constructDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
@@ -43,18 +60,21 @@ export default class FormUIModel2 extends MultiContentUIModel<FormUIDefinition> 
     }
   }
 
-  protected dataPathElementToChildIndex(element: DataPathElement): CollectionIndex | undefined {
-    return element.canBeMapKey ? element.asMapKey : undefined;
-  }
-
-  private childDefinitionAtKey(key: string): UIDefinitionBase | undefined {
-    return this.definition.contents.find(content => content!.key.asMapKey === key);
-  }
-
-  private childStateAt(index: CollectionIndex): UIModelStateNode | undefined {
+  private childStateAt(index: IndexType): UIModelStateNode | undefined {
     const stateNode = this.props.stateNode;
     if (!stateNode) { return undefined; }
     return stateNode && stateNode.get(index);
+  }
+
+  private childDataAt(index: IndexType): DataModelBase | undefined {
+    if (index === DataPathElement.keySymbol) {
+      const dataPath = this.props.dataPath;
+      return dataPath.isEmptyPath ? undefined : DataModelFactory.create(this.props.key);
+    } else if (typeof index === 'symbol') {
+      throw new Error();
+    }
+    const mapData = this.props.data instanceof MapDataModel ? this.props.data : undefined;
+    return mapData && mapData.getValue(new DataPath(index));
   }
 
   // private get state(): FormUIModelState | undefined {

@@ -8,7 +8,7 @@ export interface IndexWithKey {
   key: string | undefined;
 }
 
-export type DataPathElementSource = string | number;
+export type DataPathElementSource = string | number | symbol;
 export type DataPathElementCompatible = DataPathElementSource | DataPathElement;
 
 const DataPathElementRecord = Record({
@@ -31,10 +31,14 @@ class DataPathElement extends DataPathElementRecord {
   public static create(value: DataPathElementCompatible): DataPathElement {
     if (value instanceof DataPathElement) {
       return value;
+    } else if (value === DataPathElement.keySymbol) {
+      return DataPathElement.key;
     } else if (typeof value === 'number') {
       return new DataPathElement(value, DataPathElement.Type.ListIndex);
-    } else {
+    } else if (typeof value === 'string') {
       return new DataPathElement(value, DataPathElement.Type.MapKey);
+    } else {
+      throw new Error();
     }
   }
 
@@ -81,6 +85,21 @@ class DataPathElement extends DataPathElementRecord {
     return this.canBeMapKey ? this.asMapKey : undefined;
   }
 
+  public get scalarValue(): string | number | symbol | undefined {
+    switch (this._type) {
+      case DataPathElement.Type.MapKey:
+      case DataPathElement.Type.Both:
+      case DataPathElement.Type.ListIndex:
+        return this._value;
+      case DataPathElement.Type.IndexWithKey:
+        return this._value.value;
+      case DataPathElement.Type.Key:
+        return DataPathElement.keySymbol;
+      default:
+        return undefined;
+    }
+  }
+
   public get asListIndex(): number {
     switch (this._type) {
       case DataPathElement.Type.ListIndex:
@@ -122,7 +141,7 @@ class DataPathElement extends DataPathElementRecord {
   }
 
   public toString(): string {
-    return this._value ? this._value.toString() : '???';
+    return this._value !== undefined ? this._value.toString() : '???';
   }
 
   public get canBeMapKey(): boolean {
@@ -171,6 +190,8 @@ class DataPathElement extends DataPathElementRecord {
 }
 
 namespace DataPathElement {
+  export const keySymbol = Symbol('key');
+
   export enum Type {
     None,
     MapKey,

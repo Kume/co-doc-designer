@@ -1,8 +1,8 @@
 import DataPath from '../DataModel/Path/DataPath';
 import { DataAction, DeleteDataAction, SetDataAction } from '../DataModel/DataAction';
 import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
-import { List } from 'immutable';
 import { UIModel2State } from './types';
+import { ModelPath } from './UIModel2';
 
 type UIModelActionType = 'UpdateData' | 'UpdateState';
 
@@ -18,7 +18,7 @@ export interface UIModelUpdateDataAction extends UIModelAction {
 
 export interface UIModelUpdateStateAction extends UIModelAction {
   type: 'UpdateState';
-  path: List<CollectionIndex>;
+  path: ModelPath;
   state: UIModel2State | undefined;
 }
 
