@@ -95,7 +95,7 @@ export default abstract class UIModel2<D extends UIDefinitionBase = any> {
 }
 
 export abstract class ContentUIModel<D extends UIDefinitionBase> extends UIModel2<D> {
-  protected static _factory: (def: UIDefinitionBase, props: UIModel2Props) => UIModel2<any>;
+  protected static _factory: (def: UIDefinitionBase, props: UIModel2Props, oldModel?: UIModel2<any>) => UIModel2<any>;
 
   public static registerFactory(factory: (def: UIDefinitionBase, props: UIModel2Props) => UIModel2<any>): void {
     if (this._factory) { throw new Error('Factory is already registered.'); }
@@ -149,24 +149,31 @@ export abstract class MultiContentUIModel<D extends UIDefinitionBase, I> extends
     if (indexes.length > 0) {
       for (const index of indexes) {
         const oldChild = oldModel && oldModel.children.get(index);
-        let newChild = oldChild;
         const newDefinition = newModel.childDefinitionAt(index);
         const newProps = newModel.childPropsAt(index);
-        if (newProps) {
-          if (oldChild) {
-            if (oldChild.definition !== newDefinition || !oldChild.props.fastEquals(newProps)) {
-              newChild = this._factory(newDefinition, newProps);
-            }
-          } else {
-            newChild = this._factory(newDefinition, newProps);
-          }
-          children.set(index, newChild!);
-        } else {
-          throw new Error();
-        }
+        children.set(index, newModel.createChildModel(newProps, newDefinition, oldChild));
       }
     }
     return children;
+  }
+
+  protected createChildModel(
+    newProps: UIModel2Props | undefined,
+    definition: UIDefinitionBase,
+    oldChild: UIModel2 | undefined
+  ): UIModel2 {
+    if (newProps) {
+      if (oldChild) {
+        if (oldChild.definition !== definition || !oldChild.props.fastEquals(newProps)) {
+          return MultiContentUIModel._factory(definition, newProps, oldChild);
+        }
+      } else {
+        return MultiContentUIModel._factory(definition, newProps);
+      }
+    } else {
+      throw new Error();
+    }
+    return oldChild;
   }
 
   public constructor(definition: D, props: UIModel2Props, oldModel?: MultiContentUIModel<D, I>) {

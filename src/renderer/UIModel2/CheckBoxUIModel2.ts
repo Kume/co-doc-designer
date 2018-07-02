@@ -3,6 +3,10 @@ import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import { BooleanDataModel } from '../DataModel/ScalarDataModel';
 import { UIModelAction } from './UIModel2Actions';
 
+const trueStrings = ['true', 'True', 'TRUE', 'ok', 'OK', 'Ok', 'yes', 'Yes', 'YES'];
+const falseStrings = ['false', 'False', 'FALSE', 'ng', 'Ng', 'NG', 'no', 'No', 'NO'];
+const booleanStrings: Array<string> = trueStrings.concat(falseStrings);
+
 export default class CheckBoxUIModel2 extends UIModel2<CheckBoxUIDefinition> {
   public get isChecked(): boolean {
     const data = this.props.data;
@@ -13,8 +17,16 @@ export default class CheckBoxUIModel2 extends UIModel2<CheckBoxUIDefinition> {
     }
   }
 
-  public input(isChecked: boolean): UIModelAction[] {
-    console.log({isChecked});
+  public static canInputValue(value: any): value is string | boolean {
+    if (typeof value === 'boolean') { return true; }
+    if (typeof value === 'string') { return booleanStrings.includes(value); }
+    return false;
+  }
+
+  public input(isChecked: string | boolean): UIModelAction[] {
+    if (typeof isChecked === 'string') {
+      isChecked = trueStrings.includes(isChecked);
+    }
     if (this.isChecked === isChecked) {
       return [];
     } else {

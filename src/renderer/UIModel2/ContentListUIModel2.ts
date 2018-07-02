@@ -107,7 +107,9 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
             return { index, title: item.toString(), isSelected, isInvalid, path };
           }
           if (listIndexKey.isKey) {
-            return { index, title: index.toString(), isSelected, isInvalid, path };
+            const selectedKey = this.selectedKey(index);
+            const title = selectedKey !== undefined ? selectedKey.toString() : '';
+            return { index, title, isSelected, isInvalid, path };
           }
           let title: string = '';
           if (!(item instanceof MapDataModel)) {

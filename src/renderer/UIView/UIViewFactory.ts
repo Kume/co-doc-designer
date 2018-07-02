@@ -13,6 +13,10 @@ import SelectUIModel2 from '../UIModel2/SelectUIModel2';
 import SelectUIView from './SelectUIView';
 import ContentListUIModel2 from '../UIModel2/ContentListUIModel2';
 import ContentListUIView from './ContentListUIView';
+import TextAreaUIModel2 from '../UIModel2/TextAreaUIModel2';
+import TextAreaUIView from './TextAreaUIView';
+import TableUIModel2 from '../UIModel2/TableUIModel2';
+import TableUIView from './TableUIView';
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel2): ComponentClass<UIViewBaseProps<UIModel2>> {
@@ -22,9 +26,9 @@ export default class UIViewFactory {
     if (model instanceof TextUIModel2) {
       return TextUIView;
     }
-    // if (model instanceof TextAreaUIModel) {
-    //   return TextAreaUIView;
-    // }
+    if (model instanceof TextAreaUIModel2) {
+      return TextAreaUIView;
+    }
     if (model instanceof TabUIModel2) {
       return TabUIView;
     }
@@ -37,9 +41,9 @@ export default class UIViewFactory {
     if (model instanceof SelectUIModel2) {
       return SelectUIView;
     }
-    // if (model instanceof TableUIModel) {
-    //   return TableUIView;
-    // }
+    if (model instanceof TableUIModel2) {
+      return TableUIView;
+    }
     return UIViewBase;
   }
 }

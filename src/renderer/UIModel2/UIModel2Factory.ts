@@ -12,6 +12,10 @@ import SelectUIDefinition from '../UIDefinition/SelectUIDefinition';
 import SelectUIModel2 from './SelectUIModel2';
 import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
 import ContentListUIModel2 from './ContentListUIModel2';
+import TableUIDefinition from '../UIDefinition/TableUIDefinition';
+import TableUIModel2 from './TableUIModel2';
+import TextAreaUIModel2 from './TextAreaUIModel2';
+import TextAreaUIDefinition from '../UIDefinition/TextAreaUIDefinition';
 
 export class UIModel2Factory {
   public static create(definition: UIDefinitionBase, props: UIModel2Props, oldModel?: UIModel2<any>): UIModel2<any> {
@@ -32,6 +36,12 @@ export class UIModel2Factory {
     }
     if (definition instanceof ContentListUIDefinition) {
       return new ContentListUIModel2(definition, props);
+    }
+    if (definition instanceof TableUIDefinition) {
+      return new TableUIModel2(definition, props);
+    }
+    if (definition instanceof TextAreaUIDefinition) {
+      return new TextAreaUIModel2(definition, props);
     }
     throw new Error('Invalid ui definition.');
   }
