@@ -1,14 +1,9 @@
 import DataModelBase, { CollectionIndex } from './DataModelBase';
 
-export type DataActionType = 'Insert' | 'Append' | 'Set' | 'Delete';
+export type DataActionType = 'Insert' | 'Move' | 'Set' | 'Delete';
 
 export interface DataAction {
   type: DataActionType;
-}
-
-export interface AppendDataAction extends DataAction {
-  type: 'Append',
-  data: DataModelBase;
 }
 
 export interface InsertDataAction extends DataAction {
@@ -30,6 +25,13 @@ export interface SetDataAction extends DataAction {
   data: DataModelBase;
 }
 
+export interface MoveDataAction extends DataAction {
+  type: 'Move';
+  from: CollectionIndex;
+  to: CollectionIndex;
+  isAfter?: boolean;
+}
+
 export module DataAction {
   export function isSetDataAction(action: DataAction): action is SetDataAction {
     return action.type === 'Set';
@@ -41,5 +43,9 @@ export module DataAction {
 
   export function isInsertDataAction(action: DataAction): action is InsertDataAction {
     return action.type === 'Insert';
+  }
+
+  export function isMoveDataAction(action: DataAction): action is MoveDataAction {
+    return action.type === 'Move';
   }
 }

@@ -42,6 +42,8 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
         throw new DataOperationError('Cannot insert into scalar data.', {action, path, targetData: this});
       case 'Delete':
         throw new DataOperationError('Cannot delete from scalar data.', {action, path, targetData: this});
+      case 'Move':
+        throw new DataOperationError('Cannot move in scalar data.', {action, path, targetData: this});
       case 'Set':
         if (path.isEmptyPath) {
           return (<SetDataAction> action).data;

@@ -1,4 +1,9 @@
-import { UIModelAction, UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModel2Actions';
+import {
+  UIModelAction,
+  UIModelFocusAction,
+  UIModelUpdateDataAction,
+  UIModelUpdateStateAction
+} from './UIModel2Actions';
 import { default as UIModel2, ModelPath, stateKey, UIModel2Props, UIModelStateNode } from './UIModel2';
 import DataModelBase, { CollectionIndex, DataCollectionElement } from '../DataModel/DataModelBase';
 import { List, Map } from 'immutable';
@@ -10,6 +15,7 @@ import { DataAction } from '../DataModel/DataAction';
 interface GroupedActions {
   updateDataActions: UIModelUpdateDataAction[];
   updateStateActions: UIModelUpdateStateAction[];
+  focusAction?: UIModelFocusAction;
 }
 
 function digStateNode(node: UIModelStateNode, path: ModelPath): UIModelStateNode {
@@ -39,14 +45,17 @@ export default class UIModel2Manager {
   private static groupActions(actions: UIModelAction[]): GroupedActions {
     const updateDataActions: UIModelUpdateDataAction[] = [];
     const updateStateActions: UIModelUpdateStateAction[] = [];
+    let focusAction: UIModelFocusAction | undefined;
     for (const action of actions) {
       if (UIModelAction.isUpdateDataAction(action)) {
         updateDataActions.push(action);
       } else if (UIModelAction.isUpdateStateAction(action)) {
         updateStateActions.push(action);
+      } else if (UIModelAction.isFocusAction(action)) {
+        focusAction = action;
       }
     }
-    return { updateDataActions, updateStateActions };
+    return { updateDataActions, updateStateActions, focusAction };
   }
 
   constructor(definition: UIDefinitionBase, data?: DataModelBase) {
@@ -65,6 +74,9 @@ export default class UIModel2Manager {
     }
     this.applyUpdateStateActions(groupedActions.updateStateActions);
     this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
+    if (groupedActions.focusAction) {
+      this.focus(groupedActions.focusAction.path);
+    }
     console.log('applyActions', this.dataModel && this.dataModel.toJsonObject(), actions);
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
@@ -72,8 +84,11 @@ export default class UIModel2Manager {
   public focus(path: DataPath): void {
     this._focusedPath = path;
     this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
-    this.applyUpdateStateActions(this._rootUIModel.adjustState());
-    console.log('focus', path.toString(), this._rootStateNode);
+    const adjustStateActions = this._rootUIModel.adjustState();
+    this.applyUpdateStateActions(adjustStateActions);
+    if (adjustStateActions.length > 0) {
+      this._rootUIModel = UIModel2Factory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
+    }
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 

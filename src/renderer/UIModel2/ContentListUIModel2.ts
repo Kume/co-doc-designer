@@ -5,13 +5,19 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import DataModelBase, { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
-import { UIModelUpdateStateAction } from './UIModel2Actions';
+import {
+  UIModelAction,
+  UIModelFocusAction,
+  UIModelUpdateDataAction,
+  UIModelUpdateStateAction
+} from './UIModel2Actions';
 import ScalarDataModel from '../DataModel/ScalarDataModel';
 import DataPath from '../DataModel/Path/DataPath';
 import CollectionDataModelUtil, { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
+import { InsertDataAction } from '../DataModel/DataAction';
 
 export interface ContentListIndex {
-  index: CollectionIndex;
+  index: number;
   isInvalid: boolean;
   isSelected: boolean;
   title: string;
@@ -45,6 +51,48 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
       }
     }
     return super.adjustState();
+  }
+
+  public moveUp(): UIModelAction[] {
+    const from = this.selectedIndex;
+    return [
+      UIModelAction.Creators.moveData(this.props.dataPath, from, from - 1),
+      <UIModelFocusAction> { type: 'Focus', path: this.props.dataPath.push(from - 1) }
+    ];
+  }
+
+  public get canMoveUp(): boolean {
+    return this.selectedIndex > 0;
+  }
+
+  public moveDown(): UIModelAction[] {
+    const from = this.selectedIndex;
+    return [
+      UIModelAction.Creators.moveData(this.props.dataPath, from, from + 1),
+      <UIModelFocusAction> { type: 'Focus', path: this.props.dataPath.push(from + 1) }
+    ];
+  }
+
+  public get canMoveDown(): boolean {
+    const { collectionData } = this;
+    return !!collectionData && this.selectedIndex < collectionData.allDataSize - 1;
+  }
+
+  public add(): UIModelAction[] {
+    return [<UIModelUpdateDataAction> {
+      type: 'UpdateData',
+      path: this.props.dataPath,
+      dataAction: <InsertDataAction> {
+        targetIndex: this.selectedIndex,
+        isAfter: true,
+        data: MapDataModel.create([]),
+        type: 'Insert'
+      }
+    }];
+  }
+
+  public delete(): UIModelAction[] {
+    return [UIModelAction.Creators.deleteData(this.props.dataPath, this.selectedIndex)];
   }
 
   public get indexes(): ContentListIndex[] {

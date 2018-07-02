@@ -11,7 +11,7 @@ import DataModelFactory from './DataModelFactory';
 import DataPath from './Path/DataPath';
 import DataPathElement from './Path/DataPathElement';
 import { IntegerDataModel } from './ScalarDataModel';
-import { DataAction, DeleteDataAction, InsertDataAction, SetDataAction } from './DataAction';
+import { DataAction, DeleteDataAction, InsertDataAction, MoveDataAction, SetDataAction } from './DataAction';
 import DataOperationError from './Error/DataOperationError';
 
 const ListDataModelRecord = Record({
@@ -140,6 +140,22 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     } else {
       throw new DataOperationError('Can not delete by key from list.', {action, targetData: this});
     }
+  }
+
+  public applyMoveAction(action: MoveDataAction): this {
+    const isValidIndex =
+      typeof action.from === 'number'
+      && typeof action.to === 'number'
+      && this.isValidIndex(action.from)
+      && this.isValidIndexForInsert(action.to, action.isAfter);
+    if (!isValidIndex) {
+      throw new DataOperationError('Invalid index.', {action, targetData: this});
+    }
+    let to = action.to as number;
+    if (action.isAfter) { to += 1; }
+    if (to > action.from) { to -= 1; }
+    const targetData = this.list.get(action.from as number);
+    return this.set('list', this.list.delete(action.from as number).insert(to, targetData));
   }
 
   public getValue(path: DataPath): DataModelBase | undefined {
@@ -276,6 +292,16 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
 
   public toString(): string {
     return JSON.stringify(this.toJsonObject());
+  }
+
+  public get allDataSize(): number {
+    return this.list.size;
+  }
+
+  private isValidIndexForInsert(index: number, isAfter: boolean | undefined) {
+    if (index < 0) { return false; }
+    const listSize = this.list.size;
+    return isAfter ? index < listSize : index <= listSize;
   }
 
   private _transposeOrder(index1: number, index2: number): this {

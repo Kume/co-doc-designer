@@ -65,4 +65,5 @@ export abstract class CollectionDataModel extends DataModelBase {
   public abstract moveUpForCollectionIndex(index: CollectionIndex): CollectionDataModel;
   public abstract moveDownForCollectionIndex(index: CollectionIndex): CollectionDataModel;
   public abstract mapAllData<T>(converter: DataModelConvertWithListIndex<T>): T[];
+  public abstract get allDataSize(): number;
 }

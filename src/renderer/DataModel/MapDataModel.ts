@@ -8,7 +8,7 @@ import ScalarDataModel, { NullDataModel, ScalarDataSource, StringDataModel } fro
 import DataPath from './Path/DataPath';
 import DataPathElement from './Path/DataPathElement';
 import DataModelFactory from './DataModelFactory';
-import { DataAction, DeleteDataAction, InsertDataAction, SetDataAction } from './DataAction';
+import { DataAction, DeleteDataAction, InsertDataAction, MoveDataAction, SetDataAction } from './DataAction';
 import DataOperationError from './Error/DataOperationError';
 
 const MapDataModelElementRecord = Record({
@@ -156,6 +156,8 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
           return this.applyInsertAction(action as InsertDataAction);
         case 'Delete':
           return this.applyDeleteAction(action as DeleteDataAction);
+        case 'Move':
+          return this.applyMoveAction(action as MoveDataAction);
         case 'Set':
           return (<SetDataAction> action).data;
         default:
@@ -167,7 +169,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       if (index >= 0) {
         let node = this.list.get(index);
         if (action.type === 'Set' && path.pointsKey && path.elements.size === 1) {
-          const newKey = (<SetDataAction>action).data;
+          const newKey = (<SetDataAction> action).data;
           if (this.validateCanSetKey(index, newKey)) {
             node = node.setKey(newKey.value);
           }
@@ -209,18 +211,11 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       const newList = action.isAfter ? this.list.push(node) : this.list.unshift(node);
       return this.set('list', newList);
     } else if (typeof action.targetIndex === 'number') {
-      if (action.isAfter) {
-        if (action.targetIndex >= 0 && action.targetIndex < this.list.size) {
-          return this.set('list', this.list.insert(action.targetIndex + 1, node));
-        } else {
-          throw new DataOperationError('Invalid index.', {action, targetData: this});
-        }
+      if (this.isValidIndexForInsert(action.targetIndex, action.isAfter)) {
+        const targetIndex = action.isAfter ? action.targetIndex + 1 : action.targetIndex;
+        return this.set('list', this.list.insert(targetIndex, node));
       } else {
-        if (action.targetIndex >= 0 && action.targetIndex <= this.list.size) {
-          return this.set('list', this.list.insert(action.targetIndex, node));
-        } else {
-          throw new DataOperationError('Invalid index.', {action, targetData: this});
-        }
+        throw new DataOperationError('Invalid index.', {action, targetData: this});
       }
     } else {
       const index = this.indexForKey(action.targetIndex);
@@ -230,6 +225,18 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
         throw new DataOperationError('Invalid key.', {action, targetData: this});
       }
     }
+  }
+
+  public applyMoveAction(action: MoveDataAction): this {
+    if (!(this.isValidCollectionIndex(action.from) && this.isValidIndexForInsert(action.to, action.isAfter))) {
+      throw new DataOperationError('Invalid index to move.', {action, targetData: this});
+    }
+    const from = this.indexForCollectionIndex(action.from);
+    let to = this.indexForCollectionIndex(action.to);
+    if (action.isAfter) { to += 1; }
+    if (to > from) { to -= 1; }
+    const targetData = this.list.get(from);
+    return this.set('list', this.list.delete(from).insert(to, targetData));
   }
 
   public toJsonObject(): object {
@@ -245,7 +252,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
   public toPrivateJsonObject(): MapDataModelPrivateItem[] {
     const objects: MapDataModelPrivateItem[] = [];
     this.list.forEach(item => {
-      objects.push({k: item!.key, v: item!.value.toJsonObject()})
+      objects.push({k: item!.key, v: item!.value.toJsonObject()});
     });
     return objects;
   }
@@ -405,6 +412,10 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return this._validList.size;
   }
 
+  public get allDataSize(): number {
+    return this.list.size;
+  }
+
   public get firstKey(): string | undefined {
     if (this.list.isEmpty()) {
       return undefined;
@@ -418,6 +429,10 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return JSON.stringify(this.toJsonObject());
   }
 
+  public indexForCollectionIndex(index: CollectionIndex): number {
+    return typeof index === 'string' ? this.indexForKey(index) : index;
+  }
+
   public indexForKey(key: string): number {
     return this.list.findIndex(element => element!.key === key);
   }
@@ -428,6 +443,20 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
 
   public isValidIndex(index: number): boolean {
     return Number.isInteger(index) && index >= 0 && index < this.list.size;
+  }
+
+  public isValidCollectionIndex(index: CollectionIndex): boolean {
+    return typeof index === 'number' ? this.isValidIndex(index) : this.isValidKey(index);
+  }
+
+  private isValidIndexForInsert(index: CollectionIndex, isAfter: boolean | undefined) {
+    if (typeof index === 'number') {
+      if (index < 0) { return false; }
+      const listSize = this.list.size;
+      return isAfter ? index < listSize : index <= listSize;
+    } else {
+      return this.isValidKey(index);
+    }
   }
 
   private indexForPath(pathElement: DataPathElement): number {

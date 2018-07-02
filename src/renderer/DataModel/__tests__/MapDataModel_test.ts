@@ -4,7 +4,7 @@ import ListDataModel from '../ListDataModel';
 import DataPath from '../Path/DataPath';
 import DataPathElement from '../Path/DataPathElement';
 import DataModelFactory from '../DataModelFactory';
-import { InsertDataAction } from '../DataAction';
+import { InsertDataAction, MoveDataAction } from '../DataAction';
 
 describe('Unit tests for MapDataModel', () => {
   describe('Unit tests for valueForKey', () => {
@@ -166,7 +166,6 @@ describe('Unit tests for MapDataModel', () => {
       });
     });
 
-
     (<{description: string, source: MapDataModel, action: InsertDataAction, expect: any}[]> [
       {
         description: 'Can insert by number index with no key',
@@ -183,9 +182,9 @@ describe('Unit tests for MapDataModel', () => {
     ]).map(item => {
       it(item.description, () => {
         const inserted = item.source.applyInsertAction(item.action);
-        expect((<MapDataModel>inserted).toPrivateJsonObject()).toEqual(item.expect);
+        expect((<MapDataModel> inserted).toPrivateJsonObject()).toEqual(item.expect);
       });
-    })
+    });
   });
 
   describe('Unit tests for MapDataModel.applyDeleteAction', () => {
@@ -199,6 +198,64 @@ describe('Unit tests for MapDataModel', () => {
       const model = new MapDataModel({a: 1, b: 3, c: 7});
       const deleted = model.applyDeleteAction({type: 'Delete', targetIndex: 1});
       expect(deleted.toJsonObject()).toEqual({a: 1, c: 7});
+    });
+  });
+
+  describe('Unit tests for MapDataModel.applyMoveAction', () => {
+    (<{description: string, source: MapDataModel, action: MoveDataAction, expect: any}[]> [
+      {
+        description: 'Can move with number index',
+        source: new MapDataModel({a: 1, b: 3, c: 7, d: 11, e: 17}),
+        action: { type: 'Move', from: 2, to: 4},
+        expect: [{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'd', v: 11}, {k: 'c', v: 7}, {k: 'e', v: 17}]
+      },
+      {
+        description: 'Can move with number index and isAfter',
+        source: new MapDataModel({a: 1, b: 3, c: 7, d: 11, e: 17}),
+        action: { type: 'Move', from: 1, to: 3, isAfter: true},
+        expect: [{k: 'a', v: 1}, {k: 'c', v: 7}, {k: 'd', v: 11}, {k: 'b', v: 3}, {k: 'e', v: 17}]
+      },
+      {
+        description: 'Can move to last with number index',
+        source: new MapDataModel({a: 1, b: 3, c: 7, d: 11, e: 17}),
+        action: { type: 'Move', from: 2, to: 5},
+        expect: [{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'd', v: 11}, {k: 'e', v: 17}, {k: 'c', v: 7}]
+      },
+      {
+        description: 'Can move to last with number index and isAfter',
+        source: new MapDataModel({a: 1, b: 3, c: 7, d: 11, e: 17}),
+        action: { type: 'Move', from: 2, to: 4, isAfter: true},
+        expect: [{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'd', v: 11}, {k: 'e', v: 17}, {k: 'c', v: 7}]
+      },
+      {
+        description: 'Can move to first with number index',
+        source: new MapDataModel({a: 1, b: 3, c: 7, d: 11, e: 17}),
+        action: { type: 'Move', from: 2, to: 0},
+        expect: [{k: 'c', v: 7}, {k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'd', v: 11}, {k: 'e', v: 17}]
+      },
+      {
+        description: 'Can move with string key',
+        source: new MapDataModel({a: 1, b: 3, c: 7, d: 11, e: 17}),
+        action: { type: 'Move', from: 'c', to: 'e'},
+        expect: [{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'd', v: 11}, {k: 'c', v: 7}, {k: 'e', v: 17}]
+      },
+      {
+        description: 'Can move with string key and isAfter',
+        source: new MapDataModel({a: 1, b: 3, c: 7, d: 11, e: 17}),
+        action: { type: 'Move', from: 'b', to: 'd', isAfter: true},
+        expect: [{k: 'a', v: 1}, {k: 'c', v: 7}, {k: 'd', v: 11}, {k: 'b', v: 3}, {k: 'e', v: 17}]
+      },
+      {
+        description: 'Can move to last string key index and isAfter',
+        source: new MapDataModel({a: 1, b: 3, c: 7, d: 11, e: 17}),
+        action: { type: 'Move', from: 'c', to: 'e', isAfter: true},
+        expect: [{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'd', v: 11}, {k: 'e', v: 17}, {k: 'c', v: 7}]
+      },
+    ]).map(item => {
+      it(item.description, () => {
+        const moved = item.source.applyMoveAction(item.action);
+        expect(moved.toPrivateJsonObject()).toEqual(item.expect);
+      });
     });
   });
 });

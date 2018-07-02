@@ -8,13 +8,15 @@ export default class ContentListUIView
   constructor (props: UIViewBaseProps<ContentListUIModel2>, context?: any) {
     super(props, context);
 
-    this.openAddFormModal = this.openAddFormModal.bind(this);
+    this.add = this.add.bind(this);
+    this.delete = this.delete.bind(this);
     this.moveUpForIndex = this.moveUpForIndex.bind(this);
     this.moveDownForIndex = this.moveDownForIndex.bind(this);
   }
 
   public render(): React.ReactNode {
-    const { child } = this.props.model;
+    const { model } = this.props;
+    const { child } = model;
     const ContentComponent = child && UIViewFactory.createUIView(child);
 
     return (
@@ -23,7 +25,7 @@ export default class ContentListUIView
           <input type="text" className="ui-content-list--search-input" />
           <ul className="ui-content-list--list">
             {
-              this.props.model.indexes.map((index: ContentListIndex) => {
+              model.indexes.map((index: ContentListIndex) => {
                 return (
                   <li
                     key={index.index}
@@ -37,9 +39,10 @@ export default class ContentListUIView
             }
           </ul>
           <div className="ui-content-list--button-area">
-            <input type="button" value="+" onClick={this.openAddFormModal} />
-            <input type="button" value="↑" onClick={this.moveUpForIndex} />
-            <input type="button" value="↓" onClick={this.moveDownForIndex} />
+            <input type="button" value="+" onClick={this.add} />
+            <input type="button" value="-" onClick={this.delete} />
+            <input type="button" value="↑" onClick={this.moveUpForIndex} disabled={!model.canMoveUp} />
+            <input type="button" value="↓" onClick={this.moveDownForIndex} disabled={!model.canMoveDown} />
           </div>
         </div>
         <div>
@@ -55,14 +58,18 @@ export default class ContentListUIView
   }
 
   private moveUpForIndex() {
-    this.props.model.moveUp(this.props.dispatch);
+    this.props.applyAction(this.props.model.moveUp());
   }
 
   private moveDownForIndex() {
-    this.props.model.moveDown(this.props.dispatch);
+    this.props.applyAction(this.props.model.moveDown());
   }
 
-  private openAddFormModal() {
-    this.props.model.openAddForm(this.props.dispatch);
+  private add() {
+    this.props.applyAction(this.props.model.add());
+  }
+
+  private delete() {
+    this.props.applyAction(this.props.model.delete());
   }
 }
