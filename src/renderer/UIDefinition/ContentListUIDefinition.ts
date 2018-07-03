@@ -22,19 +22,21 @@ export interface ContentListUIDefinitionConfigObject extends UIDefinitionConfigO
 
 export default class ContentListUIDefinition extends SingleContentUIDefinition {
   private _listIndexKey?: DataPathElement;
-  private _addFormContent: UIDefinitionBase;
+  private _addFormContent?: UIDefinitionBase;
   private _addFormDefaultValue: DataModelBase;
   private _dataType: CollectionDataModelType;
 
   public constructor(config: ContentListUIDefinitionConfigObject) {
     super(config.title, DataPathElement.parse(config.key));
     this._listIndexKey = config.listIndexKey === undefined ? undefined : DataPathElement.parse(config.listIndexKey);
-    this._addFormContent = UIDefinitionFactory.create(config.addFormContent);
+    if (config.addFormContent) {
+      this._addFormContent = UIDefinitionFactory.create(config.addFormContent);
+    }
     this._addFormDefaultValue = DataModelFactory.create(config.addFormDefaultValue);
     this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
   }
 
-  get addFormContent(): UIDefinitionBase {
+  get addFormContent(): UIDefinitionBase | undefined {
     return this._addFormContent;
   }
 

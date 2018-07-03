@@ -54,7 +54,7 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
   }
 
   public moveUp(): UIModelAction[] {
-    const from = this.selectedIndex;
+    const from = this.selectedIndex!;
     return [
       UIModelAction.Creators.moveData(this.props.dataPath, from, from - 1),
       <UIModelFocusAction> { type: 'Focus', path: this.props.dataPath.push(from - 1) }
@@ -62,11 +62,12 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
   }
 
   public get canMoveUp(): boolean {
-    return this.selectedIndex > 0;
+    const { selectedIndex } = this;
+    return selectedIndex !== undefined && selectedIndex > 0;
   }
 
   public moveDown(): UIModelAction[] {
-    const from = this.selectedIndex;
+    const from = this.selectedIndex!;
     return [
       UIModelAction.Creators.moveData(this.props.dataPath, from, from + 1),
       <UIModelFocusAction> { type: 'Focus', path: this.props.dataPath.push(from + 1) }
@@ -74,8 +75,8 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
   }
 
   public get canMoveDown(): boolean {
-    const { collectionData } = this;
-    return !!collectionData && this.selectedIndex < collectionData.allDataSize - 1;
+    const { collectionData, selectedIndex } = this;
+    return !!collectionData && selectedIndex !== undefined && selectedIndex < collectionData.allDataSize - 1;
   }
 
   public add(): UIModelAction[] {
@@ -92,7 +93,11 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
   }
 
   public delete(): UIModelAction[] {
-    return [UIModelAction.Creators.deleteData(this.props.dataPath, this.selectedIndex)];
+    if (this.selectedIndex === undefined) {
+      return [];
+    } else {
+      return [UIModelAction.Creators.deleteData(this.props.dataPath, this.selectedIndex)];
+    }
   }
 
   public get indexes(): ContentListIndex[] {
@@ -137,9 +142,11 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
     return this.definition.content;
   }
 
-  protected get childProps(): UIModel2Props {
-    const { stateNode, modelPath, dataPath, focusedPath } = this.props;
+  protected get childProps(): UIModel2Props | undefined {
     const selectedIndex = this.selectedIndex;
+    if (selectedIndex === undefined) { return undefined; }
+
+    const { stateNode, modelPath, dataPath, focusedPath } = this.props;
     return new UIModel2Props({
       stateNode: stateNode && stateNode.get(0), // とりあえず、選択されたデータによらず状態を保存しておく
       data: this.selectedData(selectedIndex),
@@ -154,13 +161,18 @@ export default class ContentListUIModel2 extends SingleContentUIModel<ContentLis
     return this.props.stateNode && this.props.stateNode.get(stateKey) as ContentListUIModelState | undefined;
   }
 
-  private get selectedIndex(): number {
+  private get selectedIndex(): number | undefined {
+    const { collectionData } = this;
+    if (!collectionData) { return undefined; }
+    const listSize = collectionData.allDataSize;
     const { focusedPath } = this.props;
     if (focusedPath && !focusedPath.isEmptyPath && focusedPath.firstElement.canBeListIndex) {
-      return focusedPath.firstElement.asListIndex;
+      const index = focusedPath.firstElement.asListIndex;
+      return index < listSize ? index : undefined;
     } else {
       const state = this.state;
-      return state && state.selectedIndex ? state.selectedIndex : 0;
+      const index = state && state.selectedIndex ? state.selectedIndex : 0;
+      return index < listSize ? index : undefined;
     }
   }
 

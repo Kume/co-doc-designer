@@ -25,9 +25,7 @@ export default class TableRowUIModel2 extends MultiContentUIModel<TableUIDefinit
 
   public rawData(collectValue: CollectValue): CellData[] {
     const cells: CellData[] = [];
-    console.log('rawData', {collectValue})
     this.children.forEach((child, key) => {
-      console.log('rawData', {child})
       if (child instanceof TextUIModel2) {
         cells.push(child.text);
       } else if (child instanceof CheckBoxUIModel2) {

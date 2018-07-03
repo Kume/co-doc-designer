@@ -86,17 +86,19 @@ class MapMappingNode extends MappingNode {
     const mapData = data.getValue(basePath);
     if (mapData instanceof MapDataModel) {
       for (const mapElement of mapData.list.toArray()) {
-        const key: string = mapElement.key;
-        const directoryPath = parentDirectory.concat(this._directoryPath);
-        const filename = key + '.yml';
-        const filePath = specifiedDirectory.concat(this._directoryPath).concat([filename]).join('/');
-        const path = basePath.push(mapElement.key);
-        data = await this.saveChildrenAsync(
-          data, storage, formatter, path, directoryPath.concat([key]), [key]);
-        await storage.saveAsync(
-          directoryPath.concat([filename]),
-          formatter.format(data.getValue(path)!.toJsonObject()));
-        data = data.setValue(path, new StringDataModel(filePath));
+        if (mapElement.key) {
+          const key: string = mapElement.key;
+          const directoryPath = parentDirectory.concat(this._directoryPath);
+          const filename = key + '.yml';
+          const filePath = specifiedDirectory.concat(this._directoryPath).concat([filename]).join('/');
+          const path = basePath.push(mapElement.key);
+          data = await this.saveChildrenAsync(
+            data, storage, formatter, path, directoryPath.concat([key]), [key]);
+          await storage.saveAsync(
+            directoryPath.concat([filename]),
+            formatter.format(data.getValue(path)!.toJsonObject()));
+          data = data.setValue(path, new StringDataModel(filePath));
+        }
       }
       return data;
     } else {
@@ -115,17 +117,19 @@ class MapMappingNode extends MappingNode {
     const mapData = data.getValue(basePath);
     if (mapData instanceof MapDataModel) {
       for (const mapElement of mapData.list.toArray()) {
-        const key: string = mapElement.key;
-        const directoryPath = parentDirectory.concat(this._directoryPath);
-        const filename = key + '.yml';
-        // const filePath = this._directoryPath.concat([filename]).join('/');
-        const path = basePath.push(mapElement.key);
-        const source = await storage.loadAsync(directoryPath.concat([filename]));
-        const formated = formatter.parse(source);
-        const loaded = DataModelFactory.create(formated);
-        data = data.setValue(path, loaded);
-        data = await this.loadChildrenAsync(
-          data, storage, formatter, path, directoryPath.concat([key]));
+        if (mapElement.key) {
+          const key: string = mapElement.key;
+          const directoryPath = parentDirectory.concat(this._directoryPath);
+          const filename = key + '.yml';
+          // const filePath = this._directoryPath.concat([filename]).join('/');
+          const path = basePath.push(mapElement.key);
+          const source = await storage.loadAsync(directoryPath.concat([filename]));
+          const formated = formatter.parse(source);
+          const loaded = DataModelFactory.create(formated);
+          data = data.setValue(path, loaded);
+          data = await this.loadChildrenAsync(
+            data, storage, formatter, path, directoryPath.concat([key]));
+        }
       }
       return data;
     } else {

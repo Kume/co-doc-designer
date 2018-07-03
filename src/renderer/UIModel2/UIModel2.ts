@@ -104,15 +104,16 @@ export abstract class ContentUIModel<D extends UIDefinitionBase> extends UIModel
 }
 
 export abstract class SingleContentUIModel<D extends UIDefinitionBase> extends ContentUIModel<D> {
-  public readonly child: UIModel2<any>;
+  public readonly child: UIModel2<any> | undefined;
 
   public static newChild<D extends UIDefinitionBase>(
     newModel: SingleContentUIModel<D>,
     oldModel?: SingleContentUIModel<D>
-  ): UIModel2<any> {
+  ): UIModel2<any> | undefined {
     const newProps = newModel.childProps;
     const newDefinition = newModel.childDefinition;
-    if (oldModel) {
+    if (!newProps || !newDefinition) { return undefined; }
+    if (oldModel && oldModel.child) {
       if (oldModel.child.definition !== newDefinition || !oldModel.child.props.fastEquals(newProps)) {
         return this._factory(newDefinition, newProps);
       } else {
@@ -129,11 +130,11 @@ export abstract class SingleContentUIModel<D extends UIDefinitionBase> extends C
   }
 
   public adjustState(): UIModelUpdateStateAction[] {
-    return this.child.adjustState();
+    return this.child ? this.child.adjustState() : [];
   }
 
-  protected abstract get childProps(): UIModel2Props;
-  protected abstract get childDefinition(): UIDefinitionBase;
+  protected abstract get childProps(): UIModel2Props | undefined;
+  protected abstract get childDefinition(): UIDefinitionBase | undefined;
 }
 
 export type UIModelChildren<I> = Map<I, UIModel2<any>>;

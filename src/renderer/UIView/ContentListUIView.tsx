@@ -47,7 +47,7 @@ export default class ContentListUIView
         </div>
         <div>
           {ContentComponent && <ContentComponent
-            model={child}
+            model={child!}
             applyAction={this.props.applyAction}
             collectValue={this.props.collectValue}
             focus={this.props.focus}

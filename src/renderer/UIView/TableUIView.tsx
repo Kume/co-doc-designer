@@ -13,14 +13,23 @@ export default class TableUIView extends UIViewBase<TableUIModel2, UIViewBasePro
 
   constructor(props: UIViewBaseProps<TableUIModel2>, context?: any) {
     super(props, context);
+    this.add = this.add.bind(this);
     this.state = {
     };
   }
 
   render(): React.ReactNode {
     return (
-      <div ref={(ref) => this.initHandsontable(ref)} />
+      <div>
+        <div ref={(ref) => this.initHandsontable(ref)} />
+        <input type="button" value="+" onClick={this.add} />
+      </div>
     );
+  }
+
+  public add(): void {
+    const { applyAction, model } = this.props;
+    applyAction(model.add());
   }
 
   private initHandsontable(container: HTMLElement | null) {

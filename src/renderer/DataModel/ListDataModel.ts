@@ -19,6 +19,8 @@ const ListDataModelRecord = Record({
 });
 
 export default class ListDataModel extends ListDataModelRecord implements CollectionDataModel {
+  public static readonly empty = new ListDataModel([]);
+
   public readonly list: List<DataModelBase>;
 
   private static formatValues(list: any) {

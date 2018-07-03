@@ -1,7 +1,7 @@
 import { MultiContentUIModel, default as UIModel2, UIModel2Props, UIModelStateNode } from './UIModel2';
 import TableUIDefinition from '../UIDefinition/TableUIDefinition';
-import { CollectionDataModel } from '../DataModel/DataModelBase';
-import CollectionDataModelUtil from '../DataModel/CollectionDataModelUtil';
+import { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
+import CollectionDataModelUtil, { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
 import DataModelBase from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
@@ -9,8 +9,9 @@ import DataPathElement from '../DataModel/Path/DataPathElement';
 import { CellData, default as TableRowUIModel2 } from './TableRowUIModel2';
 import { CollectValue } from './types';
 import { TableChangeForRow } from '../UIModel/TableRowUIModel';
-import { UIModelAction } from './UIModel2Actions';
+import { UIModelAction, UIModelUpdateDataAction } from './UIModel2Actions';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import { InsertDataAction } from '../DataModel/DataAction';
 
 type TableChange = [number, number, any, any];
 type TableChangesByRow = Map<number, TableChangeForRow[]>;
@@ -23,7 +24,7 @@ export default class TableUIModel2 extends MultiContentUIModel<TableUIDefinition
     for (const change of changes) {
       const [row, column, , after] = change;
       if (!changesByRow.has(row)) { changesByRow.set(row, []); }
-      changesByRow.get(row)!.push({column, value: after})
+      changesByRow.get(row)!.push({column, value: after});
     }
     return new Map(Array.from(changesByRow.entries()).sort((a, b) => a[0] === b[0] ? 0 : a[0] > b[0] ? 1 : - 1));
   }
@@ -45,6 +46,27 @@ export default class TableUIModel2 extends MultiContentUIModel<TableUIDefinition
         actions = actions.concat(row.input(collectValue, value));
       } else {
         // TODO
+      }
+    });
+    return actions;
+  }
+
+  public add(): UIModelAction[] {
+    const actions: UIModelAction[] = [];
+
+    if (!this.collectionData) { // TODO definition.dataTypeに合わせて正確に判断
+      const defaultData = this.definition.dataType === CollectionDataModelType.List
+        ? ListDataModel.empty : MapDataModel.empty;
+      actions.push(UIModelAction.Creators.setData(this.props.dataPath, defaultData));
+    }
+
+    actions.push(<UIModelUpdateDataAction> {
+      type: 'UpdateData',
+      path: this.props.dataPath,
+      dataAction: <InsertDataAction> {
+        isAfter: true,
+        data: MapDataModel.create([]),
+        type: 'Insert'
       }
     });
     return actions;
@@ -99,7 +121,8 @@ export default class TableUIModel2 extends MultiContentUIModel<TableUIDefinition
       dataPath: dataPath.push(index),
       modelPath: modelPath.push(index),
       focusedPath: focusedPath && focusedPath.shift(),
-      data: this.childDataAt(index)
+      data: this.childDataAt(index),
+      key: this.selectedKey(index)
     });
   }
 
@@ -115,11 +138,20 @@ export default class TableUIModel2 extends MultiContentUIModel<TableUIDefinition
 
   private childDataAt(index: number): DataModelBase | undefined {
     const { data } = this.props;
-    if (data instanceof MapDataModel) {
+    if (this.definition.dataType === CollectionDataModelType.Map && data instanceof MapDataModel) {
       return data.valueForListIndex(index);
-    } else if (data instanceof ListDataModel) {
+    } else if (this.definition.dataType === CollectionDataModelType.List && data instanceof ListDataModel) {
       return data.getValueForIndex(index);
     }
     return undefined;
+  }
+
+  private selectedKey(selectedIndex: number): CollectionIndex | undefined {
+    if (this.definition.dataType === CollectionDataModelType.List) { return selectedIndex; }
+    if (this.props.data instanceof MapDataModel) {
+      return this.props.data.keyForIndex(selectedIndex);
+    } else {
+      return undefined;
+    }
   }
 }

@@ -5,6 +5,8 @@ import { UIDefinitionFactory } from '../UIDefinition/UIDefinitionFactory';
 import { sampleDataForUIConfig, sampleUIConfig } from '../UIDefinition/SampleData/SampleUIConfig';
 import UIModel2Manager from '../UIModel2/UIModel2Manager';
 import UIModel2 from '../UIModel2/UIModel2';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import DataModelBase from '../DataModel/DataModelBase';
 
 interface Props {
   // definition: UIDefinitionBase;
@@ -32,6 +34,17 @@ export default class RootUIView extends React.Component<Props, State> {
       model: this._manager.rootUIModel,
       modalModel: undefined
     };
+  }
+
+  public load(definition: UIDefinitionBase, data: DataModelBase): void {
+    this._manager = new UIModel2Manager(definition, data);
+    this._manager.notifyModelChanged = () => {
+      this.setState({model: this._manager.rootUIModel});
+    };
+    this._manager.notifyModalModelChanged = () => {
+      this.setState({modalModel: this._manager.modalUIModel});
+    };
+    this.setState({ model: this._manager.rootUIModel });
   }
 
   get manager(): UIModel2Manager {

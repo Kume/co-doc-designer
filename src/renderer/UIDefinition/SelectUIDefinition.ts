@@ -4,8 +4,8 @@ import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 import DataPath from '../DataModel/Path/DataPath';
 
 export interface SelectOption {
-  label: string,
-  value: string | number
+  label: string;
+  value: string | number;
 }
 
 interface SelectOptionFullDefinition {
