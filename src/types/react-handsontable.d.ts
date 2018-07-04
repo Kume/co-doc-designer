@@ -3,9 +3,9 @@ declare module 'react-handsontable' {
   import * as Handsontable from 'handsontable';
 
   namespace HotTable {
-    interface Props extends Handsontable._Handsontable.DefaultSettings {
+    interface Props extends Handsontable.DefaultSettings {
       root?: string;
-      settings?: Handsontable._Handsontable.DefaultSettings;
+      settings?: Handsontable.DefaultSettings;
     }
   }
   class HotTable extends React.Component<HotTable.Props, {}> { }
