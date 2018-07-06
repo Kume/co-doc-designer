@@ -5,6 +5,8 @@ import 'handsontable/dist/handsontable.css';
 import Handsontable from 'handsontable';
 import TableUIModel2 from '../UIModel2/TableUIModel2';
 
+require('../View/HandsonTable/ExtendTextEditor');
+
 interface State extends UIViewBaseState {
 }
 

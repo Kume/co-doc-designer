@@ -75,7 +75,7 @@ export default class TableRowUIModel2 extends MultiContentUIModel<TableUIDefinit
           };
         } else {
           return {
-            type: 'text'
+            editor: 'test'
           };
         }
       } else if (child instanceof CheckBoxUIModel2) {

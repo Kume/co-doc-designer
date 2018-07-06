@@ -74,6 +74,10 @@ export default class TextAreaUIView
         const currentLine = doc.getLine(lineIndex);
         const templateLine2 = new TemplateLine(currentLine);
         for (const token of templateLine2.tokens) {
+          const found = doc.findMarksAt({line: lineIndex, ch: token.start});
+          if (found.length > 0) {
+            continue;
+          }
           if (cursor.line === lineIndex && currentToken && currentToken.start === token.start) {
             continue;
           }
