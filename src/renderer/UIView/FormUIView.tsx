@@ -1,9 +1,9 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
-import FormUIModel2 from '../UIModel2/FormUIModel2';
+import FormUIModel from '../UIModel/FormUIModel';
 
-export default class FormUIView extends UIViewBase<FormUIModel2, UIViewBaseProps<FormUIModel2>, UIViewBaseState> {
+export default class FormUIView extends UIViewBase<FormUIModel, UIViewBaseProps<FormUIModel>, UIViewBaseState> {
   render() {
     return (
       <div>

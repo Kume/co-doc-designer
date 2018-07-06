@@ -1,37 +1,33 @@
+import UIModelManager from '../UIModelManager';
+import { List, Map } from 'immutable';
+import { UIModelUpdateStateAction } from '../UIModelActions';
+import { UIModelState } from '../types';
+import { stateKey } from '../UIModel';
+import { default as TabUIDefinition, TabUIDefinitionConfigObject } from '../../UIDefinition/TabUIDefinition';
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
-import { TextUIDefinitionConfigObject } from '../../UIDefinition/TextUIDefinition';
-import DataModelFactory from '../../DataModel/DataModelFactory';
-import { UIModelManager } from '../UIModelManager';
-import TextUIModel from '../TextUIModel';
 
-const simpleUIDefinition = UIDefinitionFactory.create({
-  type: 'text',
-  title: '',
+require('../UIModelFactory');
+
+const basicDefinitionConfig: TabUIDefinitionConfigObject = {
+  type: 'tab',
   key: '',
-  emptyToNull: false
-} as TextUIDefinitionConfigObject);
+  title: 'test',
+  contents: [
+    { type: 'text', key: 'a', title: 'A' },
+    { type: 'text', key: 'b', title: 'B' },
+    { type: 'text', key: 'c', title: 'C' },
+  ]
+};
+const basicDefinition = UIDefinitionFactory.create(basicDefinitionConfig) as TabUIDefinition;
 
-const simpleData = DataModelFactory.create('foo');
-
-describe('Test for UIModelManager', () => {
-  describe('Test UIModelManager.initialize', () => {
-    it('Simple initialize', () => {
-      const manager = new UIModelManager();
-      manager.initialize(simpleData, simpleUIDefinition);
-      const model = manager.model as TextUIModel;
-      expect(model).toBeInstanceOf(TextUIModel);
-      expect(model.text).toBe('foo');
-    });
-  });
-
-  describe('Test UIModelManager.updateProps', () => {
-    it('Simple initialize', () => {
-      const manager = new UIModelManager();
-      manager.initialize(simpleData, simpleUIDefinition);
-      (manager.model as TextUIModel).inputText(manager.dispatch, 'bar');
-      const model = manager.model as TextUIModel;
-      expect(model).toBeInstanceOf(TextUIModel);
-      expect(model.text).toBe('bar');
+describe('Unit tests for UIModelManager', () => {
+  describe('Unit tests for UIModelManager.applyAction', () => {
+    it('Can update state', () => {
+      const manager = new UIModelManager(basicDefinition);
+      const state: UIModelState = Map();
+      const action: UIModelUpdateStateAction = {type: 'UpdateState', path: List(['a', 'b']), state};
+      manager.applyActions([action]);
+      expect(manager.rootStateNode!.getIn(['a', 'b', stateKey])).toBe(state);
     });
   });
 });

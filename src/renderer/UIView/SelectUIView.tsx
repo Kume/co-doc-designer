@@ -1,8 +1,8 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import SelectUIModel2 from '../UIModel2/SelectUIModel2';
+import SelectUIModel from '../UIModel/SelectUIModel';
 
-export default class SelectUIView extends UIViewBase<SelectUIModel2, UIViewBaseProps<SelectUIModel2>, UIViewBaseState> {
+export default class SelectUIView extends UIViewBase<SelectUIModel, UIViewBaseProps<SelectUIModel>, UIViewBaseState> {
   private _select: HTMLSelectElement;
   render(): React.ReactNode {
     const { model, collectValue } = this.props;
@@ -21,7 +21,7 @@ export default class SelectUIView extends UIViewBase<SelectUIModel2, UIViewBaseP
     );
   }
 
-  constructor(props: UIViewBaseProps<SelectUIModel2>, context?: any) {
+  constructor(props: UIViewBaseProps<SelectUIModel>, context?: any) {
     super(props, context);
     this.onUpdate = this.onUpdate.bind(this);
   }

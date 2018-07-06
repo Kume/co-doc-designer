@@ -1,90 +1,36 @@
-import { Record } from 'immutable';
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
-import DataPath from '../DataModel/Path/DataPath';
-import EditContext from './EditContext';
-import DataModelBase from '../DataModel/DataModelBase';
+import UIModel  from './UIModel';
 import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
-import { createSetValueAction } from './UIModelAction';
 import { BooleanDataModel } from '../DataModel/ScalarDataModel';
-import UIModelState from './UIModelState';
-
-const CheckBoxUIModelRecord = Record({
-  ...UIModelPropsDefault
-});
+import { UIModelAction } from './UIModelActions';
 
 const trueStrings = ['true', 'True', 'TRUE', 'ok', 'OK', 'Ok', 'yes', 'Yes', 'YES'];
 const falseStrings = ['false', 'False', 'FALSE', 'ng', 'Ng', 'NG', 'no', 'No', 'NO'];
 const booleanStrings: Array<string> = trueStrings.concat(falseStrings);
 
-export default class CheckBoxUIModel extends CheckBoxUIModelRecord implements UIModel, UIModelProps {
-  public readonly data: DataModelBase | undefined;
-  public readonly definition: CheckBoxUIDefinition;
-  public readonly editContext: EditContext;
-  public readonly dataPath: DataPath;
-
-  constructor(props: UIModelProps, lastState: UIModelState | undefined) {
-    super({
-      ...props
-    });
-  }
-
+export default class CheckBoxUIModel extends UIModel<CheckBoxUIDefinition> {
   public get isChecked(): boolean {
-    if (this.data instanceof BooleanDataModel) {
-      return this.data.value;
+    const data = this.props.data;
+    if (data instanceof BooleanDataModel) {
+      return data.value;
+    } else {
+      return false;
     }
-    return false;
   }
 
-  public check(dispatch: ActionDispatch, isChecked: boolean): void {
-    dispatch(createSetValueAction(this.dataPath, new BooleanDataModel(isChecked)));
-  }
-
-  public canInputValue(value: any): boolean {
+  public static canInputValue(value: any): value is string | boolean {
     if (typeof value === 'boolean') { return true; }
     if (typeof value === 'string') { return booleanStrings.includes(value); }
     return false;
   }
 
-  public inputValue(dispatch: ActionDispatch, value: any) {
-    if (typeof value === 'boolean') {
-      dispatch(createSetValueAction(this.dataPath, new BooleanDataModel(value)));
+  public input(isChecked: string | boolean): UIModelAction[] {
+    if (typeof isChecked === 'string') {
+      isChecked = trueStrings.includes(isChecked);
     }
-    if (typeof value === 'string') {
-      if (trueStrings.includes(value)) {
-        dispatch(createSetValueAction(this.dataPath, new BooleanDataModel(true)));
-      } else if (falseStrings.includes(value)) {
-        dispatch(createSetValueAction(this.dataPath, new BooleanDataModel(false)));
-      } else {
-        throw new Error();
-      }
+    if (this.isChecked === isChecked) {
+      return [];
+    } else {
+      return [UIModelAction.Creators.setData(this.props.dataPath, BooleanDataModel.create(isChecked))];
     }
-  }
-
-  public get propsObject(): UIModelProps {
-    return {
-      definition: this.definition,
-      dataPath: this.dataPath,
-      data: this.data,
-      editContext: this.editContext
-    };
-  }
-
-  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): this {
-    return this.set('data', data) as this;
-  }
-
-  updateEditContext(editContext: EditContext | undefined, lastState: UIModelState | undefined): this {
-    return this.set('editContext', editContext) as this;
-  }
-
-  updateModel(params: UpdateUIModelParams): this {
-    let newModel: this = params.dataPath ? this.set('dataPath', params.dataPath.value) as this : this;
-    newModel = params.data ? this.updateData(params.data.value, params.lastState) : newModel;
-    newModel = params.editContext ? this.updateEditContext(params.editContext.value, params.lastState) : newModel;
-    return newModel;
-  }
-
-  getState(lastState: UIModelState | undefined): UIModelState | undefined {
-    return undefined;
   }
 }

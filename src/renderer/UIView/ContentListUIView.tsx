@@ -1,11 +1,11 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
-import ContentListUIModel2, { ContentListIndex } from '../UIModel2/ContentListUIModel2';
+import ContentListUIModel, { ContentListIndex } from '../UIModel/ContentListUIModel';
 
 export default class ContentListUIView
-  extends UIViewBase<ContentListUIModel2, UIViewBaseProps<ContentListUIModel2>, UIViewBaseState> {
-  constructor (props: UIViewBaseProps<ContentListUIModel2>, context?: any) {
+  extends UIViewBase<ContentListUIModel, UIViewBaseProps<ContentListUIModel>, UIViewBaseState> {
+  constructor (props: UIViewBaseProps<ContentListUIModel>, context?: any) {
     super(props, context);
 
     this.add = this.add.bind(this);

@@ -1,9 +1,9 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import CheckBoxUIModel2 from '../UIModel2/CheckBoxUIModel2';
+import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
 
 export default class CheckBoxUIView
-  extends UIViewBase<CheckBoxUIModel2, UIViewBaseProps<CheckBoxUIModel2>, UIViewBaseState> {
+  extends UIViewBase<CheckBoxUIModel, UIViewBaseProps<CheckBoxUIModel>, UIViewBaseState> {
   private _checkboxInput: HTMLInputElement;
   render(): React.ReactNode {
     return (
@@ -16,7 +16,7 @@ export default class CheckBoxUIView
     );
   }
 
-  constructor(props: UIViewBaseProps<CheckBoxUIModel2>, context?: any) {
+  constructor(props: UIViewBaseProps<CheckBoxUIModel>, context?: any) {
     super(props, context);
 
     this.onUpdate = this.onUpdate.bind(this);

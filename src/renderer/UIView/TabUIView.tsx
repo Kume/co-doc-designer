@@ -2,9 +2,9 @@ import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
 import { ReactNode } from 'react';
-import TabUIModel2 from '../UIModel2/TabUIModel2';
+import TabUIModel from '../UIModel/TabUIModel';
 
-export default class TabUIView extends UIViewBase<TabUIModel2, UIViewBaseProps<TabUIModel2>, UIViewBaseState> {
+export default class TabUIView extends UIViewBase<TabUIModel, UIViewBaseProps<TabUIModel>, UIViewBaseState> {
   public render(): ReactNode {
     const { model, applyAction, focus } = this.props;
     const CurrentComponent = UIViewFactory.createUIView(model.child);

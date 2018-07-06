@@ -1,192 +1,155 @@
-import DataPath from '../DataModel/Path/DataPath';
-import DataModelBase, { DataCollectionElement } from '../DataModel/DataModelBase';
-import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
-import UIModel, { UIModelProps, UpdateUIModelParams } from './UIModel';
 import {
-  ActionType, ChangeEditContextAction, NotifyDataFunction, OpenModalAction, SetValueAction,
-  UIModelAction
-} from './UIModelAction';
+  UIModelAction,
+  UIModelFocusAction,
+  UIModelUpdateDataAction,
+  UIModelUpdateStateAction
+} from './UIModelActions';
+import UIModel, { ModelPath, stateKey, UIModelProps, UIModelStateNode } from './UIModel';
+import DataModelBase, { CollectionIndex, DataCollectionElement } from '../DataModel/DataModelBase';
+import { List, Map } from 'immutable';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { UIModelFactory } from './UIModelFactory';
-import EditContext from './EditContext';
-import UIModelState from './UIModelState';
+import DataPath from '../DataModel/Path/DataPath';
+import { DataAction } from '../DataModel/DataAction';
 
-interface Function {
-  (): void;
+interface GroupedActions {
+  updateDataActions: UIModelUpdateDataAction[];
+  updateStateActions: UIModelUpdateStateAction[];
+  focusAction?: UIModelFocusAction;
 }
 
-export class UIModelManager {
-  public notifyModelChanged?: Function;
-  public notifyModalModelChanged?: Function;
-  protected _model: UIModel;
-  private _data: DataModelBase;
-  private _modelState: UIModelState | undefined;
-  private _definition: UIDefinitionBase;
-  private _editContext: EditContext = EditContext.empty;
-  private _modalData: DataModelBase | undefined;
-  private _modalModel: UIModel | undefined;
-  private _modalEditContext: EditContext = EditContext.empty;
-  private _onModalSubmit: NotifyDataFunction;
+function digStateNode(node: UIModelStateNode, path: ModelPath): UIModelStateNode {
+  let currentNode = node;
+  const currentPath: (CollectionIndex | symbol)[] = [];
+  path.forEach(index => {
+    currentPath.push(index!);
+    if (!currentNode.get(index!)) {
+      currentNode = Map() as UIModelStateNode;
+      node = node.setIn(currentPath, currentNode);
+    }
+  });
+  return node;
+}
 
-  public constructor() {
-    this.dispatch = this.dispatch.bind(this);
-    this.dispatchForModal = this.dispatchForModal.bind(this);
-    this.collectValue = this.collectValue.bind(this);
+export default class UIModelManager {
+  public notifyModelChanged: () => void | Promise<void>;
+  public notifyModalModelChanged: () => void | Promise<void>;
+
+  private _rootStateNode?: UIModelStateNode;
+  private _rootUIModel: UIModel<any>;
+  private _modalUIModel: UIModel<any>;
+  private _dataModel: DataModelBase | undefined;
+  private _rootUIDefinition: UIDefinitionBase;
+  private _focusedPath: DataPath | undefined;
+
+  private static groupActions(actions: UIModelAction[]): GroupedActions {
+    const updateDataActions: UIModelUpdateDataAction[] = [];
+    const updateStateActions: UIModelUpdateStateAction[] = [];
+    let focusAction: UIModelFocusAction | undefined;
+    for (const action of actions) {
+      if (UIModelAction.isUpdateDataAction(action)) {
+        updateDataActions.push(action);
+      } else if (UIModelAction.isUpdateStateAction(action)) {
+        updateStateActions.push(action);
+      } else if (UIModelAction.isFocusAction(action)) {
+        focusAction = action;
+      }
+    }
+    return { updateDataActions, updateStateActions, focusAction };
   }
 
-  public initialize(data: DataModelBase, definition: UIDefinitionBase) {
-    const props = {
-      definition,
-      data,
-      editContext: EditContext.empty,
-      dataPath: DataPath.empty
-    };
-    this._model = UIModelFactory.create(props, undefined);
-    this._data = data;
-    this._definition = definition;
-    this._editContext = EditContext.empty;
+  constructor(definition: UIDefinitionBase, data?: DataModelBase) {
+    this.applyActions = this.applyActions.bind(this);
+    this.collectValue = this.collectValue.bind(this);
+    this.focus = this.focus.bind(this);
+    this._rootUIDefinition = definition;
+    this._dataModel = data;
+    this._rootUIModel = UIModelFactory.create(definition, UIModelProps.createSimple({ data }));
+  }
+
+  public applyActions(actions: UIModelAction[]): void {
+    const groupedActions = UIModelManager.groupActions(actions);
+    for (const action of groupedActions.updateDataActions) {
+      this.applyUpdateDataAction(action);
+    }
+    this.applyUpdateStateActions(groupedActions.updateStateActions);
+    this._rootUIModel = UIModelFactory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
+    if (groupedActions.focusAction) {
+      this.focus(groupedActions.focusAction.path);
+    }
+    console.log('applyActions', this.dataModel && this.dataModel.toJsonObject(), actions);
+    if (this.notifyModelChanged) { this.notifyModelChanged(); }
+  }
+
+  public focus(path: DataPath): void {
+    this._focusedPath = path;
+    this._rootUIModel = UIModelFactory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
+    const adjustStateActions = this._rootUIModel.adjustState();
+    this.applyUpdateStateActions(adjustStateActions);
+    if (adjustStateActions.length > 0) {
+      this._rootUIModel = UIModelFactory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
+    }
+    if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 
   public collectValue(targetPath: DataPath, basePath: DataPath): DataCollectionElement[] {
-    return this._data.collectValue(targetPath);
+    return this._dataModel ? this._dataModel.collectValue(targetPath) : [];
   }
 
-  public dispatch(action: UIModelAction): void {
-    switch (action.type) {
-      case ActionType.SetValue:
-        const setValueAction = action as SetValueAction;
-        this.setValue(setValueAction.path, setValueAction.data);
-        break;
-      case ActionType.ChangeEditContext:
-        const changeEditContextAction = action as ChangeEditContextAction;
-        this.changeEditContext(changeEditContextAction.editContext);
-        break;
-      case ActionType.OpenModal:
-        const openModalAction = action as OpenModalAction;
-        this.openModal(openModalAction.modelProps, openModalAction.onSubmit);
-        break;
-      case ActionType.CloseModal:
-        this.closeModal();
-        break;
-      default:
-        break;
-    }
+  get focusedPath(): DataPath | undefined {
+    return this._focusedPath;
   }
 
-  public dispatchForModal(action: UIModelAction) {
-    switch (action.type) {
-      case ActionType.SetValue:
-        const setValueAction = action as SetValueAction;
-        this.setValueForModal(setValueAction.path, setValueAction.data);
-        break;
-      case ActionType.ChangeEditContext:
-        const changeEditContextAction = action as ChangeEditContextAction;
-        this.changeEditContext(changeEditContextAction.editContext);
-        break;
-      case ActionType.OpenModal:
-        throw new Error('Cannot open modal on modal.');
-      case ActionType.CloseModal:
-        this.closeModal();
-        break;
-      default:
-        break;
-    }
+  get rootUIDefinition(): UIDefinitionBase {
+    return this._rootUIDefinition;
   }
 
-  public setValue(path: DataPath, data: DataModelBase) {
-    try {
-      const newData = this._data.setValue(path, data);
-      // console.log('setValue', {path: path.toString(), data: data.toJsonObject(), oldData: this._data.toJsonObject(), newData: newData.toJsonObject()});
-      this._modelState = this._model.getState(this._modelState);
-      this._model = this._model.updateModel(UpdateUIModelParams.updateData(newData, this._modelState));
-      this._data = newData;
-      if (this.notifyModelChanged) {
-        console.log('data updated', this._data.toJsonObject());
-        this.notifyModelChanged();
+  get dataModel(): DataModelBase | undefined {
+    return this._dataModel;
+  }
+
+  get rootStateNode(): UIModelStateNode | undefined {
+    return this._rootStateNode;
+  }
+
+  get rootUIModel(): UIModel<any> {
+    return this._rootUIModel;
+  }
+
+  get modalUIModel(): UIModel<any> {
+    return this._modalUIModel;
+  }
+
+  private applyUpdateDataAction(action: UIModelUpdateDataAction): void {
+    for (const constructDefaultAction of this._rootUIModel.constructDefaultValue(action.path)) {
+      if (constructDefaultAction.path.isEmptyPath && DataAction.isSetDataAction(constructDefaultAction.dataAction)) {
+        this._dataModel = constructDefaultAction.dataAction.data;
+      } else {
+        this._dataModel = this._dataModel!.applyAction(
+          constructDefaultAction.path, constructDefaultAction.dataAction);
       }
-    } catch (error) {
-      console.log('error on setValue', error, path.toString(), data.toJsonObject());
-      // TODO Error Handling
     }
+    this._dataModel = this._dataModel!.applyAction(action.path, action.dataAction);
   }
 
-  public changeEditContext(editContext: EditContext): void {
-    try {
-      this._modelState = this._model.getState(this._modelState);
-      this._model = this._model.updateModel(UpdateUIModelParams.updateContext(editContext, this._modelState));
-      this._editContext = editContext;
-      if (this.notifyModelChanged) {
-        this.notifyModelChanged();
+  private applyUpdateStateActions(actions: UIModelUpdateStateAction[]): void {
+    if (actions.length > 0) {
+      let state = this._rootStateNode || Map() as UIModelStateNode;
+      for (const action of actions) {
+        state = digStateNode(state, action.path);
+        state = state.setIn((<List<any>> action.path).push(stateKey), action.state);
       }
-    } catch (error) {
-      console.log('error', error);
-      // TODO Error Handling
+      this._rootStateNode = state;
     }
   }
 
-  public openModal(modelProps: UIModelProps, onSubmit: NotifyDataFunction): void {
-    try {
-      this._modalModel = UIModelFactory.create(modelProps, undefined);
-      this._modalData = modelProps.data;
-      this._onModalSubmit = onSubmit;
-      if (this.notifyModelChanged) {
-        this.notifyModelChanged();
-      }
-    } catch (error) {
-      console.log('error', error);
-      // TODO Error Handling
-    }
-  }
-
-  public closeModal(): void {
-    this._modalModel = undefined;
-    if (this.notifyModelChanged) {
-      this.notifyModelChanged();
-    }
-  }
-
-  public setValueForModal(path: DataPath, data: DataModelBase) {
-    try {
-      const newData = this._modalData!.setValue(path, data);
-      this._modalModel = this._modalModel!.updateModel(UpdateUIModelParams.updateData(newData, undefined));
-      this._modalData = newData;
-      if (this.notifyModelChanged) {
-        this.notifyModelChanged();
-      }
-    } catch (error) {
-      console.log('error', error);
-      // TODO Error Handling
-    }
-  }
-
-  get model(): UIModel {
-    return this._model;
-  }
-
-  get modalModel(): UIModel | undefined {
-    return this._modalModel;
-  }
-
-  get definition(): UIDefinitionBase {
-    return this._definition;
-  }
-
-  get data(): DataModelBase {
-    return this._data;
-  }
-
-  get onModalSubmit(): NotifyDataFunction {
-    return this._onModalSubmit;
-  }
-
-  get modalData(): DataModelBase | undefined {
-    return this._modalData;
-  }
-
-  get editContext(): EditContext {
-    return this._editContext;
-  }
-
-  get modalEditContext(): EditContext {
-    return this._modalEditContext;
+  private get propsForRootModel(): UIModelProps {
+    return new UIModelProps({
+      data: this._dataModel,
+      stateNode: this._rootStateNode,
+      modelPath: List(),
+      focusedPath: this._focusedPath,
+      dataPath: DataPath.empty
+    });
   }
 }

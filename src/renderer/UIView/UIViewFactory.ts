@@ -3,45 +3,45 @@ import TabUIView from './TabUIView';
 import { ComponentClass } from 'react';
 import TextUIView from './TextUIView';
 import FormUIView from './FormUIView';
-import UIModel2 from '../UIModel2/UIModel2';
-import TextUIModel2 from '../UIModel2/TextUIModel2';
-import TabUIModel2 from '../UIModel2/TabUIModel2';
-import FormUIModel2 from '../UIModel2/FormUIModel2';
+import UIModel from '../UIModel/UIModel';
+import TextUIModel from '../UIModel/TextUIModel';
+import TabUIModel from '../UIModel/TabUIModel';
+import FormUIModel from '../UIModel/FormUIModel';
 import CheckBoxUIView from './CheckBoxUIView';
-import CheckBoxUIModel2 from '../UIModel2/CheckBoxUIModel2';
-import SelectUIModel2 from '../UIModel2/SelectUIModel2';
+import CheckBoxUIModel from '../UIModel/CheckBoxUIModel';
+import SelectUIModel from '../UIModel/SelectUIModel';
 import SelectUIView from './SelectUIView';
-import ContentListUIModel2 from '../UIModel2/ContentListUIModel2';
+import ContentListUIModel from '../UIModel/ContentListUIModel';
 import ContentListUIView from './ContentListUIView';
-import TextAreaUIModel2 from '../UIModel2/TextAreaUIModel2';
+import TextAreaUIModel from '../UIModel/TextAreaUIModel';
 import TextAreaUIView from './TextAreaUIView';
-import TableUIModel2 from '../UIModel2/TableUIModel2';
+import TableUIModel from '../UIModel/TableUIModel';
 import TableUIView from './TableUIView';
 
 export default class UIViewFactory {
-  public static createUIView(model: UIModel2): ComponentClass<UIViewBaseProps<UIModel2>> {
-    if (model instanceof ContentListUIModel2) {
+  public static createUIView(model: UIModel): ComponentClass<UIViewBaseProps<UIModel>> {
+    if (model instanceof ContentListUIModel) {
       return ContentListUIView;
     }
-    if (model instanceof TextUIModel2) {
+    if (model instanceof TextUIModel) {
       return TextUIView;
     }
-    if (model instanceof TextAreaUIModel2) {
+    if (model instanceof TextAreaUIModel) {
       return TextAreaUIView;
     }
-    if (model instanceof TabUIModel2) {
+    if (model instanceof TabUIModel) {
       return TabUIView;
     }
-    if (model instanceof FormUIModel2) {
+    if (model instanceof FormUIModel) {
       return FormUIView;
     }
-    if (model instanceof CheckBoxUIModel2) {
+    if (model instanceof CheckBoxUIModel) {
       return CheckBoxUIView;
     }
-    if (model instanceof SelectUIModel2) {
+    if (model instanceof SelectUIModel) {
       return SelectUIView;
     }
-    if (model instanceof TableUIModel2) {
+    if (model instanceof TableUIModel) {
       return TableUIView;
     }
     return UIViewBase;

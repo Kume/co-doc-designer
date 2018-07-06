@@ -3,10 +3,10 @@ import * as CodeMirror from '../../../lib/codemirror/lib/codemirror';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import { TemplateLine } from '../Model/TemplateEngine';
 import '../Model/CodeEditor';
-import TextAreaUIModel2 from '../UIModel2/TextAreaUIModel2';
+import TextAreaUIModel from '../UIModel/TextAreaUIModel';
 
 export default class TextAreaUIView
-  extends UIViewBase<TextAreaUIModel2, UIViewBaseProps<TextAreaUIModel2>, UIViewBaseState> {
+  extends UIViewBase<TextAreaUIModel, UIViewBaseProps<TextAreaUIModel>, UIViewBaseState> {
   private _codeMirror: CodeMirror.EditorFromTextArea;
   private _textArea: HTMLTextAreaElement;
 

@@ -1,68 +1,23 @@
-import { Record } from 'immutable';
-import UIModel, { ActionDispatch, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
-import DataPath from '../DataModel/Path/DataPath';
-import EditContext from './EditContext';
-import DataModelBase from '../DataModel/DataModelBase';
+import UIModel from './UIModel';
 import TextAreaUIDefinition from '../UIDefinition/TextAreaUIDefinition';
-import UIModelState from './UIModelState';
-import { createSetValueAction } from './UIModelAction';
+import { UIModelAction } from './UIModelActions';
 import { StringDataModel } from '../DataModel/ScalarDataModel';
 
-interface TextAreaUIModelState extends UIModelState {
-
-}
-
-const TextAreaUIModelRecord = Record({
-  ...UIModelPropsDefault
-});
-
-export default class TextAreaUIModel extends TextAreaUIModelRecord implements UIModel, UIModelProps {
-  public readonly data: DataModelBase | undefined;
-  public readonly definition: TextAreaUIDefinition;
-  public readonly editContext: EditContext;
-  public readonly dataPath: DataPath;
-
-  //#region private static function for props
-  //#endregion
-
-  public constructor(props: UIModelProps, lastState: UIModelState | undefined) {
-    super({
-      ...props
-    });
-  }
-
+export default class TextAreaUIModel extends UIModel<TextAreaUIDefinition> {
   public get text(): string {
-    if (this.data instanceof StringDataModel) {
-      return this.data.value;
+    const data = this.props.data;
+    if (data instanceof StringDataModel) {
+      return data.value;
     } else {
       return '';
     }
   }
 
-  //#region manipulation
-  public inputText(dispatch: ActionDispatch, value: string): void {
-    dispatch(createSetValueAction(this.dataPath, new StringDataModel(value)));
+  public input(text: string): UIModelAction[] {
+    if (this.text === text) {
+      return [];
+    } else {
+      return [UIModelAction.Creators.setData(this.props.dataPath, StringDataModel.create(text))];
+    }
   }
-  //#endregion
-
-  //#region implementation for UIModel
-  public updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): this {
-    return this.set('data', data) as this;
-  }
-
-  public updateEditContext(editContext: EditContext | undefined, lastState: UIModelState | undefined): this {
-    return this.set('editContext', editContext) as this;
-  }
-
-  updateModel(params: UpdateUIModelParams): this {
-    let newModel: this = params.dataPath ? this.set('dataPath', params.dataPath.value) as this : this;
-    newModel = params.data ? this.updateData(params.data.value, params.lastState) : newModel;
-    newModel = params.editContext ? this.updateEditContext(params.editContext.value, params.lastState) : newModel;
-    return newModel;
-  }
-
-  public getState(lastState: UIModelState | undefined): TextAreaUIModelState | undefined {
-    return undefined;
-  }
-  //#endregion
 }

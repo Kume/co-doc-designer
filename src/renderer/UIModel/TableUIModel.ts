@@ -1,167 +1,157 @@
-import { List, Record } from 'immutable';
-import UIModel, {
-  ActionDispatch,
-  CollectValue,
-  UIModelProps,
-  UIModelPropsDefault,
-  UpdateUIModelParams
-} from './UIModel';
-import DataPath from '../DataModel/Path/DataPath';
-import EditContext from './EditContext';
-import DataModelBase from '../DataModel/DataModelBase';
+import UIModel, { MultiContentUIModel, UIModelProps, UIModelStateNode } from './UIModel';
 import TableUIDefinition from '../UIDefinition/TableUIDefinition';
-import CollectionDataModelUtil from '../DataModel/CollectionDataModelUtil';
+import { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
+import CollectionDataModelUtil, { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
+import DataModelBase from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
-import { createSetValueAction } from './UIModelAction';
+import ListDataModel from '../DataModel/ListDataModel';
 import DataPathElement from '../DataModel/Path/DataPathElement';
-import UIModelState from './UIModelState';
-import DataModelUtil from '../DataModel/DataModelUtil';
-import TableRowUIModel, { CellData, TableChangeForRow } from './TableRowUIModel';
-
-
-const TableUIModelRecord = Record({
-  ...UIModelPropsDefault,
-  rows: List()
-});
+import TableRowUIModel, { CellData } from './TableRowUIModel';
+import { CollectValue } from './types';
+import { TableChangeForRow } from './TableRowUIModel';
+import { UIModelAction, UIModelUpdateDataAction } from './UIModelActions';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import { InsertDataAction } from '../DataModel/DataAction';
 
 type TableChange = [number, number, any, any];
 type TableChangesByRow = Map<number, TableChangeForRow[]>;
 
-export default class TableUIModel extends TableUIModelRecord implements UIModel, UIModelProps {
-  public readonly data: DataModelBase | undefined;
-  public readonly definition: TableUIDefinition;
-  public readonly editContext: EditContext;
-  public readonly dataPath: DataPath;
-  public readonly rows: List<TableRowUIModel>;
-
-  private static rows(
-    props: {
-      data: DataModelBase | undefined,
-      definition: TableUIDefinition,
-      dataPath: DataPath,
-      editContext: EditContext | undefined
-    },
-    lastState: UIModelState | undefined
-  ): List<TableRowUIModel> {
-    const data = CollectionDataModelUtil.asCollectionDataModel(props.data);
-    if (!data) { return List(); }
-    const definition = props.definition as TableUIDefinition;
-    const mapData = data instanceof MapDataModel ? data : undefined;
-    return List(data.mapAllData((row, index) => {
-      const pathElement = mapData
-        ? DataPathElement.indexWithKey(index, mapData.keyForIndex(index))
-        : DataPathElement.create(index);
-      return new TableRowUIModel({
-        definition,
-        dataPath: props.dataPath.push(pathElement),
-        data: row,
-        editContext: undefined // TODO
-      }, undefined); // TODO lastState
-    }));
-  }
+export default class TableUIModel extends MultiContentUIModel<TableUIDefinition, number> {
+  private _childIndexes: number[];
 
   private static coordinateChanges(changes: Array<TableChange>): TableChangesByRow {
-    const changesByRow:TableChangesByRow = new Map();
+    const changesByRow: TableChangesByRow = new Map();
     for (const change of changes) {
       const [row, column, , after] = change;
       if (!changesByRow.has(row)) { changesByRow.set(row, []); }
-      changesByRow.get(row)!.push({column, value: after})
+      changesByRow.get(row)!.push({column, value: after});
     }
     return new Map(Array.from(changesByRow.entries()).sort((a, b) => a[0] === b[0] ? 0 : a[0] > b[0] ? 1 : - 1));
   }
 
-  constructor(props: UIModelProps, lastState: UIModelState | undefined)
-  {
-    super({
-      ...props,
-      rows: TableUIModel.rows({ ...props, definition: props.definition as TableUIDefinition}, lastState)
+  public rawData(collectValue: CollectValue): CellData[][] {
+    const data: CellData[][] = [];
+    this.children.forEach(child => {
+      data.push((child as TableRowUIModel).rawData(collectValue));
+    });
+    return data;
+  }
+
+  public inputChanges(collectValue: CollectValue, changes: TableChange[]): UIModelAction[] {
+    let actions: UIModelAction[] = [];
+    const changesByRow = TableUIModel.coordinateChanges(changes);
+    changesByRow.forEach((value, key) => {
+      const row = this.children.get(key) as TableRowUIModel | undefined;
+      if (row) {
+        actions = actions.concat(row.input(collectValue, value));
+      } else {
+        // TODO
+      }
+    });
+    return actions;
+  }
+
+  public add(): UIModelAction[] {
+    const actions: UIModelAction[] = [];
+
+    if (!this.collectionData) { // TODO definition.dataTypeに合わせて正確に判断
+      const defaultData = this.definition.dataType === CollectionDataModelType.List
+        ? ListDataModel.empty : MapDataModel.empty;
+      actions.push(UIModelAction.Creators.setData(this.props.dataPath, defaultData));
+    }
+
+    actions.push(<UIModelUpdateDataAction> {
+      type: 'UpdateData',
+      path: this.props.dataPath,
+      dataAction: <InsertDataAction> {
+        isAfter: true,
+        data: MapDataModel.create([]),
+        type: 'Insert'
+      }
+    });
+    return actions;
+  }
+
+  public columnSettings(collectValue: CollectValue, row?: number, column?: number) {
+    if (row === undefined || column === undefined) {
+      return {};
+    }
+    const child = this.children.get(row) as TableRowUIModel | undefined;
+    if (child) {
+      return child.columnSettings(collectValue, column);
+    } else {
+      return {};
+    }
+  }
+
+  protected createChildModel(
+    newProps: UIModelProps | undefined, definition: UIDefinitionBase, oldChild: UIModel | undefined): UIModel {
+    if (newProps) {
+      if (oldChild) {
+        if (oldChild.definition !== definition || !oldChild.props.fastEquals(newProps)) {
+          return new TableRowUIModel(this.definition, newProps, oldChild as TableRowUIModel);
+        }
+      } else {
+        return new TableRowUIModel(this.definition, newProps);
+      }
+    } else {
+      throw new Error();
+    }
+    return oldChild;
+  }
+
+  protected childDefinitionAt(index: number): TableUIDefinition {
+    return this.definition;
+  }
+
+  protected childIndexes(): number[] {
+    if (this._childIndexes) { return this._childIndexes; }
+    const { collectionData } = this;
+    return this._childIndexes = collectionData ? Array.from({length: collectionData.allDataSize}, (v, k) => k) : [];
+  }
+
+  private get collectionData(): CollectionDataModel | undefined {
+    return CollectionDataModelUtil.asCollectionDataModel(this.props.data);
+  }
+
+  protected childPropsAt(index: number): UIModelProps {
+    const {dataPath, modelPath, focusedPath} = this.props;
+    return new UIModelProps({
+      stateNode: this.childStateAt(index),
+      dataPath: dataPath.push(index),
+      modelPath: modelPath.push(index),
+      focusedPath: focusedPath && focusedPath.shift(),
+      data: this.childDataAt(index),
+      key: this.selectedKey(index)
     });
   }
 
-  public dataAt(row: number, column: number): UIModel | undefined {
-    if (row >= 0 && row < this.rows.size) {
-      return this.rows.get(row).cellAt(column);
+  protected dataPathToChildIndex(element: DataPathElement): number | undefined {
+    return element.canBeListIndex ? element.asListIndex : undefined;
+  }
+
+  private childStateAt(index: number): UIModelStateNode | undefined {
+    const stateNode = this.props.stateNode;
+    if (!stateNode) { return undefined; }
+    return stateNode && stateNode.get(index);
+  }
+
+  private childDataAt(index: number): DataModelBase | undefined {
+    const { data } = this.props;
+    if (this.definition.dataType === CollectionDataModelType.Map && data instanceof MapDataModel) {
+      return data.valueForListIndex(index);
+    } else if (this.definition.dataType === CollectionDataModelType.List && data instanceof ListDataModel) {
+      return data.getValueForIndex(index);
+    }
+    return undefined;
+  }
+
+  private selectedKey(selectedIndex: number): CollectionIndex | undefined {
+    if (this.definition.dataType === CollectionDataModelType.List) { return selectedIndex; }
+    if (this.props.data instanceof MapDataModel) {
+      return this.props.data.keyForIndex(selectedIndex);
     } else {
       return undefined;
     }
-  }
-
-  public rawData(collectValue: CollectValue): CellData[][] {
-    return this.rows.map(row => row!.rawData(collectValue)).toArray();
-  }
-
-  public inputChanges(dispatch: ActionDispatch, collectValue: CollectValue, changes: Array<TableChange>) {
-    const changesByRow = TableUIModel.coordinateChanges(changes);
-    changesByRow.forEach((value, key) => {
-      const row = this.rows.get(key);
-      if (row) {
-        row.input(dispatch, collectValue, value);
-      } else {
-        console.log('');
-        dispatch(createSetValueAction(this.dataPath.push(DataPathElement.last), MapDataModel.empty));
-        const newRow = new TableRowUIModel({
-          definition: this.definition,
-          dataPath: this.dataPath.push(key),
-          data: MapDataModel.empty, // TODO 設定で初期値を設定できるように
-          editContext: undefined, // TODO
-        }, undefined); // TODO
-        newRow.input(dispatch, collectValue, value);
-      }
-    });
-  }
-
-  updateData(data: DataModelBase | undefined, lastState: UIModelState | undefined): this {
-    if (DataModelUtil.equals(this.data, data)) {
-      return this;
-    } else {
-      let newModel = this.set('data', data) as this;
-      const collectionData = CollectionDataModelUtil.asCollectionDataModel(data);
-      const mapData = data instanceof MapDataModel ? data : undefined;
-      const rowConverter = (rowData: DataModelBase, rowIndex: number) => {
-        const oldRowModel = this.rows.get(rowIndex);
-        const pathElement = mapData
-          ? DataPathElement.indexWithKey(rowIndex, mapData.keyForIndex(rowIndex))
-          : DataPathElement.create(rowIndex);
-        if (oldRowModel) {
-          return oldRowModel.updateModel({
-            dataPath: {value: this.dataPath.push(pathElement)},
-            data: {value: rowData},
-            lastState: undefined // TODO
-          });
-        } else {
-          return new TableRowUIModel({
-            definition: this.definition,
-            dataPath: this.dataPath.push(pathElement),
-            data: rowData,
-            editContext: undefined, // TODO
-          }, undefined); // TODO
-        }
-      };
-      if (collectionData) {
-        const newRows = collectionData.mapAllData(rowConverter);
-        newModel = newModel.set('rows', List(newRows)) as this;
-      } else {
-        if (this.rows.size > 0) {
-          newModel = newModel.set('rows', List()) as this;
-        }
-      }
-      return newModel;
-    }
-  }
-
-  updateEditContext(editContext: EditContext | undefined, lastState: UIModelState | undefined): this {
-    return this.set('editContext', editContext) as this;
-  }
-
-  updateModel(params: UpdateUIModelParams): this {
-    let newModel: this = params.dataPath ? this.set('dataPath', params.dataPath.value) as this : this;
-    newModel = params.data ? this.updateData(params.data.value, params.lastState) : newModel;
-    newModel = params.editContext ? this.updateEditContext(params.editContext.value, params.lastState) : newModel;
-    return newModel;
-  }
-
-  getState(lastState: UIModelState | undefined): UIModelState | undefined {
-    // Tableで扱うような単純な入力はstateを持たない = Tableもstateを保つ必要がない。今のところは。
-    return undefined;
   }
 }

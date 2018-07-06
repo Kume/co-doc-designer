@@ -1,8 +1,8 @@
 import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import TextUIModel2 from '../UIModel2/TextUIModel2';
+import TextUIModel from '../UIModel/TextUIModel';
 
-export default class TextUIView extends UIViewBase<TextUIModel2, UIViewBaseProps<TextUIModel2>, UIViewBaseState> {
+export default class TextUIView extends UIViewBase<TextUIModel, UIViewBaseProps<TextUIModel>, UIViewBaseState> {
   private _textInput: HTMLInputElement;
 
   render(): React.ReactNode {

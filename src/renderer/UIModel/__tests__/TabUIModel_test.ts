@@ -1,71 +1,80 @@
+import { UIModelProps } from '../UIModel';
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
-import DataModelFactory from '../../DataModel/DataModelFactory';
+import { default as TabUIDefinition, TabUIDefinitionConfigObject } from '../../UIDefinition/TabUIDefinition';
+import TabUIModel, { TabUIModelState } from '../TabUIModel';
 import DataPath from '../../DataModel/Path/DataPath';
-import EditContext from '../EditContext';
-import TabUIModel from '../TabUIModel';
-import TextUIModel from '../TextUIModel';
-import { UIModelManager } from '../UIModelManager';
 
-const simpleUIDefinition = UIDefinitionFactory.create({
+require('../UIModelFactory');
+
+const basicDefinitionConfig: TabUIDefinitionConfigObject = {
   type: 'tab',
   key: '',
-  title: '',
+  title: 'test',
   contents: [
-    {
-      type: 'text',
-      key: 'first_tab',
-      title: 'FirstTab'
-    },
-    {
-      type: 'text',
-      key: 'second_tab',
-      title: 'SecondTab'
-    },
+    { type: 'text', key: 'a', title: 'A' },
+    { type: 'text', key: 'b', title: 'B' },
+    { type: 'text', key: 'c', title: 'C' },
   ]
-});
-const simpleData = DataModelFactory.create({
-  first_tab: 'first',
-  second_tab: 'second'
-});
-const simpleProps = {
-  data: simpleData,
-  definition: simpleUIDefinition,
-  editContext: new EditContext(),
-  dataPath: new DataPath([])
 };
+const basicDefinition = UIDefinitionFactory.create(basicDefinitionConfig) as TabUIDefinition;
 
 describe('Unit tests for TabUIModel', () => {
-  describe('Unit tests for ContentListUIModel.constructor', () => {
-    it('Can construct', () => {
-      const model = new TabUIModel(simpleProps, undefined);
-      expect(model.tabs[0].key).toBe('first_tab');
-      expect(model.tabs[0].title).toBe('FirstTab');
-      expect(model.tabs[0].isSelected).toBe(true);
-      expect(model.tabs[1].key).toBe('second_tab');
-      expect(model.tabs[1].title).toBe('SecondTab');
-      expect(model.tabs[1].isSelected).toBe(false);
-      expect(model.childModel).toBeInstanceOf(TextUIModel);
-      expect((model.childModel as TextUIModel).text).toBe('first');
+  describe('Unit tests for TabUIModel.selectedTab', () => {
+    it('Select the first tab if there are no state and focus.', () => {
+      const model = new TabUIModel(basicDefinition, UIModelProps.createSimple({}));
+      expect(model.selectedTab).toBe('a');
     });
 
-    it('Child is functioning', () => {
-      const manager = new UIModelManager();
-      manager.initialize(simpleData, simpleUIDefinition);
-      let childModel = (manager.model as TabUIModel).childModel as TextUIModel;
-      childModel.inputText(manager.dispatch, 'changed');
-      childModel = (manager.model as TabUIModel).childModel as TextUIModel;
-      expect(childModel.text).toBe('changed');
+    it('Select tab according to the state', () => {
+      const state = new TabUIModelState({selectedTab: 'b'});
+      const model = new TabUIModel(basicDefinition, UIModelProps.createSimple({ state }));
+      expect(model.selectedTab).toBe('b');
+    });
+
+    it('Select tab according to the focus', () => {
+      const focusedPath = new DataPath(['b']);
+      const model = new TabUIModel(basicDefinition, UIModelProps.createSimple({ focusedPath }));
+      expect(model.selectedTab).toBe('b');
+    });
+
+    it('Focus has priority over state for selectedTab', () => {
+      const state = new TabUIModelState({selectedTab: 'b'});
+      const focusedPath = new DataPath(['c']);
+      const model = new TabUIModel(basicDefinition, UIModelProps.createSimple({ state, focusedPath }));
+      expect(model.selectedTab).toBe('c');
     });
   });
 
-  describe('Unit tests for ContentListUIModel.selectTab', () => {
-    it('Can select tab', () => {
-      const manager = new UIModelManager();
-      manager.initialize(simpleData, simpleUIDefinition);
-      (manager.model as TabUIModel).selectTab(manager.dispatch, 'second_tab');
-      const resultModel = manager.model as TabUIModel;
-      expect(resultModel.childModel).toBeInstanceOf(TextUIModel);
-      expect((resultModel.childModel as TextUIModel).text).toBe('second');
+  describe('Unit tests for TabUIModel.adjustState', () => {
+    it('Return an action if the state is not equal the focus', () => {
+      const state = new TabUIModelState({selectedTab: 'b'});
+      const focusedPath = new DataPath(['c']);
+      const model = new TabUIModel(basicDefinition, UIModelProps.createSimple({ state, focusedPath }));
+      const actions = model.adjustState();
+      expect(actions.length).toBe(1);
+      expect(actions[0].state).toEqual(new TabUIModelState({ selectedTab: 'c' }));
+    });
+
+    it('Return an action if the state is undefined and focus is not equal to default tab', () => {
+      const focusedPath = new DataPath(['b']);
+      const model = new TabUIModel(basicDefinition, UIModelProps.createSimple({ focusedPath }));
+      const actions = model.adjustState();
+      expect(actions.length).toBe(1);
+      expect(actions[0].state).toEqual(new TabUIModelState({ selectedTab: 'b' }));
+    });
+
+    [
+      { if: 'the state and focusedPath are undefined', state: undefined, focusedPath: undefined },
+      { if: 'the state is equal the focus',
+        state: new TabUIModelState({selectedTab: 'b'}), focusedPath: new DataPath(['b']) },
+      { if: 'the focus is equal to the default tab', state: undefined, focusedPath: new DataPath(['a']) },
+      { if: 'the focus is undefined', state: new TabUIModelState({selectedTab: 'b'}), focusedPath: undefined },
+    ].map(testCase => {
+      it(`Return no action if ${testCase.if}`, () => {
+        const model = new TabUIModel(basicDefinition, UIModelProps.createSimple(testCase));
+        const actions = model.adjustState();
+        expect(actions.length).toBe(0);
+      });
     });
   });
 });

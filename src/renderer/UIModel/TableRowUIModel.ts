@@ -1,150 +1,167 @@
-import SelectUIModel from './SelectUIModel';
+import UIModel, { MultiContentUIModel, UIModelProps, UIModelStateNode } from './UIModel';
 import TableUIDefinition from '../UIDefinition/TableUIDefinition';
-import CheckBoxUIModel from './CheckBoxUIModel';
-import { ActionDispatch, CollectValue, UIModelProps, UIModelPropsDefault, UpdateUIModelParams } from './UIModel';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
-import { createSetValueAction } from './UIModelAction';
-import { List, Record } from 'immutable';
-import EditContext from './EditContext';
+import DataPathElement from '../DataModel/Path/DataPathElement';
 import DataPath from '../DataModel/Path/DataPath';
 import MapDataModel from '../DataModel/MapDataModel';
-import TextUIModel from './TextUIModel';
-import UIModel from './UIModel';
-import { UIModelFactory } from './UIModelFactory';
-import UIModelState from './UIModelState';
-import DataModelBase from '../DataModel/DataModelBase';
 import DataModelFactory from '../DataModel/DataModelFactory';
-
-const TableRowUIModelRecord = Record({
-  ...UIModelPropsDefault,
-  cells: List()
-});
+import DataModelBase from '../DataModel/DataModelBase';
+import { CollectValue } from './types';
+import TextUIModel from './TextUIModel';
+import CheckBoxUIModel from './CheckBoxUIModel';
+import SelectUIModel from './SelectUIModel';
+import { UIModelAction } from './UIModelActions';
 
 export type CellData = number | string | undefined | boolean;
 export interface TableChangeForRow {
-  column: number,
-  value: any
+  column: number;
+  value: any;
 }
 
-export default class TableRowUIModel extends TableRowUIModelRecord implements UIModel, UIModelProps {
-  public readonly data: DataModelBase | undefined;
-  public readonly definition: TableUIDefinition;
-  public readonly editContext: EditContext;
-  public readonly dataPath: DataPath;
-  public readonly cells: List<UIModel>;
-
-  private static cells(props: UIModelProps, lastState: UIModelState | undefined): List<UIModel> {
-    const mapData = props.data instanceof MapDataModel ? props.data : undefined;
-    const definition = props.definition as TableUIDefinition;
-    return definition.contents.map(cellDefinition => {
-      const key = cellDefinition!.key;
-      let cellData: DataModelBase | undefined = undefined;
-      if (key.isKey) {
-        cellData = DataModelFactory.fromDataPathElement(props.dataPath.lastElement);
-      } else if (key.canBeMapKey) {
-        cellData = mapData && mapData.valueForKey(cellDefinition!.key.asMapKey);
-      }
-      return this.cell(cellData, cellDefinition!, props.dataPath, props.editContext);
-    }) as List<UIModel>;
-  }
-
-  private static inputValueForModel(dispatch: ActionDispatch, collectValue: CollectValue, model: UIModel, value: any) {
-    console.log('inputValueForModel', model, value);
-    if (model instanceof TextUIModel) {
-      if (typeof value === 'string') {
-        model.inputText(dispatch, value);
-      }
-    } else if (model instanceof CheckBoxUIModel) {
-      if (model.canInputValue(value)) {
-        model.inputValue(dispatch, value);
-      }
-    } else if (model instanceof SelectUIModel) {
-      model.inputLabel(dispatch, collectValue, value.toString());
-    }
-  }
-
-  private static cell(
-    data: DataModelBase | undefined,
-    definition: UIDefinitionBase,
-    thisDataPath: DataPath,
-    thisEditContext: EditContext | undefined
-  ): UIModel {
-    const props = {
-      data,
-      dataPath: thisDataPath.push(definition!.key),
-      editContext: undefined, // TODO
-      definition
-    };
-    return UIModelFactory.create(props, undefined);
-  }
-
-  public constructor(props: UIModelProps, lastState: UIModelState | undefined) {
-    super({
-      ...props,
-      cells: TableRowUIModel.cells(props, lastState)
-    })
-  }
-
-  public cellAt(index: number): UIModel | undefined {
-    if (index < 0 || index >= this.cells.size) {
-      return undefined;
-    } else {
-      return this.cells.get(index);
-    }
-  }
-
-  public input(dispatch: ActionDispatch, collectValue: CollectValue, changes: TableChangeForRow[]): void {
-    if (!(this.data instanceof MapDataModel)) {
-      dispatch(createSetValueAction(this.dataPath, MapDataModel.empty))
-    }
-    for (const change of changes) {
-      const cell = this.cellAt(change.column);
-      TableRowUIModel.inputValueForModel(dispatch, collectValue, cell!,　change.value);
-    }
-  }
+type IndexType = string | symbol;
+export default class TableRowUIModel extends MultiContentUIModel<TableUIDefinition, IndexType> {
+  private _childKeys?: IndexType[];
+  private _childrenByListIndex?: UIModel[];
 
   public rawData(collectValue: CollectValue): CellData[] {
-    return this.cells.map(cell => {
-      if (cell instanceof TextUIModel) {
-        return cell.text;
-      } else if (cell instanceof CheckBoxUIModel) {
-        return cell.isChecked;
-      } else if (cell instanceof SelectUIModel) {
-        return cell.labelForValue(collectValue, cell.value);
+    const cells: CellData[] = [];
+    this.children.forEach((child, key) => {
+      if (child instanceof TextUIModel) {
+        cells.push(child.text);
+      } else if (child instanceof CheckBoxUIModel) {
+        cells.push(child.isChecked);
+      } else if (child instanceof SelectUIModel) {
+        cells.push(child.labelForValue(collectValue, child.value));
       }
       return '';
-    }).toArray();
+    });
+    return cells;
   }
 
-  getState(lastState: UIModelState | undefined): UIModelState | undefined {
+  public input(collectValue: CollectValue, changes: TableChangeForRow[]): UIModelAction[] {
+    let actions: UIModelAction[] = [];
+    const { mapData } = this;
+    if (!mapData) {
+      actions.push(UIModelAction.Creators.setData(this.props.dataPath, MapDataModel.empty));
+    }
+    for (const change of changes) {
+      const child = this.childAtIndex(change.column);
+      if (child) {
+        if (child instanceof TextUIModel) {
+          if (typeof change.value === 'string') {
+            actions = actions.concat(child.input(change.value));
+          }
+        } else if (child instanceof CheckBoxUIModel) {
+          if (CheckBoxUIModel.canInputValue(change.value)) {
+            actions = actions.concat(child.input(change.value));
+          }
+        } else if (child instanceof SelectUIModel) {
+          actions = actions.concat(child.inputLabel(change.value.toString(), collectValue));
+        }
+      }
+    }
+    return actions;
+  }
+
+  public columnSettings(collectValue: CollectValue, column: number) {
+    const child = this.childAtIndex(column);
+    if (child) {
+      if (child instanceof TextUIModel) {
+        if (child.definition.options) {
+          return {
+            type: 'autocomplete',
+            source: child.definition.options,
+            strict: false
+          };
+        } else {
+          return {
+            editor: 'test'
+          };
+        }
+      } else if (child instanceof CheckBoxUIModel) {
+        return {
+          type: 'checkbox'
+        };
+      } else if (child instanceof SelectUIModel) {
+        return {
+          type: 'dropdown',
+          source: child.options(collectValue).map(option => option.label)
+        };
+      }
+    }
+    return {};
+  }
+
+  protected childDefinitionAt(index: IndexType): UIDefinitionBase {
+    return this.definition.contents.find(content => {
+      const key = content!.key;
+      if (index === DataPathElement.keySymbol) {
+        return key.isKey;
+      } else {
+        return key.canBeMapKey && key.asMapKey === index;
+      }
+    });
+  }
+
+  protected childIndexes(): IndexType[] {
+    if (this._childKeys) { return this._childKeys; }
+    return this._childKeys = this.definition.contents
+      .map(content => this.dataPathToChildIndex(content!.key)!).toArray();
+  }
+
+  protected childPropsAt(index: IndexType): UIModelProps {
+    const {dataPath, modelPath, focusedPath} = this.props;
+    return new UIModelProps({
+      stateNode: this.childStateAt(index),
+      dataPath: dataPath.push(index),
+      modelPath: modelPath.push(index),
+      focusedPath: focusedPath && focusedPath.shift(),
+      data: this.childDataAt(index)
+    });
+  }
+
+  protected dataPathToChildIndex(element: DataPathElement): IndexType | undefined {
+    if (element.isKey) {
+      return DataPathElement.keySymbol;
+    } else if (element.canBeMapKey) {
+      return element.asMapKey;
+    }
     return undefined;
   }
 
-  updateModel(params: UpdateUIModelParams): this {
-    let newModel = this;
-    if (params.dataPath) {
-      newModel = newModel.set('dataPath', params.dataPath.value) as this;
+  private childStateAt(index: IndexType): UIModelStateNode | undefined {
+    const stateNode = this.props.stateNode;
+    if (!stateNode) { return undefined; }
+    return stateNode && stateNode.get(index);
+  }
+
+  private childDataAt(index: IndexType): DataModelBase | undefined {
+    if (index === DataPathElement.keySymbol) {
+      const dataPath = this.props.dataPath;
+      return dataPath.isEmptyPath ? undefined : DataModelFactory.create(this.props.key);
+    } else if (typeof index === 'symbol') {
+      throw new Error();
     }
-    if (params.data) {
-      newModel = newModel.set('data', params.data.value) as this;
-      const mapData = params.data.value instanceof MapDataModel ? params.data.value : undefined;
-      if (mapData) {
-        const newCells = this.cells.map((oldCell, oldCellIndex) => {
-          const key = oldCell!.definition.key;
-          let data: DataModelBase | undefined = undefined;
-          if (key.isKey) {
-            data = DataModelFactory.fromDataPathElement(newModel.dataPath.lastElement);
-          } else {
-            data = mapData.valueForKey(oldCell!.definition.key.asMapKey);
-          }
-          return oldCell!.updateModel({
-            data: { value: data },
-            lastState: undefined
-          });
-        });
-        newModel = newModel.set('cells', newCells) as this;
-      }
+    const mapData = this.props.data instanceof MapDataModel ? this.props.data : undefined;
+    return mapData && mapData.getValue(new DataPath(index));
+  }
+
+  private get mapData(): MapDataModel | undefined {
+    const { data } = this.props;
+    return data instanceof MapDataModel ? data : undefined;
+  }
+
+  private childAtIndex(index: number): UIModel | undefined {
+    return this.childrenByListIndex[index];
+  }
+
+  private get childrenByListIndex(): UIModel[] {
+    if (!this._childrenByListIndex) {
+      this._childrenByListIndex = [];
+      this.children.forEach(child => {
+        this._childrenByListIndex!.push(child!);
+      });
     }
-    return newModel;
+    return this._childrenByListIndex;
   }
 }

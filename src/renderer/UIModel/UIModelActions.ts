@@ -1,8 +1,8 @@
 import DataPath from '../DataModel/Path/DataPath';
 import { DataAction, DeleteDataAction, MoveDataAction, SetDataAction } from '../DataModel/DataAction';
 import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
-import { UIModel2State } from './types';
-import { ModelPath } from './UIModel2';
+import { UIModelState } from './types';
+import { ModelPath } from './UIModel';
 
 type UIModelActionType = 'UpdateData' | 'UpdateState' | 'Focus';
 
@@ -19,7 +19,7 @@ export interface UIModelUpdateDataAction extends UIModelAction {
 export interface UIModelUpdateStateAction extends UIModelAction {
   type: 'UpdateState';
   path: ModelPath;
-  state: UIModel2State | undefined;
+  state: UIModelState | undefined;
 }
 
 export interface UIModelFocusAction extends UIModelAction {

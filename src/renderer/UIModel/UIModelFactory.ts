@@ -1,48 +1,50 @@
-import UIModel, { UIModelProps } from './UIModel';
+import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
+import UIModel, { ContentUIModel, UIModelProps } from './UIModel';
 import TextUIDefinition from '../UIDefinition/TextUIDefinition';
 import TextUIModel from './TextUIModel';
-import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
-import ContentListUIModel from './ContentListUIModel';
-import TabUIDefinition from '../UIDefinition/TabUIDefinition';
-import TabUIModel from './TabUIModel';
-import FormUIModel from './FormUIModel';
 import FormUIDefinition from '../UIDefinition/FormUIDefinition';
+import FormUIModel from './FormUIModel';
+import TabUIModel from './TabUIModel';
+import TabUIDefinition from '../UIDefinition/TabUIDefinition';
 import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import CheckBoxUIModel from './CheckBoxUIModel';
-import TableUIDefinition from '../UIDefinition/TableUIDefinition';
-import TableUIModel from './TableUIModel';
-import UIModelState from './UIModelState';
-import TextAreaUIDefinition from '../UIDefinition/TextAreaUIDefinition';
-import TextAreaUIModel from './TextAreaUIModel';
 import SelectUIDefinition from '../UIDefinition/SelectUIDefinition';
 import SelectUIModel from './SelectUIModel';
+import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
+import ContentListUIModel from './ContentListUIModel';
+import TableUIDefinition from '../UIDefinition/TableUIDefinition';
+import TableUIModel from './TableUIModel';
+import TextAreaUIModel from './TextAreaUIModel';
+import TextAreaUIDefinition from '../UIDefinition/TextAreaUIDefinition';
 
 export class UIModelFactory {
-  public static create(props: UIModelProps, lastState: UIModelState | undefined): UIModel {
-    if (props.definition instanceof TextUIDefinition) {
-      return new TextUIModel(props, lastState);
+  public static create(definition: UIDefinitionBase, props: UIModelProps, oldModel?: UIModel<any>): UIModel<any> {
+    if (definition instanceof FormUIDefinition) {
+      return new FormUIModel(definition, props, oldModel instanceof FormUIModel ? oldModel : undefined);
     }
-    if (props.definition instanceof TextAreaUIDefinition) {
-      return new TextAreaUIModel(props, lastState);
+    if (definition instanceof TextUIDefinition) {
+      return new TextUIModel(definition, props);
     }
-    if (props.definition instanceof ContentListUIDefinition) {
-      return new ContentListUIModel(props, lastState);
+    if (definition instanceof TabUIDefinition) {
+      return new TabUIModel(definition, props);
     }
-    if (props.definition instanceof TabUIDefinition) {
-      return new TabUIModel(props, lastState);
+    if (definition instanceof CheckBoxUIDefinition) {
+      return new CheckBoxUIModel(definition, props);
     }
-    if (props.definition instanceof FormUIDefinition) {
-      return new FormUIModel(props, lastState);
+    if (definition instanceof SelectUIDefinition) {
+      return new SelectUIModel(definition, props);
     }
-    if (props.definition instanceof CheckBoxUIDefinition) {
-      return new CheckBoxUIModel(props, lastState);
+    if (definition instanceof ContentListUIDefinition) {
+      return new ContentListUIModel(definition, props);
     }
-    if (props.definition instanceof SelectUIDefinition) {
-      return new SelectUIModel(props, lastState);
+    if (definition instanceof TableUIDefinition) {
+      return new TableUIModel(definition, props);
     }
-    if (props.definition instanceof TableUIDefinition) {
-      return new TableUIModel(props, lastState);
+    if (definition instanceof TextAreaUIDefinition) {
+      return new TextAreaUIModel(definition, props);
     }
-    throw new Error('Unknown UI Definition');
+    throw new Error('Invalid ui definition.');
   }
 }
+
+ContentUIModel.registerFactory(UIModelFactory.create);

@@ -3,17 +3,17 @@ import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import 'handsontable/dist/handsontable.css';
 import Handsontable from 'handsontable';
-import TableUIModel2 from '../UIModel2/TableUIModel2';
+import TableUIModel from '../UIModel/TableUIModel';
 
 require('../View/HandsonTable/ExtendTextEditor');
 
 interface State extends UIViewBaseState {
 }
 
-export default class TableUIView extends UIViewBase<TableUIModel2, UIViewBaseProps<TableUIModel2>, State> {
+export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProps<TableUIModel>, State> {
   private _handsontable: Handsontable;
 
-  constructor(props: UIViewBaseProps<TableUIModel2>, context?: any) {
+  constructor(props: UIViewBaseProps<TableUIModel>, context?: any) {
     super(props, context);
     this.add = this.add.bind(this);
     this.state = {

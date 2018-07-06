@@ -3,8 +3,8 @@ import UIViewFactory from './UIViewFactory';
 import DataModelFactory from '../DataModel/DataModelFactory';
 import { UIDefinitionFactory } from '../UIDefinition/UIDefinitionFactory';
 import { sampleDataForUIConfig, sampleUIConfig } from '../UIDefinition/SampleData/SampleUIConfig';
-import UIModel2Manager from '../UIModel2/UIModel2Manager';
-import UIModel2 from '../UIModel2/UIModel2';
+import UIModelManager from '../UIModel/UIModelManager';
+import UIModel from '../UIModel/UIModel';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import DataModelBase from '../DataModel/DataModelBase';
 
@@ -13,17 +13,17 @@ interface Props {
 }
 
 interface State {
-  model: UIModel2 | undefined;
-  modalModel: UIModel2 | undefined;
+  model: UIModel | undefined;
+  modalModel: UIModel | undefined;
 }
 
 export default class RootUIView extends React.Component<Props, State> {
-  private _manager: UIModel2Manager;
+  private _manager: UIModelManager;
 
   constructor(props: Props, context?: any) {
     super(props, context);
     const definition = UIDefinitionFactory.create(sampleUIConfig);
-    this._manager = new UIModel2Manager(definition, DataModelFactory.create(sampleDataForUIConfig));
+    this._manager = new UIModelManager(definition, DataModelFactory.create(sampleDataForUIConfig));
     this._manager.notifyModelChanged = () => {
       this.setState({model: this._manager.rootUIModel});
     };
@@ -37,7 +37,7 @@ export default class RootUIView extends React.Component<Props, State> {
   }
 
   public load(definition: UIDefinitionBase, data: DataModelBase): void {
-    this._manager = new UIModel2Manager(definition, data);
+    this._manager = new UIModelManager(definition, data);
     this._manager.notifyModelChanged = () => {
       this.setState({model: this._manager.rootUIModel});
     };
@@ -47,7 +47,7 @@ export default class RootUIView extends React.Component<Props, State> {
     this.setState({ model: this._manager.rootUIModel });
   }
 
-  get manager(): UIModel2Manager {
+  get manager(): UIModelManager {
     return this._manager;
   }
 
