@@ -81,7 +81,7 @@ describe('Unit tests for MapDataModel', () => {
 
     it('Can collect with wild card at deep layer', () => {
       const model = new MapDataModel({a: {b: {c: 1, d: 5}}});
-      const path = DataPath.parse('a.b.*');
+      const path = DataPath.parse('a/b/*');
       const collected = model.collectValue(path);
       expect(collected.length).toBe(2);
       expect((<NumberDataModel> collected[0].data).value).toBe(1);

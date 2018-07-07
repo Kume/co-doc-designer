@@ -11,14 +11,14 @@ describe('Unit tests for DataPath', () => {
     });
 
     it('Multi elements', () => {
-      const path = DataPath.parse('foo.bar.7');
+      const path = DataPath.parse('foo/bar/7');
       expect(path.elements.size).toBe(3);
       expect(path.elements.get(0).asMapKey).toBe('foo');
       expect(path.elements.get(2).asListIndex).toBe(7);
     });
 
     it('Include wildcard', () => {
-      const path = DataPath.parse('foo.*.bar');
+      const path = DataPath.parse('foo/*/bar');
       expect(path.elements.size).toBe(3);
       expect(path.elements.get(1).type).toBe(DataPathElement.Type.WildCard);
     });

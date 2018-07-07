@@ -45,7 +45,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             key: 'select_ref',
             label: '参照選択',
             options: {
-              path: 'references.*.name'
+              path: 'references/*/name'
             }
           },
           <SelectUIDefinitionConfigObject> {
@@ -53,7 +53,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             key: 'select_ref2',
             label: '参照選択2',
             options: {
-              path: 'references.*',
+              path: 'references/*',
               valuePath: 'name',
               labelPath: 'value'
             }
@@ -90,7 +90,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                 key: 'select_ref',
                 label: '参照選択',
                 options: {
-                  path: 'references.*.name'
+                  path: 'references/*/name'
                 }
               },
               <SelectUIDefinitionConfigObject> {
@@ -98,7 +98,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                 key: 'select_ref2',
                 label: '参照選択2',
                 options: {
-                  path: 'references.*',
+                  path: 'references/*',
                   valuePath: 'name',
                   labelPath: 'value'
                 }
