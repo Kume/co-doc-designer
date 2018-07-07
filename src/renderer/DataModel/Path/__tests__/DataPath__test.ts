@@ -1,6 +1,6 @@
 import DataPath from '../DataPath';
 import DataPathElement from '../DataPathElement';
-import { is } from 'immutable'
+import { is } from 'immutable';
 
 describe('Unit tests for DataPath', () => {
   describe('Unit tests for DataPath.parse', () => {

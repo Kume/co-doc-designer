@@ -1,7 +1,6 @@
 import handsontable from 'handsontable';
 import * as CodeMirror from '../../../../lib/codemirror/lib/codemirror';
 import { TemplateLine } from '../../Model/TemplateEngine';
-import TextAreaUIView from '../../UIView/TextAreaUIView';
 
 export default class ExtendTextEditor extends handsontable.editors.TextEditor {
   public textareaParentStyle: CSSStyleDeclaration;
@@ -23,20 +22,22 @@ export default class ExtendTextEditor extends handsontable.editors.TextEditor {
     this.textAreaParent = document.createElement('div');
     this.textAreaParent.classList.add('handsontableInputHolder');
     this.textAreaParent.appendChild(this.textArea);
-    this.instance.rootElement.appendChild(this.textAreaParent);
+    (this.instance as any).rootElement.appendChild(this.textAreaParent);
     this.textareaParentStyle = this.textAreaParent.style;
     this.textareaParentStyle.minWidth = '0px';
     console.log('test createElements', this);
-    setTimeout(() => {
-      this.codeMirror = CodeMirror.fromTextArea(this.TEXTAREA as any, {
-        autoCloseBrackets: true,
-        matchBrackets: true,
-        viewportMargin: 1
-      });
-      this.codeMirror.on('change', (codeMirror) => {
-        codeMirror.getDoc().getAllMarks();
-      });
-    },0);
+    setTimeout(
+      () => {
+        this.codeMirror = CodeMirror.fromTextArea(this.TEXTAREA as any, {
+          autoCloseBrackets: true,
+          matchBrackets: true,
+          viewportMargin: 1
+        });
+        this.codeMirror.on('change', (codeMirror) => {
+          codeMirror.getDoc().getAllMarks();
+        });
+      },
+      0);
   }
 
   getValue(): any {
@@ -76,10 +77,6 @@ export default class ExtendTextEditor extends handsontable.editors.TextEditor {
       }
     }
     // this.codeMirror.getDoc().setCursor({ch: 2, line: 0});
-  }
-
-  initText(): void {
-
   }
 
   refreshDimensions() {

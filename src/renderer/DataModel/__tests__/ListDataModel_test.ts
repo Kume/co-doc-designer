@@ -117,7 +117,7 @@ describe('Unit tests for ListDataModel', () => {
       it(item.description, () => {
         const model = new ListDataModel(['first', 'second', 'third']);
         const inserted = model.applyInsertAction(item.action);
-        expect(inserted.toJsonObject()).toEqual(item.expect)
+        expect(inserted.toJsonObject()).toEqual(item.expect);
       });
     });
   });
@@ -127,6 +127,6 @@ describe('Unit tests for ListDataModel', () => {
       const model = new ListDataModel(['first', 'second', 'third']);
       const deleted = model.applyDeleteAction({type: 'Delete', targetIndex: 1});
       expect(deleted.toJsonObject()).toEqual(['first', 'third']);
-    })
+    });
   });
 });

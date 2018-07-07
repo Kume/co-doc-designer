@@ -89,7 +89,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
         case 'Delete':
           return this.applyDeleteAction(action as DeleteDataAction);
         case 'Set':
-          return (<SetDataAction>action).data;
+          return (<SetDataAction> action).data;
         default:
           throw new DataOperationError('Invalid operation', {path, action, targetData: this});
       }
