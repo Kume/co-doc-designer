@@ -11,6 +11,7 @@ import TextUIModel from './TextUIModel';
 import CheckBoxUIModel from './CheckBoxUIModel';
 import SelectUIModel from './SelectUIModel';
 import { UIModelAction } from './UIModelActions';
+import { List } from 'immutable';
 
 export type CellData = number | string | undefined | boolean;
 export interface TableChangeForRow {
@@ -22,6 +23,7 @@ type IndexType = string | symbol;
 export default class TableRowUIModel extends MultiContentUIModel<TableUIDefinition, IndexType> {
   private _childKeys?: IndexType[];
   private _childrenByListIndex?: UIModel[];
+  private _dataPath?: DataPath;
 
   public rawData(collectValue: CollectValue): CellData[] {
     const cells: CellData[] = [];
@@ -42,7 +44,7 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
     let actions: UIModelAction[] = [];
     const { mapData } = this;
     if (!mapData) {
-      actions.push(UIModelAction.Creators.setData(this.props.dataPath, MapDataModel.empty));
+      actions.push(UIModelAction.Creators.setData(this.dataPath, MapDataModel.empty));
     }
     for (const change of changes) {
       const child = this.childAtIndex(change.column);
@@ -110,7 +112,7 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
   }
 
   protected childPropsAt(index: IndexType): UIModelProps {
-    const {dataPath, modelPath, focusedPath} = this.props;
+    const { dataPath, props: { modelPath, focusedPath } } = this;
     return new UIModelProps({
       stateNode: this.childStateAt(index),
       dataPath: dataPath.push(index),
@@ -137,7 +139,7 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
 
   private childDataAt(index: IndexType): DataModelBase | undefined {
     if (index === DataPathElement.keySymbol) {
-      const dataPath = this.props.dataPath;
+      const dataPath = this.dataPath;
       return dataPath.isEmptyPath ? undefined : DataModelFactory.create(this.props.key);
     } else if (typeof index === 'symbol') {
       throw new Error();
@@ -163,5 +165,24 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
       });
     }
     return this._childrenByListIndex;
+  }
+
+  private get dataPath(): DataPath {
+    if (!this._dataPath) {
+      const { dataPath } = this.props;
+      if (dataPath.isEmptyPath) {
+        this._dataPath = dataPath;
+      } else {
+        const { lastElement } = dataPath;
+        this._dataPath = dataPath.pop().push(this.makeDataPathElementWithMetadata(lastElement));
+      }
+    }
+    return this._dataPath;
+  }
+
+  private makeDataPathElementWithMetadata(sourceElement: DataPathElement): DataPathElement {
+    let keyOrder: List<string> = sourceElement.metadata.get('keyOrder') || List();
+    const newKeyOrder = keyOrder.concat(this.definition.keyOrder) as List<string>;
+    return sourceElement.setMetadata(sourceElement.metadata.set('keyOrder', newKeyOrder));
   }
 }

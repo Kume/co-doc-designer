@@ -12,6 +12,7 @@ import DataPath from './Path/DataPath';
 import { IntegerDataModel } from './ScalarDataModel';
 import { DataAction, DeleteDataAction, InsertDataAction, MoveDataAction, SetDataAction } from './DataAction';
 import DataOperationError from './Error/DataOperationError';
+import { DataPathElementMetadata } from './Path/DataPathElement';
 
 const ListDataModelRecord = Record({
   list: List<DataModelBase>()
@@ -63,7 +64,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     return undefined;
   }
 
-  public applyAction(path: DataPath, action: DataAction): DataModelBase {
+  public applyAction(path: DataPath, action: DataAction, metadata?: DataPathElementMetadata): DataModelBase {
     if (path.isEmptyPath) {
       switch (action.type) {
         case 'Insert':
@@ -81,7 +82,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
         const index = pathElement.asListIndex;
         if (this.isValidIndex(index)) {
           const item = this.list.get(index);
-          return this.set('list', this.list.set(index, item.applyAction(path.shift(), action)));
+          return this.set('list', this.list.set(index, item.applyAction(path.shift(), action, pathElement.metadata)));
         } else {
           throw new DataOperationError('Invalid index', {path, action, targetData: this});
         }

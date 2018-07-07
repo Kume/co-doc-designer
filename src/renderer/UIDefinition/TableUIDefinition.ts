@@ -12,6 +12,7 @@ export interface TableUIDefinitionConfigObject extends UIDefinitionConfigObject 
 
 export default class TableUIDefinition extends MultiContentsUIDefinition {
   private _dataType: CollectionDataModelType = CollectionDataModelType.List;
+  private _keyOrder?: string[];
 
   public constructor(config: TableUIDefinitionConfigObject) {
     super(config.label, DataPathElement.parse(config.key));
@@ -22,5 +23,17 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
 
   public get dataType(): CollectionDataModelType {
     return this._dataType;
+  }
+
+  public get keyOrder(): string[] {
+    if (!this._keyOrder) {
+      this._keyOrder = [];
+      this.contents.forEach(content => {
+        if (content!.key.canBeMapKey) {
+          this._keyOrder!.push(content!.key.asMapKey);
+        }
+      });
+    }
+    return this._keyOrder;
   }
 }

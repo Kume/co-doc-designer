@@ -2,7 +2,7 @@ import { SingleContentUIModel, stateKey, UIModelProps } from './UIModel';
 import TabUIDefinition from '../UIDefinition/TabUIDefinition';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import MapDataModel from '../DataModel/MapDataModel';
-import { Record } from 'immutable';
+import { List, Record } from 'immutable';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import { UIModelAction, UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModelActions';
 import DataPath from '../DataModel/Path/DataPath';
@@ -23,6 +23,8 @@ interface Tab {
 }
 
 export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
+  private _dataPath?: DataPath;
+
   public adjustState(): UIModelUpdateStateAction[] {
     const focusedPath = this.props.focusedPath;
     if (focusedPath && !focusedPath.isEmptyPath) {
@@ -55,7 +57,7 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
     return this.definition.contents.map(content => ({
       key: content!.key.asMapKey,
       label: content!.label,
-      path: this.props.dataPath.push(content!.key),
+      path: this.dataPath.push(content!.key),
       isSelected: content!.key.asMapKey === selectedTab
     })).toArray();
   }
@@ -65,7 +67,7 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
     if (this.props.data instanceof MapDataModel) {
       return childResult;
     } else {
-      return [UIModelAction.Creators.setData(this.props.dataPath, new MapDataModel({})), ...childResult];
+      return [UIModelAction.Creators.setData(this.dataPath, new MapDataModel({})), ...childResult];
     }
   }
 
@@ -104,7 +106,7 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   }
 
   protected get childProps(): UIModelProps {
-    const {stateNode, modelPath, dataPath, focusedPath, data} = this.props;
+    const { dataPath, props: { stateNode, modelPath, focusedPath, data } } = this;
     const selectedTab = this.selectedTab;
     if (this.childDefinition.keyFlatten) {
       return new UIModelProps({
@@ -123,5 +125,24 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
         focusedPath: focusedPath && focusedPath.shift()
       });
     }
+  }
+
+  private get dataPath(): DataPath {
+    if (!this._dataPath) {
+      const { dataPath } = this.props;
+      if (dataPath.isEmptyPath) {
+        this._dataPath = dataPath;
+      } else {
+        const { lastElement } = dataPath;
+        this._dataPath = dataPath.pop().push(this.makeDataPathElementWithMetadata(lastElement));
+      }
+    }
+    return this._dataPath;
+  }
+
+  private makeDataPathElementWithMetadata(sourceElement: DataPathElement): DataPathElement {
+    let keyOrder: List<string> = sourceElement.metadata.get('keyOrder') || List();
+    const newKeyOrder = keyOrder.concat(this.definition.keyOrder) as List<string>;
+    return sourceElement.setMetadata(sourceElement.metadata.set('keyOrder', newKeyOrder));
   }
 }

@@ -3,6 +3,7 @@ import { Record } from 'immutable';
 import DataPath from './Path/DataPath';
 import { DataAction, SetDataAction } from './DataAction';
 import DataOperationError from './Error/DataOperationError';
+import { DataPathElementMetadata } from './Path/DataPathElement';
 
 export type ScalarDataSource = number | string | boolean | null | Date;
 
@@ -28,7 +29,7 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
     super({value, type});
   }
 
-  applyAction(path: DataPath, action: DataAction): DataModelBase {
+  applyAction(path: DataPath, action: DataAction, metadata?: DataPathElementMetadata): DataModelBase {
     switch (action.type) {
       case 'Insert':
         throw new DataOperationError('Cannot insert into scalar data.', {action, path, targetData: this});

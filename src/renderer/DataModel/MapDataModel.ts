@@ -6,7 +6,7 @@ import DataModelBase, {
 import { List, Record } from 'immutable';
 import ScalarDataModel, { NullDataModel, ScalarDataSource, StringDataModel } from './ScalarDataModel';
 import DataPath from './Path/DataPath';
-import DataPathElement from './Path/DataPathElement';
+import DataPathElement, { DataPathElementMetadata } from './Path/DataPathElement';
 import DataModelFactory from './DataModelFactory';
 import { DataAction, DeleteDataAction, InsertDataAction, MoveDataAction, SetDataAction } from './DataAction';
 import DataOperationError from './Error/DataOperationError';
@@ -102,6 +102,34 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return this.set('list', this.list.set(index, new MapDataModelElement(key, value)));
   }
 
+  public applyKeyOrder(keyOrder: string[]): this {
+    const keyedElements: Map<string, MapDataModelElement[]> =
+      new Map(keyOrder.map(key => [key, []]) as [string, MapDataModelElement[]][]);
+    const unkedElements: MapDataModelElement[] = [];
+    this.list.forEach(item => {
+      if (item!.key && keyedElements.has(item!.key!)) {
+        keyedElements.get(item!.key!)!.push(item!);
+      } else {
+        unkedElements.push(item!);
+      }
+    });
+    let sortedList = this.list.withMutations(list => {
+      let index = 0;
+      keyedElements.forEach(elements => {
+        elements.forEach(element => {
+          list = list.set(index, element);
+          index++;
+        });
+      });
+      unkedElements.forEach(element => {
+        list = list.set(index, element);
+        index++;
+      });
+    });
+
+    return this.set('list', sortedList);
+  }
+
   public valueForListIndex(index: number): DataModelBase | undefined {
     const node = this.list.get(index);
     return node && node.value;
@@ -116,19 +144,14 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return super.set(key, value) as this;
   }
 
-  applyAction(path: DataPath, action: DataAction): DataModelBase {
+  applyAction(path: DataPath, action: DataAction, metadata?: DataPathElementMetadata): DataModelBase {
+    const keyOrder = metadata && metadata.get('keyOrder');
     if (path.isEmptyPath) {
-      switch (action.type) {
-        case 'Insert':
-          return this.applyInsertAction(action as InsertDataAction);
-        case 'Delete':
-          return this.applyDeleteAction(action as DeleteDataAction);
-        case 'Move':
-          return this.applyMoveAction(action as MoveDataAction);
-        case 'Set':
-          return (<SetDataAction> action).data;
-        default:
-          throw new DataOperationError('Invalid operation', {path, action, targetData: this});
+      let result = this.applyActionForThis(action, metadata);
+      if (keyOrder && result instanceof MapDataModel) {
+        return result.applyKeyOrder(keyOrder.toArray());
+      } else {
+        return result;
       }
     } else {
       const pathElement = path.firstElement;
@@ -141,13 +164,15 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
             node = node.setKey(newKey.value);
           }
         } else {
-          node = node.setValue(node.value.applyAction(path.shift(), action));
+          node = node.setValue(node.value.applyAction(path.shift(), action, pathElement.metadata));
         }
-        return this.set('list', this.list.set(index, node));
+        const updated = this.set('list', this.list.set(index, node));
+        return keyOrder ? updated.applyKeyOrder(keyOrder.toArray()) : updated;
       } else {
         if (DataAction.isSetDataAction(action) && path.elements.size === 1) {
           const newNode = new MapDataModelElement(path.firstElement.asMapKeyOrUndefined, action.data);
-          return this.set('list', this.list.push(newNode));
+          const updated = this.set('list', this.list.push(newNode));
+          return keyOrder ? updated.applyKeyOrder(keyOrder.toArray()) : updated;
         } else {
           throw new DataOperationError('Invalid path for action', {path, action, targetData: this});
         }
@@ -155,7 +180,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
-  public applyDeleteAction(action: DeleteDataAction): DataModelBase {
+  public applyDeleteAction(action: DeleteDataAction, metadata?: DataPathElementMetadata): DataModelBase {
     if (typeof action.targetIndex === 'number') {
       if (this.isValidIndex(action.targetIndex)) {
         return this.set('list', this.list.delete(action.targetIndex));
@@ -172,7 +197,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
-  public applyInsertAction(action: InsertDataAction): DataModelBase {
+  public applyInsertAction(action: InsertDataAction, metadata?: DataPathElementMetadata): DataModelBase {
     const node = new MapDataModelElement(action.key, action.data);
     if (action.targetIndex === undefined) {
       const newList = action.isAfter ? this.list.push(node) : this.list.unshift(node);
@@ -194,7 +219,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
-  public applyMoveAction(action: MoveDataAction): this {
+  public applyMoveAction(action: MoveDataAction, metadata?: DataPathElementMetadata): this {
     if (!(this.isValidCollectionIndex(action.from) && this.isValidIndexForInsert(action.to, action.isAfter))) {
       throw new DataOperationError('Invalid index to move.', {action, targetData: this});
     }
@@ -219,7 +244,11 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
   public toPrivateJsonObject(): MapDataModelPrivateItem[] {
     const objects: MapDataModelPrivateItem[] = [];
     this.list.forEach(item => {
-      objects.push({k: item!.key, v: item!.value.toJsonObject()});
+      if (item!.key) {
+        objects.push({k: item!.key, v: item!.value.toJsonObject()});
+      } else {
+        objects.push({v: item!.value.toJsonObject()});
+      }
     });
     return objects;
   }
@@ -455,6 +484,21 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       map.setIn(['list', index1], value2)
         .setIn(['list', index2], value1)
     ) as this;
+  }
+
+  private applyActionForThis(action: DataAction, metadata?: DataPathElementMetadata) {
+    switch (action.type) {
+      case 'Insert':
+        return this.applyInsertAction(action as InsertDataAction);
+      case 'Delete':
+        return this.applyDeleteAction(action as DeleteDataAction);
+      case 'Move':
+        return this.applyMoveAction(action as MoveDataAction);
+      case 'Set':
+        return (<SetDataAction> action).data;
+      default:
+        throw new DataOperationError('Invalid operation', {action, targetData: this});
+    }
   }
 
   private get _validList(): List<ValidMapDataModelElement> {

@@ -8,6 +8,7 @@ export interface TabUIDefinitionConfigObject extends UIDefinitionConfigObject {
 
 export default class TabUIDefinition extends MultiContentsUIDefinition {
   public readonly keyFlatten: boolean;
+  private _keyOrder?: string[];
 
   public constructor(config: TabUIDefinitionConfigObject) {
     super(config.label, DataPathElement.parse(config.key));
@@ -16,5 +17,17 @@ export default class TabUIDefinition extends MultiContentsUIDefinition {
 
   public get key(): DataPathElement {
     return this.keyFlatten ? this.contents.first().key : this._key;
+  }
+
+  public get keyOrder(): string[] {
+    if (!this._keyOrder) {
+      this._keyOrder = [];
+      this.contents.forEach(content => {
+        if (content!.key.canBeMapKey) {
+          this._keyOrder!.push(content!.key.asMapKey);
+        }
+      });
+    }
+    return this._keyOrder;
   }
 }

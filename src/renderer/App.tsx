@@ -8,6 +8,7 @@ import * as path from 'path';
 import FileDataStorage from './DataModel/Storage/FileDataStorage';
 import { UIDefinitionFactory } from './UIDefinition/UIDefinitionFactory';
 import UIDefinitionConfigObject from './UIDefinition/UIDefinitionConfigObject';
+import ObjectDataStorage from './DataModel/Storage/ObjectDataStorage';
 
 class App extends React.Component {
   private root: RootUIView | null = null;
@@ -36,6 +37,23 @@ class App extends React.Component {
     }
   }
 
+  async _showYaml() {
+    const root = this.root;
+    if (root && root.state.model && root.state.model.props.data) {
+      const storage = new ObjectDataStorage();
+      const mapper = DataMapper.build({children: []}, storage);
+      await mapper.saveAsync(root.state.model.props.data);
+      const keys = Object.keys(storage.data);
+      if (keys.length > 0) {
+        alert(storage.data[keys[0]]);
+      } else {
+        alert('データがありません。');
+      }
+    } else {
+      alert('データがありません。');
+    }
+  }
+
   render() {
     // const code: string = 'aaaa\nbbbccddc';
 
@@ -44,6 +62,7 @@ class App extends React.Component {
         <RootUIView ref={ref => this.root = ref}/>
         <input type="button" value="Open" onClick={() => this._openFile()} />
         <input type="button" value="Save" onClick={() => this._saveFile()} />
+        <input type="button" value="Show data as yaml" onClick={() => this._showYaml()} />
       </div>
     );
   }

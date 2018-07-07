@@ -5,7 +5,7 @@ import DataPath from '../Path/DataPath';
 import { InsertDataAction, MoveDataAction } from '../DataAction';
 
 describe('Unit tests for MapDataModel', () => {
-  describe('Unit tests for valueForKey', () => {
+  describe('Unit tests for MapDataModel.valueForKey', () => {
     it('Can get value', () => {
       const model = new MapDataModel({a: 2});
       expect(model.valueForKey('a')).toEqual(new IntegerDataModel(2));
@@ -22,7 +22,7 @@ describe('Unit tests for MapDataModel', () => {
     });
   });
 
-  describe('Unit tests for getValue', () => {
+  describe('Unit tests for MapDataModel.getValue', () => {
     it('Can get value', () => {
       const model = new MapDataModel({a: 2});
       const path = new DataPath(['a']);
@@ -33,6 +33,43 @@ describe('Unit tests for MapDataModel', () => {
       const model = new MapDataModel({a: 2, b: ['b', {c: 9}]});
       const path = new DataPath(['b', 1, 'c']);
       expect(model.getValue(path)).toEqual(new IntegerDataModel(9));
+    });
+  });
+
+  describe('Unit tests for MapDataModel.applyKeyOrder', () => {
+    it('Can sort', () => {
+      const keyOrder = ['a', 'c', 'b'];
+      const model = MapDataModel.create([{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'c', v: 7}]);
+      const sorted = model.applyKeyOrder(keyOrder);
+      expect(sorted.toPrivateJsonObject()).toEqual([{k: 'a', v: 1}, {k: 'c', v: 7}, {k: 'b', v: 3}]);
+    });
+
+    it('Ignore non-existence key', () => {
+      const keyOrder = ['a', 'd', 'c', 'e', 'b', 'zzz'];
+      const model = MapDataModel.create([{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'c', v: 7}]);
+      const sorted = model.applyKeyOrder(keyOrder);
+      expect(sorted.toPrivateJsonObject()).toEqual([{k: 'a', v: 1}, {k: 'c', v: 7}, {k: 'b', v: 3}]);
+    });
+
+    it('Undesignated key will move to last', () => {
+      const keyOrder = ['c', 'a'];
+      const model = MapDataModel.create([{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'c', v: 7}]);
+      const sorted = model.applyKeyOrder(keyOrder);
+      expect(sorted.toPrivateJsonObject()).toEqual([{k: 'c', v: 7}, {k: 'a', v: 1}, {k: 'b', v: 3}]);
+    });
+
+    it('Unkeyed element will move to last', () => {
+      const keyOrder = ['a', 'c', 'b'];
+      const model = MapDataModel.create([{v: 11}, {k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'c', v: 7}]);
+      const sorted = model.applyKeyOrder(keyOrder);
+      expect(sorted.toPrivateJsonObject()).toEqual([{k: 'a', v: 1}, {k: 'c', v: 7}, {k: 'b', v: 3}, {v: 11}]);
+    });
+
+    it('Can sort with duplicated keys', () => {
+      const keyOrder = ['a', 'c', 'b'];
+      const model = MapDataModel.create([{k: 'a', v: 1}, {k: 'b', v: 3}, {k: 'b', v: 11}, {k: 'c', v: 7}]);
+      const sorted = model.applyKeyOrder(keyOrder);
+      expect(sorted.toPrivateJsonObject()).toEqual([{k: 'a', v: 1}, {k: 'c', v: 7}, {k: 'b', v: 3}, {k: 'b', v: 11}]);
     });
   });
 

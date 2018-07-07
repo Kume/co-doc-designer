@@ -1,14 +1,24 @@
 import { isUnsignedIntegerString } from '../../../common/util';
 import DataPath from './DataPath';
-import { Record } from 'immutable';
-import { CollectionIndex } from '../DataModelBase';
+import { Record, Map, List } from 'immutable';
+import { CollectionIndex, default as DataModelBase } from '../DataModelBase';
 
 export type DataPathElementSource = string | number | symbol;
 export type DataPathElementCompatible = DataPathElementSource | DataPathElement;
 
+export interface DataPathElementMetadata extends Map<string, any> {
+  set(key: 'keyOrder', value: List<string>): this;
+  get(key: 'keyOrder'): List<string> | undefined;
+
+  set(key: 'defaultData', value: DataModelBase): this;
+  get(key: 'defaultData'): DataModelBase | undefined;
+}
+
+const defaultMetadata: DataPathElementMetadata = Map();
 const DataPathElementRecord = Record({
   _type: 0,
-  _value: null
+  _value: null,
+  metadata: defaultMetadata
 });
 
 class DataPathElement extends DataPathElementRecord {
@@ -20,6 +30,7 @@ class DataPathElement extends DataPathElementRecord {
     return this._type;
   }
 
+  public readonly metadata: DataPathElementMetadata;
   private readonly _value: any;
   private readonly _type: DataPathElement.Type;
 
@@ -142,13 +153,16 @@ class DataPathElement extends DataPathElementRecord {
   public get isListIndex(): boolean {
     return this._type === DataPathElement.Type.ListIndex;
   }
+
+  public setMetadata(metadata: DataPathElementMetadata): this {
+    return this.set('metadata', metadata) as this;
+  }
 }
 
 namespace DataPathElement {
   export const keySymbol = Symbol('key');
 
   export enum Type {
-    None,
     MapKey,
     ListIndex,
     Both,

@@ -7,10 +7,12 @@ import { UIModelAction, UIModelUpdateDataAction } from './UIModelActions';
 import DataPath from '../DataModel/Path/DataPath';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import DataModelFactory from '../DataModel/DataModelFactory';
+import { List } from 'immutable';
 
 type IndexType = string | symbol;
 export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, IndexType> {
   private _childKeys?: IndexType[];
+  private _dataPath?: DataPath;
 
   protected childDefinitionAt(index: IndexType): UIDefinitionBase {
     return this.definition.contents.find(content => {
@@ -30,7 +32,7 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
   }
 
   protected childPropsAt(index: IndexType): UIModelProps {
-    const {dataPath, modelPath, focusedPath, data} = this.props;
+    const { dataPath, props: { modelPath, focusedPath, data } } = this;
     const childDefinition = this.childDefinitionAt(index);
     if (childDefinition.keyFlatten) {
       return new UIModelProps({
@@ -65,7 +67,7 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
       return this.constructChildDefaultValue(dataPath);
     } else {
       return [
-        UIModelAction.Creators.setData(this.props.dataPath, new MapDataModel({})),
+        UIModelAction.Creators.setData(this.dataPath, new MapDataModel({})),
         ...this.constructChildDefaultValue(dataPath)
       ];
     }
@@ -86,6 +88,25 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
     }
     const mapData = this.props.data instanceof MapDataModel ? this.props.data : undefined;
     return mapData && mapData.getValue(new DataPath(index));
+  }
+
+  private get dataPath(): DataPath {
+    if (!this._dataPath) {
+      const { dataPath } = this.props;
+      if (dataPath.isEmptyPath) {
+        this._dataPath = dataPath;
+      } else {
+        const { lastElement } = dataPath;
+        this._dataPath = dataPath.pop().push(this.makeDataPathElementWithMetadata(lastElement));
+      }
+    }
+    return this._dataPath;
+  }
+
+  private makeDataPathElementWithMetadata(sourceElement: DataPathElement): DataPathElement {
+    let keyOrder: List<string> = sourceElement.metadata.get('keyOrder') || List();
+    const newKeyOrder = keyOrder.concat(this.definition.keyOrder) as List<string>;
+    return sourceElement.setMetadata(sourceElement.metadata.set('keyOrder', newKeyOrder));
   }
 
   // private get state(): FormUIModelState | undefined {
