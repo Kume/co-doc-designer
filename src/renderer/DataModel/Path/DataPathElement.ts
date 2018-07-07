@@ -139,14 +139,6 @@ class DataPathElement extends DataPathElementRecord {
     return this._type === DataPathElement.Type.WildCard;
   }
 
-  public get isLast(): boolean {
-    return this._type === DataPathElement.Type.Last;
-  }
-
-  public get isFirst(): boolean {
-    return this._type === DataPathElement.Type.First;
-  }
-
   public get isListIndex(): boolean {
     return this._type === DataPathElement.Type.ListIndex;
   }
@@ -160,15 +152,11 @@ namespace DataPathElement {
     MapKey,
     ListIndex,
     Both,
-    First,
-    Last,
     Key,
     WildCard,
     Variable
   }
   export const key = new DataPathElement(undefined, DataPathElement.Type.Key);
-  export const first = new DataPathElement(undefined, DataPathElement.Type.First);
-  export const last = new DataPathElement(undefined, DataPathElement.Type.Last);
   export const wildCard = new DataPathElement(undefined, DataPathElement.Type.WildCard);
 }
 

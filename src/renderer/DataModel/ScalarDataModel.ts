@@ -28,14 +28,6 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
     super({value, type});
   }
 
-  public setValue(path: DataPath, value: DataModelBase): DataModelBase {
-    if (path.elements.isEmpty()) {
-      return value;
-    } else {
-      throw new Error();
-    }
-  }
-
   applyAction(path: DataPath, action: DataAction): DataModelBase {
     switch (action.type) {
       case 'Insert':

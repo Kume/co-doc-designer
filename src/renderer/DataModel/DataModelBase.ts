@@ -19,7 +19,6 @@ export namespace DataCollectionElement {
 }
 
 export default abstract class DataModelBase {
-  public abstract setValue(path: DataPath, value: DataModelBase): DataModelBase;
   public abstract getValue(path: DataPath): DataModelBase | undefined;
   public abstract applyAction(path: DataPath, action: DataAction): DataModelBase;
   public abstract collectValue(path: DataPath): DataCollectionElement[];

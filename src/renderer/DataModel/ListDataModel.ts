@@ -9,7 +9,6 @@ import DataModelBase, {
 import { List, Record } from 'immutable';
 import DataModelFactory from './DataModelFactory';
 import DataPath from './Path/DataPath';
-import DataPathElement from './Path/DataPathElement';
 import { IntegerDataModel } from './ScalarDataModel';
 import { DataAction, DeleteDataAction, InsertDataAction, MoveDataAction, SetDataAction } from './DataAction';
 import DataOperationError from './Error/DataOperationError';
@@ -62,23 +61,6 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       }
     }
     return undefined;
-  }
-
-  public setValue(path: DataPath, value: DataModelBase): DataModelBase {
-    if (path.elements.size === 0) {
-      return value;
-    }
-    const pathElement = path.elements.first();
-
-    if (pathElement.type === DataPathElement.Type.Last) {
-      return this.set('list', this.list.push(value));
-    } else if (pathElement.type === DataPathElement.Type.First) {
-      // TODO
-    }
-
-    return this.set('list', this.list.set(
-      pathElement.asListIndex,
-      this.list.get(pathElement.asListIndex).setValue(path.shift(), value)));
   }
 
   public applyAction(path: DataPath, action: DataAction): DataModelBase {

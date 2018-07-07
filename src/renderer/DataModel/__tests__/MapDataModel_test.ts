@@ -2,8 +2,6 @@ import MapDataModel from '../MapDataModel';
 import { IntegerDataModel, NumberDataModel, StringDataModel } from '../ScalarDataModel';
 import ListDataModel from '../ListDataModel';
 import DataPath from '../Path/DataPath';
-import DataPathElement from '../Path/DataPathElement';
-import DataModelFactory from '../DataModelFactory';
 import { InsertDataAction, MoveDataAction } from '../DataAction';
 
 describe('Unit tests for MapDataModel', () => {
@@ -38,29 +36,6 @@ describe('Unit tests for MapDataModel', () => {
     });
   });
 
-  describe('Unit tests for setValue', () => {
-    it('Can set value for key', () => {
-      const model = new MapDataModel({a: 2});
-      const path = new DataPath('a');
-      const updatedModel = model.setValue(path, new IntegerDataModel(5)) as MapDataModel;
-      expect(updatedModel.valueForKey('a')).toEqual(new IntegerDataModel(5));
-    });
-
-    it('Can set value for key deeply', () => {
-      const model = new MapDataModel({a: {b: {c: 9}}});
-      const path = new DataPath(['a', 'b']);
-      const updatedModel = model.setValue(path, new IntegerDataModel(5));
-      expect(updatedModel).toEqual(new MapDataModel({a: {b: 5}}));
-    });
-
-    it('Can set value for key deeply with ListDataModel', () => {
-      const model = new MapDataModel({a: [{b: 2}]});
-      const path = new DataPath(['a', 0, 'b']);
-      const updatedModel = model.setValue(path, new IntegerDataModel(5));
-      expect(updatedModel).toEqual(new MapDataModel({a: [{b: 5}]}));
-    });
-  });
-
   describe('Unit tests for MapDataModel.collectValue', () => {
     it('Can collect single value', () => {
       const model = new MapDataModel({a: 1, b: 5});
@@ -90,33 +65,11 @@ describe('Unit tests for MapDataModel', () => {
   });
 
   describe('Unit tests for empty key element', () => {
-    it('Can set empty key', () => {
-      let model = new MapDataModel({a: 1});
-      model = model.setValue(new DataPath(DataPathElement.last), DataModelFactory.create(3)) as MapDataModel;
-      expect(model.valueForListIndex(1)!.toJsonObject()).toBe(3);
-    });
-
     it('Can create from private object', () => {
       const source = [{k: 'a', v: 1}, {v: 3}, {k: 'c', v: 7}, {k: 'c', v: 99}];
       let model = MapDataModel.create(source);
       expect(model.toJsonObject()).toEqual({a: 1, c: 7});
       expect(model.toPrivateJsonObject()).toEqual(source);
-    });
-
-    it('Empty key item is ignored on mapDataWithIndex', () => {
-      let model = new MapDataModel({a: 1});
-      model = model.setValue(new DataPath(DataPathElement.last), DataModelFactory.create(3)) as MapDataModel;
-      const mapped = model.mapDataWithIndex(x => x);
-      expect(mapped.length).toBe(1);
-      expect((<NumberDataModel> mapped[0]).value).toBe(1);
-    });
-
-    it('Empty key item is appeared on mapAllData', () => {
-      let model = new MapDataModel({a: 1});
-      model = model.setValue(new DataPath(DataPathElement.last), DataModelFactory.create(3)) as MapDataModel;
-      const mapped = model.mapAllData(x => x);
-      expect(mapped.length).toBe(2);
-      expect((<NumberDataModel> mapped[1]).value).toBe(3);
     });
   });
 

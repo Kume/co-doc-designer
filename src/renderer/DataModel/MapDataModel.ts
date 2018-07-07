@@ -31,11 +31,7 @@ export class MapDataModelElement extends MapDataModelElementRecord {
     super({key, value});
   }
 
-  public setValue(path: DataPath, value: DataModelBase): MapDataModelElement {
-    return this.set('value', this.value.setValue(path, value)) as this;
-  }
-
-  public setValue2(value: DataModelBase): MapDataModelElement {
+  public setValue(value: DataModelBase): MapDataModelElement {
     return this.set('value', value) as this;
   }
 
@@ -120,35 +116,6 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return super.set(key, value) as this;
   }
 
-  public setValue(path: DataPath, value: DataModelBase): DataModelBase {
-    if (path.elements.size === 0) {
-      return value;
-    }
-    const key = path.elements.first();
-
-    const index = this.indexForPath(key);
-    if (index >= 0) {
-      let node = this.list.get(index);
-      if (path.pointsKey && path.elements.size === 1) {
-        if (this.validateCanSetKey(index, value)) {
-          node = node.setKey(value.value);
-        }
-      } else {
-        node = node.setValue(path.shift(), value);
-      }
-      return this.set('list', this.list.set(index, node));
-    } else {
-      if (key.canBeMapKey) {
-        return this.set('list', this.list.push(new MapDataModelElement(key.asMapKey, value)));
-      } else if (key.isLast) {
-        return this.set('list', this.list.push(new MapDataModelElement(undefined, value)));
-      } else {
-        // TODO 警告
-        return this;
-      }
-    }
-  }
-
   applyAction(path: DataPath, action: DataAction): DataModelBase {
     if (path.isEmptyPath) {
       switch (action.type) {
@@ -174,7 +141,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
             node = node.setKey(newKey.value);
           }
         } else {
-          node = node.setValue2(node.value.applyAction(path.shift(), action));
+          node = node.setValue(node.value.applyAction(path.shift(), action));
         }
         return this.set('list', this.list.set(index, node));
       } else {

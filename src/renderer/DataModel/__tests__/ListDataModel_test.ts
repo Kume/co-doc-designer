@@ -26,20 +26,6 @@ describe('Unit tests for ListDataModel', () => {
     });
   });
 
-  describe('Unit tests for ListDataModel.setValue', () => {
-    it('Can set for index', () => {
-      const model = new ListDataModel(['a', 2]);
-      const updatedModel = model.setValue(new DataPath([0]), new StringDataModel('b')) as ListDataModel;
-      expect(updatedModel.list.get(0)).toEqual(new StringDataModel('b'));
-    });
-
-    it('Do not affect to other element', () => {
-      const model = new ListDataModel(['a', 2]);
-      const updatedModel = model.setValue(new DataPath([0]), new StringDataModel('b')) as ListDataModel;
-      expect(updatedModel.list.get(1)).toEqual(new IntegerDataModel(2));
-    });
-  });
-
   describe('Unit tests for ListDataModel.moveUp and ListDataModel.moveDown', () => {
     it('Can move up', () => {
       const model = DataModelFactory.create(['first', 'second']) as ListDataModel;

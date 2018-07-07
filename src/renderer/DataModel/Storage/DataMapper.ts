@@ -6,6 +6,7 @@ import YamlDataFormatter from './YamlDataFormatter';
 import MapDataModel from '../MapDataModel';
 import { StringDataModel } from '../ScalarDataModel';
 import DataModelFactory from '../DataModelFactory';
+import { SetDataAction } from '../DataAction';
 
 abstract class MappingNodeBase {
   protected path: DataPath;
@@ -97,7 +98,7 @@ class MapMappingNode extends MappingNode {
           await storage.saveAsync(
             directoryPath.concat([filename]),
             formatter.format(data.getValue(path)!.toJsonObject()));
-          data = data.setValue(path, new StringDataModel(filePath));
+          data = data.applyAction(path, <SetDataAction> {type: 'Set', data: StringDataModel.create(filePath)});
         }
       }
       return data;
@@ -126,7 +127,7 @@ class MapMappingNode extends MappingNode {
           const source = await storage.loadAsync(directoryPath.concat([filename]));
           const formated = formatter.parse(source);
           const loaded = DataModelFactory.create(formated);
-          data = data.setValue(path, loaded);
+          data = data.applyAction(path, <SetDataAction> {type: 'Set', data: loaded});
           data = await this.loadChildrenAsync(
             data, storage, formatter, path, directoryPath.concat([key]));
         }
@@ -170,7 +171,8 @@ export class SingleMappingNode extends MappingNode {
       await storage.saveAsync(
         parentDirectory.concat(this._directoryPath).concat([this._fileName]),
         formatter.format(value.toJsonObject()));
-      return data.setValue(path, new StringDataModel(specifiedDirectory.concat([this._fileName]).join('/')));
+      const filePathData = StringDataModel.create(specifiedDirectory.concat([this._fileName]).join('/'));
+      return data.applyAction(path, <SetDataAction> {type: 'Set', data: filePathData});
     } else {
       return data;
     }
@@ -190,7 +192,7 @@ export class SingleMappingNode extends MappingNode {
         parentDirectory.concat(this._directoryPath).concat([this._fileName]));
       const formated = formatter.parse(source);
       const loaded = DataModelFactory.create(formated);
-      return data.setValue(path, loaded);
+      return data.applyAction(path, <SetDataAction> {type: 'Set', data: loaded});
     } else {
       return data;
     }
