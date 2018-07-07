@@ -41,7 +41,7 @@ export default class SelectUIDefinition extends UIDefinitionBase {
   }
 
   public constructor(config: SelectUIDefinitionConfigObject) {
-    super(config.title, DataPathElement.parse(config.key));
+    super(config.label, DataPathElement.parse(config.key));
     if (Array.isArray(config.options)) {
       this._staticOptions = SelectUIDefinition.parseStaticOptions(config.options);
     } else if (config.options) {

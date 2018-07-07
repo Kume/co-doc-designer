@@ -11,11 +11,11 @@ require('../UIModelFactory');
 const basicDefinitionConfig: TabUIDefinitionConfigObject = {
   type: 'tab',
   key: '',
-  title: 'test',
+  label: 'test',
   contents: [
-    { type: 'text', key: 'a', title: 'A' },
-    { type: 'text', key: 'b', title: 'B' },
-    { type: 'text', key: 'c', title: 'C' },
+    { type: 'text', key: 'a', label: 'A' },
+    { type: 'text', key: 'b', label: 'B' },
+    { type: 'text', key: 'c', label: 'C' },
   ]
 };
 const basicDefinition = UIDefinitionFactory.create(basicDefinitionConfig) as TabUIDefinition;

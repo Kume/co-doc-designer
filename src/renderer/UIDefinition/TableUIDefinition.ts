@@ -14,7 +14,7 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
   private _dataType: CollectionDataModelType = CollectionDataModelType.List;
 
   public constructor(config: TableUIDefinitionConfigObject) {
-    super(config.title, DataPathElement.parse(config.key));
+    super(config.label, DataPathElement.parse(config.key));
     if (config.dataType) {
       this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
     }

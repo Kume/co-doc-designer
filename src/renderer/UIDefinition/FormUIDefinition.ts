@@ -10,7 +10,7 @@ export default class FormUIDefinition extends MultiContentsUIDefinition {
   public readonly keyFlatten: boolean;
 
   public constructor(config: FormUIDefinitionConfigObject) {
-    super(config.title, DataPathElement.parse(config.key));
+    super(config.label, DataPathElement.parse(config.key));
     this.keyFlatten = !!config.keyFlatten;
   }
 

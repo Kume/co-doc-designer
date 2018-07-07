@@ -54,7 +54,7 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
     const selectedTab = this.selectedTab;
     return this.definition.contents.map(content => ({
       key: content!.key.asMapKey,
-      label: content!.title,
+      label: content!.label,
       path: this.props.dataPath.push(content!.key),
       isSelected: content!.key.asMapKey === selectedTab
     })).toArray();

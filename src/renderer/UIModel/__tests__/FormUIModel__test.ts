@@ -15,10 +15,10 @@ require('../UIModelFactory');
 const basicDefinition: FormUIDefinitionConfigObject = <FormUIDefinitionConfigObject> {
   type: 'form',
   key: '',
-  title: 'test',
+  label: 'test',
   contents: [
-    { type: 'text', key: 'a', title: 'A' },
-    { type: 'text', key: 'b', title: 'B' },
+    { type: 'text', key: 'a', label: 'A' },
+    { type: 'text', key: 'b', label: 'B' },
   ]
 };
 function createBasicProps(data: DataModelBase): UIModelProps {

@@ -9,6 +9,6 @@ export interface TextAreaUIDefinitionConfigObject extends UIDefinitionConfigObje
 
 export default class TextAreaUIDefinition extends UIDefinitionBase {
   public constructor(config: FormUIDefinitionConfigObject) {
-    super(config.title, DataPathElement.parse(config.key));
+    super(config.label, DataPathElement.parse(config.key));
   }
 }

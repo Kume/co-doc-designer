@@ -65,6 +65,6 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
   }
 
   private get columnHeaders(): Array<string> {
-    return this.props.model.definition.contents.map((content: UIDefinitionBase) => content.title).toArray();
+    return this.props.model.definition.contents.map((content: UIDefinitionBase) => content.label).toArray();
   }
 }

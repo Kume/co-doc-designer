@@ -8,6 +8,6 @@ export interface CheckBoxUIDefinitionConfigObject extends UIDefinitionConfigObje
 
 export default class CheckBoxUIDefinition extends UIDefinitionBase {
   public constructor(config: CheckBoxUIDefinitionConfigObject) {
-    super(config.title, DataPathElement.parse(config.key));
+    super(config.label, DataPathElement.parse(config.key));
   }
 }

@@ -11,7 +11,7 @@ export default class TextUIDefinition extends UIDefinitionBase {
   public options?: Array<string>;
 
   public constructor(config: TextUIDefinitionConfigObject) {
-    super(config.title, DataPathElement.parse(config.key));
+    super(config.label, DataPathElement.parse(config.key));
     this.options = config.options;
   }
 }

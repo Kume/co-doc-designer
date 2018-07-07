@@ -13,7 +13,7 @@ export default class FormUIView extends UIViewBase<FormUIModel, UIViewBaseProps<
           return (
             <div className="ui-form--row" key={definition.key.toString()}>
               <div className="ui-form--row-label">
-                {definition.title}
+                {definition.label}
               </div>
               <div className="ui-form--row-content">
                 <ContentComponent

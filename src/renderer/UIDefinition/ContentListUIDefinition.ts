@@ -20,7 +20,7 @@ export default class ContentListUIDefinition extends SingleContentUIDefinition {
   private _dataType: CollectionDataModelType;
 
   public constructor(config: ContentListUIDefinitionConfigObject) {
-    super(config.title, DataPathElement.parse(config.key));
+    super(config.label, DataPathElement.parse(config.key));
     this._listIndexKey = config.listIndexKey === undefined ? undefined : DataPathElement.parse(config.listIndexKey);
     this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
   }
