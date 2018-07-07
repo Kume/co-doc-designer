@@ -3,11 +3,6 @@ import DataPath from './DataPath';
 import { Record } from 'immutable';
 import { CollectionIndex } from '../DataModelBase';
 
-export interface IndexWithKey {
-  index: number;
-  key: string | undefined;
-}
-
 export type DataPathElementSource = string | number | symbol;
 export type DataPathElementCompatible = DataPathElementSource | DataPathElement;
 
@@ -42,10 +37,6 @@ class DataPathElement extends DataPathElementRecord {
     }
   }
 
-  public static indexWithKey(index: number, key: string | undefined): DataPathElement {
-    return new DataPathElement({ index, key }, DataPathElement.Type.IndexWithKey);
-  }
-
   public static parse(value: string): DataPathElement {
     if (value === DataPathElement.SpecialName.Key) {
       return DataPathElement.key;
@@ -69,13 +60,6 @@ class DataPathElement extends DataPathElementRecord {
       case DataPathElement.Type.MapKey:
       case DataPathElement.Type.Both:
         return this._value;
-      case DataPathElement.Type.IndexWithKey:
-        const key = (<IndexWithKey> this._value).key;
-        if (key) {
-          return key;
-        } else {
-          throw new Error('This cannot be map key');
-        }
       default:
         throw new Error('This cannot be map key');
     }
@@ -91,8 +75,6 @@ class DataPathElement extends DataPathElementRecord {
       case DataPathElement.Type.Both:
       case DataPathElement.Type.ListIndex:
         return this._value;
-      case DataPathElement.Type.IndexWithKey:
-        return this._value.value;
       case DataPathElement.Type.Key:
         return DataPathElement.keySymbol;
       default:
@@ -106,8 +88,6 @@ class DataPathElement extends DataPathElementRecord {
         return this._value as number;
       case DataPathElement.Type.Both:
         return parseInt(this._value, 10);
-      case DataPathElement.Type.IndexWithKey:
-        return (<IndexWithKey> this._value).index;
       default:
         throw new Error('This cannot be list index');
     }
@@ -124,17 +104,6 @@ class DataPathElement extends DataPathElementRecord {
         return this._value as CollectionIndex;
       case DataPathElement.Type.Both:
         return prioritizeListIndex ? Number(this._value) : this._value;
-      case DataPathElement.Type.IndexWithKey:
-        if (prioritizeListIndex) {
-          return (<IndexWithKey> this._value).index;
-        } else {
-          const key = (<IndexWithKey> this._value).key;
-          if (key) {
-            return key;
-          } else {
-            throw new Error('This cannot be map key');
-          }
-        }
       default:
         throw new Error('This cannot be Collection index');
     }
@@ -146,14 +115,12 @@ class DataPathElement extends DataPathElementRecord {
 
   public get canBeMapKey(): boolean {
     return this._type === DataPathElement.Type.MapKey ||
-      this._type === DataPathElement.Type.Both ||
-      (this._type === DataPathElement.Type.IndexWithKey && !!(<IndexWithKey> this._value).key);
+      this._type === DataPathElement.Type.Both;
   }
 
   public get canBeListIndex(): boolean {
     return this._type === DataPathElement.Type.ListIndex ||
-      this._type === DataPathElement.Type.Both ||
-      this._type === DataPathElement.Type.IndexWithKey;
+      this._type === DataPathElement.Type.Both;
   }
 
   public canBeCollectionIndex(prioritizeListIndex?: boolean): boolean {
@@ -180,10 +147,6 @@ class DataPathElement extends DataPathElementRecord {
     return this._type === DataPathElement.Type.First;
   }
 
-  public get isIndexWithKey(): boolean {
-    return this._type === DataPathElement.Type.IndexWithKey;
-  }
-
   public get isListIndex(): boolean {
     return this._type === DataPathElement.Type.ListIndex;
   }
@@ -197,7 +160,6 @@ namespace DataPathElement {
     MapKey,
     ListIndex,
     Both,
-    IndexWithKey,
     First,
     Last,
     Key,

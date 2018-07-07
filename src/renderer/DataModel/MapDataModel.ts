@@ -460,7 +460,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
   }
 
   private indexForPath(pathElement: DataPathElement): number {
-    if (pathElement.isIndexWithKey || pathElement.isListIndex) {
+    if (pathElement.isListIndex) {
       const index = pathElement.asListIndex;
       return this.isValidIndex(index) ? index : -1;
     } else if (pathElement.canBeMapKey) {
