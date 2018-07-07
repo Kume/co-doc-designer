@@ -30,14 +30,25 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
   }
 
   protected childPropsAt(index: IndexType): UIModelProps {
-    const {dataPath, modelPath, focusedPath} = this.props;
-    return new UIModelProps({
-      stateNode: this.childStateAt(index),
-      dataPath: dataPath.push(index),
-      modelPath: modelPath.push(index),
-      focusedPath: focusedPath && focusedPath.shift(),
-      data: this.childDataAt(index)
-    });
+    const {dataPath, modelPath, focusedPath, data} = this.props;
+    const childDefinition = this.childDefinitionAt(index);
+    if (childDefinition.keyFlatten) {
+      return new UIModelProps({
+        stateNode: this.childStateAt(index),
+        dataPath,
+        modelPath: modelPath.push(index),
+        focusedPath,
+        data
+      });
+    } else {
+      return new UIModelProps({
+        stateNode: this.childStateAt(index),
+        dataPath: dataPath.push(index),
+        modelPath: modelPath.push(index),
+        focusedPath: focusedPath && focusedPath.shift(),
+        data: this.childDataAt(index)
+      });
+    }
   }
 
   protected dataPathToChildIndex(element: DataPathElement): IndexType | undefined {

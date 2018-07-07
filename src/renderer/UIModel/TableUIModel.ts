@@ -1,7 +1,7 @@
 import UIModel, { MultiContentUIModel, UIModelProps, UIModelStateNode } from './UIModel';
 import TableUIDefinition from '../UIDefinition/TableUIDefinition';
 import { CollectionDataModel, CollectionIndex } from '../DataModel/DataModelBase';
-import CollectionDataModelUtil, { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
+import { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
 import DataModelBase from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
@@ -54,7 +54,7 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
   public add(): UIModelAction[] {
     const actions: UIModelAction[] = [];
 
-    if (!this.collectionData) { // TODO definition.dataTypeに合わせて正確に判断
+    if (!this.collectionData) {
       const defaultData = this.definition.dataType === CollectionDataModelType.List
         ? ListDataModel.empty : MapDataModel.empty;
       actions.push(UIModelAction.Creators.setData(this.props.dataPath, defaultData));
@@ -111,7 +111,11 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
   }
 
   private get collectionData(): CollectionDataModel | undefined {
-    return CollectionDataModelUtil.asCollectionDataModel(this.props.data);
+    const { definition: { dataType }, props: { data } } = this;
+    const dataTypeIsMatch =
+      dataType === CollectionDataModelType.List && data instanceof ListDataModel ||
+      dataType === CollectionDataModelType.Map && data instanceof MapDataModel;
+    return dataTypeIsMatch ? data as CollectionDataModel : undefined;
   }
 
   protected childPropsAt(index: number): UIModelProps {

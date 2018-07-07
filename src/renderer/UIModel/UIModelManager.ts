@@ -39,7 +39,7 @@ export default class UIModelManager {
   private _rootUIModel: UIModel<any>;
   private _modalUIModel: UIModel<any>;
   private _dataModel: DataModelBase | undefined;
-  private _rootUIDefinition: UIDefinitionBase;
+  private readonly _rootUIDefinition: UIDefinitionBase;
   private _focusedPath: DataPath | undefined;
 
   private static groupActions(actions: UIModelAction[]): GroupedActions {

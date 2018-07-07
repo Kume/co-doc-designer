@@ -1,8 +1,7 @@
 import UIDefinitionConfigObject from '../UIDefinitionConfigObject';
-import { TextUIDefinitionConfigObject } from '../TextUIDefinition';
 import { ContentListUIDefinitionConfigObject } from '../ContentListUIDefinition';
 import { SelectUIDefinitionConfigObject } from '../SelectUIDefinition';
-import { TableUIDefinitionConfigObject } from '../TableUIDefinition';
+import { FormUIDefinitionConfigObject } from '../FormUIDefinition';
 
 export const sampleUIConfig: UIDefinitionConfigObject = {
   type: 'tab',
@@ -11,8 +10,8 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
   contents: [
     <ContentListUIDefinitionConfigObject> {
       type: 'contentList',
-      key: 'tables',
-      title: 'テーブル設計',
+      key: 'main',
+      title: 'Main',
       dataType: 'map',
       listIndexKey: '$key',
       content: {
@@ -23,172 +22,155 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
           {
             type: 'text',
             key: '$key',
-            title: '物理名',
+            title: 'キー',
             emptyToNull: false
           },
           {
             type: 'text',
-            key: 'label',
-            title: '論理名'
+            key: 'text',
+            title: 'テキスト'
           },
           <SelectUIDefinitionConfigObject> {
             type: 'select',
-            key: 'category',
-            title: 'カテゴリー',
+            key: 'select',
+            title: '選択',
+            options: [
+              '選択肢１',
+              '選択肢２',
+              '選択肢３'
+            ]
+          },
+          <SelectUIDefinitionConfigObject> {
+            type: 'select',
+            key: 'select_ref',
+            title: '参照選択',
             options: {
-              path: 'functions.*.name'
+              path: 'references.*.name'
+            }
+          },
+          <SelectUIDefinitionConfigObject> {
+            type: 'select',
+            key: 'select_ref2',
+            title: '参照選択2',
+            options: {
+              path: 'references.*',
+              valuePath: 'name',
+              labelPath: 'value'
             }
           },
           {
-            type: 'textarea',
-            key: 'description',
-            title: '説明'
-          },
-          {
             type: 'table',
-            key: 'columns',
+            key: 'table_data',
             title: 'カラム',
+            dataType: 'map',
             contents: [
               {
                 type: 'text',
-                key: 'name',
-                title: '物理名'
+                key: '$key',
+                title: 'キー',
+                emptyToNull: false
               },
               {
                 type: 'text',
-                key: 'label',
-                title: '論理名'
+                key: 'text',
+                title: 'テキスト'
               },
-              {
-                type: 'text',
-                key: 'type',
-                title: '型',
+              <SelectUIDefinitionConfigObject> {
+                type: 'select',
+                key: 'select',
+                title: '選択',
                 options: [
-                  'varchar',
-                  'int',
-                  'smallint',
-                  'text',
-                  'longtext'
-                ],
+                  '選択肢１',
+                  '選択肢２',
+                  '選択肢３'
+                ]
+              },
+              <SelectUIDefinitionConfigObject> {
+                type: 'select',
+                key: 'select_ref',
+                title: '参照選択',
+                options: {
+                  path: 'references.*.name'
+                }
+              },
+              <SelectUIDefinitionConfigObject> {
+                type: 'select',
+                key: 'select_ref2',
+                title: '参照選択2',
+                options: {
+                  path: 'references.*',
+                  valuePath: 'name',
+                  labelPath: 'value'
+                }
+              },
+            ]
+          },
+          {
+            type: 'tab',
+            key: 'tabs',
+            title: 'フォーム中タブ',
+            keyFlatten: true,
+            contents: [
+              {
+                type: 'text',
+                key: 'tab_form_text',
+                title: 'テキストタブ'
               },
               {
-                type: 'checkbox',
-                key: 'nullable',
-                title: 'Null許可'
+                type: 'table',
+                key: 'tab_table',
+                dataType: 'map',
+                title: 'テーブルタブ',
+                contents: [
+                  {
+                    type: 'text',
+                    key: 'text1',
+                    title: 'テキスト１'
+                  },
+                  {
+                    type: 'text',
+                    key: 'text2',
+                    title: 'テキスト２'
+                  }
+                ]
               }
             ]
           }
         ]
       },
-      addFormContent: {
-        type: 'form',
-        key: '',
-        title: '',
-        contents: [
-          <TextUIDefinitionConfigObject> {
-            type: 'text',
-            key: '$key',
-            title: '物理名',
-            emptyToNull: false
-          },
-          {
-            type: 'text',
-            key: 'label',
-            title: '論理名'
-          }
-        ]
-      },
-      addFormDefaultValue: {}
     },
     {
       type: 'table',
-      key: 'messages',
-      title: 'メッセージ',
+      key: 'references',
+      title: '参照値',
       contents: [
-        <SelectUIDefinitionConfigObject> {
-          type: 'select',
-          key: 'category',
-          title: 'カテゴリー',
-          options: {
-            path: 'functions.*',
-            valuePath: '$key',
-            labelPath: 'name'
-          }
+        {
+          type: 'text',
+          key: 'name',
+          title: '参照名'
         },
         {
           type: 'text',
-          key: 'key',
-          title: 'キー'
-        },
-        {
-          type: 'text',
-          key: 'message',
-          title: 'メッセージ'
+          key: 'value',
+          title: '参照値'
         }
       ]
     },
-    {
-      type: 'table',
-      key: 'words',
-      title: '用語集',
+    <FormUIDefinitionConfigObject> {
+      type: 'form',
+      key: 'unused',
+      title: 'フラットフォーム',
+      keyFlatten: true,
       contents: [
         {
           type: 'text',
-          key: 'category',
-          title: 'カテゴリー'
+          key: 'form_value1',
+          title: '値１'
         },
-      ]
-    },
-    <ContentListUIDefinitionConfigObject> {
-      type: 'contentList',
-      key: 'functions',
-      title: '機能',
-      dataType: 'map',
-      listIndexKey: 'name',
-      content: {
-        type: 'text',
-        key: 'test',
-        title: 'test'
-      },
-      addFormContent: {
-        type: 'text',
-        key: 'test',
-        title: 'test'
-      },
-      addFormDefaultValue: {}
-    },
-    {
-      type: 'form',
-      key: 'sample1',
-      title: 'サンプル1',
-      contents: [
-        <TableUIDefinitionConfigObject> {
-          type: 'table',
-          key: 'map_table',
-          title: 'Table with Map',
-          dataType: 'map',
-          contents: [
-            {
-              type: 'text',
-              key: '$key',
-              title: 'キー'
-            },
-            {
-              type: 'text',
-              key: 'col1',
-              title: 'カラム１'
-            },
-            {
-              type: 'text',
-              key: 'col2',
-              title: 'カラム２'
-            },
-            {
-              type: 'checkbox',
-              key: 'col3',
-              title: 'カラム３'
-            },
-          ]
+        {
+          type: 'text',
+          key: 'form_value2',
+          title: '値２'
         }
       ]
     }
@@ -196,131 +178,72 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
 };
 
 export const sampleDataForUIConfig = {
-  tables: {
-    tasks: {
-      label: 'タスク',
-      columns: [
-        {
-          name: 'id',
-          label: 'ID',
-          type: 'int',
-          length: 11,
-          nullable: false,
-          autoIncrement: true
+  main: {
+    main_rec1: {
+      text: 'Text Value',
+      select: '選択肢２',
+      select_ref: '参照名１',
+      select_ref2: '参照名２',
+      table_data: {
+        a: {
+          text: 'Text Value',
+          select: '選択肢２',
+          select_ref: '参照名３',
+          select_ref2: '参照名５',
         },
-        {
-          name: 'title',
-          label: 'タイトル',
-          type: 'varchar',
-          length: 255,
-          nullable: false
+        b: {
+          text: 'Text Value',
+          select: '選択肢１',
+          select_ref: '参照名３',
+          select_ref2: '参照名５',
         },
-        {
-          name: 'content',
-          label: '内容',
-          type: 'longtext',
-          length: 255,
-          nullable: false
+        c: {
+          text: 'Text Value',
+          select: '選択肢２',
+          select_ref: '参照名５',
+          select_ref2: '参照名４',
         },
-        {
-          name: 'assignee_user_id',
-          label: '担当者ID',
-          type: 'int',
-          length: 11,
+      },
+      tab_form_text: 'タブ内のテキスト入力値',
+      tab_table: {
+        tab_table1: {
+          text1: 'Text 1-1',
+          text2: 'Text 1-2'
         },
-        {
-          name: 'create_user_id',
-          label: '作成者ID',
-          type: 'int',
-          length: 11,
-          nullable: false
+        tab_table2: {
+          text1: 'Text 2-1',
+          text2: 'Text 2-2'
         }
-      ]
+      }
     },
-    users: {
-      label: 'ユーザー',
-      columns: [
-        {
-          name: 'id',
-          label: 'ID',
-          type: 'int',
-          length: 11,
-          nullable: false,
-          autoIncrement: true
-        },
-        {
-          name: 'name',
-          label: '名前',
-          type: 'varchar',
-          length: 255,
-          nullable: false
-        },
-        {
-          name: 'code',
-          label: 'コード',
-          type: 'varchar',
-          length: 255,
-          nullable: false
-        },
-        {
-          name: 'email',
-          label: 'メールアドレス',
-          type: 'varchar',
-          length: 255,
-          nullable: false
-        }
+    main_rec2: {
+      text: 'ほとんど何も入力してない',
+      table_data: [
       ]
     }
   },
-  messages: [
+  references: [
     {
-      category: 'common',
-      key: 'system-error',
-      message: '原因不明のエラーが発生しました。システム管理者にお問い合わせください。'
+      name: '参照名１',
+      value: '参照名１に対する値です。'
     },
     {
-      category: 'common',
-      key: 'network-offline',
-      message: 'インターネットに接続できません。'
+      name: '参照名２',
+      value: '参照名２に対する値です。'
+    },
+    {
+      name: '参照名３',
+      value: '参照名３に対する値です。'
+    },
+    {
+      name: '参照名４',
+      value: '参照名４に対する値です。'
+    },
+    {
+      name: '参照名５',
+      value: '参照名５に対する値です。'
     }
   ],
-  functions: {
-    common: {
-      name: '共通機能',
-      pages: {}
-    },
-    user: {
-      name: 'ユーザー管理機能',
-      pages: {
-        create_user_form: {
-          type: 'create_form',
-          inputs: [
-            {
-
-            }
-          ]
-        }
-      }
-    },
-    task: {
-      name: 'タスク管理機能',
-      pages: {
-
-      }
-    }
-  },
-  sample1: {
-    map_table: {
-      row1: {
-        col1: 'col1_value',
-        col2: 'col2_value',
-        col3: true,
-      },
-      row2: {
-        col1: 'col1_value2',
-        col2: 'col2_value2',
-        col3: false,
-      }
-    }
-  }
+  form_value1: 'タブと並列の値１',
+  form_value2: 'タブと並列の値ふたつめ',
 };

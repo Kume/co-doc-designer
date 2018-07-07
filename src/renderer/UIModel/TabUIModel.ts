@@ -61,7 +61,7 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   }
 
   public constructDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
-    const childResult = dataPath.isEmptyPath ? [] : this.child.constructDefaultValue(dataPath.shift());
+    const childResult = dataPath.isEmptyPath || !this.child ? [] : this.child.constructDefaultValue(dataPath.shift());
     if (this.props.data instanceof MapDataModel) {
       return childResult;
     } else {
@@ -104,14 +104,24 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   }
 
   protected get childProps(): UIModelProps {
-    const {stateNode, modelPath, dataPath, focusedPath} = this.props;
+    const {stateNode, modelPath, dataPath, focusedPath, data} = this.props;
     const selectedTab = this.selectedTab;
-    return new UIModelProps({
-      stateNode: stateNode && stateNode.get(selectedTab),
-      data: this.mapData && this.mapData.valueForKey(selectedTab as string),
-      modelPath: modelPath.push(selectedTab),
-      dataPath: dataPath.push(selectedTab),
-      focusedPath: focusedPath && focusedPath.shift()
-    });
+    if (this.childDefinition.keyFlatten) {
+      return new UIModelProps({
+        stateNode: stateNode && stateNode.get(selectedTab),
+        data,
+        modelPath: modelPath.push(selectedTab),
+        dataPath,
+        focusedPath
+      });
+    } else {
+      return new UIModelProps({
+        stateNode: stateNode && stateNode.get(selectedTab),
+        data: this.mapData && this.mapData.valueForKey(selectedTab as string),
+        modelPath: modelPath.push(selectedTab),
+        dataPath: dataPath.push(selectedTab),
+        focusedPath: focusedPath && focusedPath.shift()
+      });
+    }
   }
 }

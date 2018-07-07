@@ -10,8 +10,9 @@ export default class SelectUIView extends UIViewBase<SelectUIModel, UIViewBasePr
       <select
         onChange={this.onUpdate}
         ref={ref => this._select = ref!}
-        value={model.value}
+        value={model.value || ''}
       >
+        <option value="" />
         {model.options(collectValue).map(option => (
           <option value={option.value} key={option.value}>
             {option.label}
