@@ -42,7 +42,11 @@ class DataPathElement extends DataPathElementRecord {
     } else if (typeof value === 'number') {
       return new DataPathElement(value, DataPathElement.Type.ListIndex);
     } else if (typeof value === 'string') {
-      return new DataPathElement(value, DataPathElement.Type.MapKey);
+      if (value === '..') {
+        return DataPathElement.reverse;
+      } else {
+        return new DataPathElement(value, DataPathElement.Type.MapKey);
+      }
     } else {
       throw new Error();
     }
@@ -121,7 +125,20 @@ class DataPathElement extends DataPathElementRecord {
   }
 
   public toString(): string {
-    return this._value !== undefined ? this._value.toString() : '???';
+    switch (this._type) {
+      case DataPathElement.Type.Reverse:
+        return '..';
+      case DataPathElement.Type.Key:
+        return '$key';
+      case DataPathElement.Type.ListIndex:
+      case DataPathElement.Type.MapKey:
+      case DataPathElement.Type.Both:
+        return this._value.toString();
+      case DataPathElement.Type.WildCard:
+        return typeof this._value === 'string' ? this._value : '*';
+      default:
+        return '???';
+    }
   }
 
   public get canBeMapKey(): boolean {
@@ -154,6 +171,10 @@ class DataPathElement extends DataPathElementRecord {
     return this._type === DataPathElement.Type.ListIndex;
   }
 
+  public get isReverse(): boolean {
+    return this._type === DataPathElement.Type.Reverse;
+  }
+
   public setMetadata(metadata: DataPathElementMetadata): this {
     return this.set('metadata', metadata) as this;
   }
@@ -168,10 +189,12 @@ namespace DataPathElement {
     Both,
     Key,
     WildCard,
-    Variable
+    Variable,
+    Reverse
   }
   export const key = new DataPathElement(undefined, DataPathElement.Type.Key);
   export const wildCard = new DataPathElement(undefined, DataPathElement.Type.WildCard);
+  export const reverse = new DataPathElement(undefined, DataPathElement.Type.Reverse);
 }
 
 export default DataPathElement;

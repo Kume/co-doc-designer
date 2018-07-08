@@ -2,6 +2,7 @@ import UIDefinitionConfigObject from '../UIDefinitionConfigObject';
 import { ContentListUIDefinitionConfigObject } from '../ContentListUIDefinition';
 import { SelectUIDefinitionConfigObject } from '../SelectUIDefinition';
 import { FormUIDefinitionConfigObject } from '../FormUIDefinition';
+import { TableUIDefinitionConfigObject } from '../TableUIDefinition';
 
 export const sampleUIConfig: UIDefinitionConfigObject = {
   type: 'tab',
@@ -30,6 +31,24 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             key: 'text',
             label: 'テキスト'
           },
+          {
+            type: 'text',
+            key: 'ref_text',
+            label: '参照テキスト',
+            references: {
+              ref1: {
+                path: '/references2/*',
+                keys: [
+                  {
+                    path: '$key'
+                  },
+                  {
+                    path: 'values/$key'
+                  }
+                ]
+              }
+            }
+          },
           <SelectUIDefinitionConfigObject> {
             type: 'select',
             key: 'select',
@@ -45,7 +64,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             key: 'select_ref',
             label: '参照選択',
             options: {
-              path: 'references/*/name'
+              path: '/references/*/name'
             }
           },
           <SelectUIDefinitionConfigObject> {
@@ -53,9 +72,19 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             key: 'select_ref2',
             label: '参照選択2',
             options: {
-              path: 'references/*',
+              path: '/references/*',
               valuePath: 'name',
               labelPath: 'value'
+            }
+          },
+          <SelectUIDefinitionConfigObject> {
+            type: 'select',
+            key: 'self_ref',
+            label: '自己参照',
+            options: {
+              path: '../../*',
+              valuePath: '$key',
+              labelPath: 'text'
             }
           },
           {
@@ -90,7 +119,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                 key: 'select_ref',
                 label: '参照選択',
                 options: {
-                  path: 'references/*/name'
+                  path: '/references/*/name'
                 }
               },
               <SelectUIDefinitionConfigObject> {
@@ -98,7 +127,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                 key: 'select_ref2',
                 label: '参照選択2',
                 options: {
-                  path: 'references/*',
+                  path: '/references/*',
                   valuePath: 'name',
                   labelPath: 'value'
                 }
@@ -155,6 +184,53 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
           label: '参照値'
         }
       ]
+    },
+    <ContentListUIDefinitionConfigObject> {
+      type: 'contentList',
+      key: 'references2',
+      label: '参照値2',
+      dataType: 'map',
+      listIndexKey: '$key',
+      content: <FormUIDefinitionConfigObject> {
+        type: 'form',
+        key: '',
+        label: '',
+        contents: [
+          {
+            type: 'text',
+            key: '$key',
+            label: 'キー'
+          },
+          {
+            type: 'text',
+            key: 'name',
+            label: '名前'
+          },
+          <TableUIDefinitionConfigObject> {
+            type: 'table',
+            key: 'values',
+            label: '値定義',
+            dataType: 'map',
+            contents: [
+              {
+                type: 'text',
+                key: '$key',
+                label: 'キー'
+              },
+              {
+                type: 'text',
+                key: 'name',
+                label: '参照名'
+              },
+              {
+                type: 'text',
+                key: 'value',
+                label: '参照値'
+              }
+            ]
+          }
+        ]
+      },
     },
     <FormUIDefinitionConfigObject> {
       type: 'form',
@@ -218,8 +294,7 @@ export const sampleDataForUIConfig = {
     },
     main_rec2: {
       text: 'ほとんど何も入力してない',
-      table_data: [
-      ]
+      table_data: []
     }
   },
   references: [
@@ -244,6 +319,38 @@ export const sampleDataForUIConfig = {
       value: '参照名５に対する値です。'
     }
   ],
+  references2: {
+    ref_key1: {
+      name: 'Ref Data1',
+      values: {
+        value_key1_1: {
+          name: 'Value1-1',
+          value: 1
+        },
+        value_key1_2: {
+          name: 'Value1-2',
+          value: 2
+        },
+        value_key1_3: {
+          name: 'Value1-3',
+          value: 3
+        },
+      }
+    },
+    ref_key2: {
+      name: 'Ref Data2',
+      values: {
+        value_key2_1: {
+          name: 'Value2-1',
+          value: 4
+        },
+        value_key2_2: {
+          name: 'Value2-2',
+          value: 5
+        },
+      }
+    }
+  },
   form_value1: 'タブと並列の値１',
   form_value2: 'タブと並列の値ふたつめ',
 };

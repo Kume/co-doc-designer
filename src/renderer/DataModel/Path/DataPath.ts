@@ -15,12 +15,18 @@ interface ParsedPathElement {
   path?: ParsedPath;
 }
 
+interface DataPathOption {
+  isAbsolute?: boolean;
+  pointsKey?: boolean;
+}
+
 type ParsedPath = Array<ParsedPathElement | string>;
 
 export type DataPathElementsCompatible = DataPathElementCompatible | Array<DataPathElementCompatible>;
 
 export default class DataPath extends DataPathRecord {
   public static readonly empty: DataPath = new DataPath([]);
+  public static readonly absoluteEmpty: DataPath = new DataPath([], {isAbsolute: true});
 
   public readonly elements: List<DataPathElement>;
   public readonly isAbsolute: boolean;
@@ -33,21 +39,56 @@ export default class DataPath extends DataPathRecord {
     const parsed = PathParser.parse(value) as ParsedPath;
     return this._parse(parsed);
   }
+
+  public static join(head: DataPath, tail: DataPath) {
+    console.log(!head.isAbsolute, head.pointsKey, tail.isAbsolute);
+    if (!head.isAbsolute || head.pointsKey || tail.isAbsolute) {
+      throw new Error('Invalid path join');
+    }
+
+    const { reverseCount } = tail;
+    const headElements = head.elements.splice(head.elements.size - reverseCount, reverseCount);
+    const tailElements = tail.elements.splice(0, reverseCount);
+
+    return head
+      .set('elements', headElements.concat(tailElements))
+      .set('pointsKey', tail.pointsKey);
+  }
+
   private static _parse(parsed: ParsedPath): DataPath {
-    return new DataPath(parsed.map(parsedElement => {
+    parsed = [...parsed];
+    const option: DataPathOption = {};
+    if (parsed.length > 0) {
+      const first = parsed[0];
+      if (typeof first === 'object' && first.type === 'absolute') {
+        option.isAbsolute = true;
+        parsed.shift();
+      }
+    }
+    if (parsed.length > 0) {
+      const last = parsed[parsed.length - 1];
+      if (typeof last === 'object' && last.type === 'key') {
+        option.pointsKey = true;
+        parsed.pop();
+      }
+    }
+    const elements = parsed.map(parsedElement => {
       if (typeof parsedElement === 'string') {
         return DataPathElement.parse(parsedElement);
       } else if (parsedElement.type === 'wildcard') {
         return DataPathElement.wildCard;
       } else if (parsedElement.type === 'variable') {
         return DataPathElement.variable(this._parse(parsedElement.path!));
+      } else if (parsedElement.type === 'parent') {
+        return DataPathElement.reverse;
       } else {
         throw new Error();
       }
-    }));
+    });
+    return new DataPath(elements, option);
   }
 
-  public constructor(elements: DataPathElementsCompatible) {
+  public constructor(elements: DataPathElementsCompatible, options: DataPathOption = {}) {
     if (!(elements instanceof DataPathElement) && !Array.isArray(elements)) {
       elements = DataPathElement.create(elements);
     }
@@ -56,11 +97,13 @@ export default class DataPath extends DataPathRecord {
       if (elements.isKey) {
         super({
           elements: List<DataPathElement>([]),
-          pointsKey: true
+          pointsKey: true,
+          ...options
         });
       } else {
         super({
-          elements: List<DataPathElement>([elements])
+          elements: List<DataPathElement>([elements]),
+          ...options
         });
       }
     } else if (Array.isArray(elements)) {
@@ -71,10 +114,11 @@ export default class DataPath extends DataPathRecord {
         pathElements.pop();
         super({
           elements: List<DataPathElement>(pathElements),
-          pointsKey: true
+          pointsKey: true,
+          ...options
         });
       } else {
-        super({elements: List<DataPathElement>(pathElements)});
+        super({elements: List<DataPathElement>(pathElements), ...options});
       }
     }
   }
@@ -103,10 +147,15 @@ export default class DataPath extends DataPathRecord {
     return this.elements.isEmpty();
   }
 
+  public get reverseCount(): number {
+    let count = 0;
+    this.elements.forEach(element => {
+      if (element!.isReverse) { count++; }
+    });
+    return count;
+  }
+
   public unshift(path: DataPathElementCompatible): this {
-    if (this.isAbsolute) {
-      throw new InvalidCallError('Cannot unshift to absolute path.');
-    }
     const pathElement = DataPathElement.create(path);
     if (pathElement.isKey) {
       if (this.elements.size > 0 || this.pointsKey) {
@@ -114,12 +163,12 @@ export default class DataPath extends DataPathRecord {
       }
       return this.set('pointsKey', true);
     } else {
-      return this.set('elements', this.elements.unshift(pathElement));
+      return this.set('elements', this.elements.unshift(pathElement)).set('isAbsolute', false);
     }
   }
 
   public shift(): this {
-    return this.set('elements', this.elements.shift());
+    return this.set('elements', this.elements.shift()).set('isAbsolute', false);
   }
 
   public pop(): this {

@@ -16,6 +16,14 @@ describe('Unit tests for TemplateLine', () => {
       expect(line.tokens[1].key).toBe('foo');
       expect(line.tokens[2].key).toBe('bar');
     });
+
+    it('Can parse line with extra braces', () => {
+      const line = new TemplateLine('{{ { {{ test }} } }}');
+      expect(line.tokens.length).toBe(1);
+      expect(line.tokens[0].start).toBe(5);
+      expect(line.tokens[0].end).toBe(15);
+      expect(line.tokens[0].key).toBe('test');
+    });
   });
   describe('Unit tests for TemplateLine.getTemplateTokenOn', () => {
     it('Select template token.', () => {

@@ -64,7 +64,7 @@ export default class UIModelManager {
     this.focus = this.focus.bind(this);
     this._rootUIDefinition = definition;
     this._dataModel = data;
-    this._rootUIModel = UIModelFactory.create(definition, UIModelProps.createSimple({ data }));
+    this._rootUIModel = UIModelFactory.create(definition, UIModelProps.createSimple(this.propsForRootModel));
   }
 
   public applyActions(actions: UIModelAction[]): void {
@@ -93,7 +93,9 @@ export default class UIModelManager {
   }
 
   public collectValue(targetPath: DataPath, basePath: DataPath): DataCollectionElement[] {
-    return this._dataModel ? this._dataModel.collectValue(targetPath) : [];
+    if (!this._dataModel) { return []; }
+    const path = targetPath.isAbsolute ? targetPath : DataPath.join(basePath, targetPath);
+    return this._dataModel.collectValue(path);
   }
 
   get focusedPath(): DataPath | undefined {
@@ -149,7 +151,7 @@ export default class UIModelManager {
       stateNode: this._rootStateNode,
       modelPath: List(),
       focusedPath: this._focusedPath,
-      dataPath: DataPath.empty
+      dataPath: DataPath.absoluteEmpty
     });
   }
 }

@@ -1,13 +1,28 @@
 Expression
-  = RelativePath / JoinedPath
+  = JoinedPath / AbsolutePath
 
-RelativePath
-  = "." path: JoinedPath {
-    return [{type: 'relative'}, ...path]
+AbsolutePath
+  = "/" path: JoinedPath {
+    return [{type: 'absolute'}, ...path]
   }
 
 JoinedPath
-  = head:(WildWord / Word / PathVariable) tail:("/" JoinedPath)? {
+  = head:(ReversePath "/")? tail:ForwardPath {
+    head = Array.isArray(head) ? head[0] : []
+    return head.concat(tail || [])
+  }
+
+ReversePath
+  = head:(ReverseWord) tail:("/" ReversePath)? {
+    let words = [head];
+    if (Array.isArray(tail)) {
+      words = words.concat(tail[1]);
+    }
+    return words;
+  }
+
+ForwardPath
+  = head:(KeyWord / WildWord / Word / PathVariable) tail:("/" ForwardPath)? {
     let words = [head];
     if (Array.isArray(tail)) {
       words = words.concat(tail[1]);
@@ -16,15 +31,17 @@ JoinedPath
   }
 
 PathVariable
-  = "[" variable: (RelativePath / JoinedPath) "]" {
+  = "[" variable: (AbsolutePath / JoinedPath) "]" {
     return {
       type: 'variable',
       path: variable
     }
   }
 
-_ "whitespace"
-  = [ \t\n\r]*
+KeyWord
+  = "$key" {
+    return { type: "key" };
+  }
 
 WildWord
   = head:Word? "*" tail:Word? {
@@ -35,6 +52,11 @@ WildWord
       type: 'wildcard',
       words: words
     }
+  }
+
+ReverseWord
+  = ".." {
+    return { type: 'parent' }
   }
 
 Word
