@@ -1,0 +1,54 @@
+Expression
+  = CategoryExpression / Category
+
+Category
+  = sp1:_? category:Word ":" sp2:_? {
+    return {
+      category: {
+        before: sp1.length,
+        text: category,
+        after: sp2.length,
+      }
+    }
+  }
+
+CategoryExpression
+  = sp1:_? category:(Word _? ":")? sp2:_? keys:(JoinedWord) sp3:_? {
+    if (category) {
+      return {
+        category: {
+          before: sp1.length,
+          text: category[0],
+          after: category[1].length,
+        },
+        keys: {
+          before: sp2.length,
+          text: keys,
+          after: sp3.length
+        }
+      }
+    } else {
+      return {
+        keys: {
+          before: sp1.length,
+          text: keys,
+          after: sp3.length
+        }
+      }
+    }
+  }
+
+JoinedWord
+  = head:Word tail:("." JoinedWord?)? {
+    let words = [head]
+    if (tail) {
+      words = words.concat(tail[1])
+    }
+    return words
+  }
+
+_ "whitespace"
+  = [ \t\n\r]* { return text(); }
+
+Word
+  = [a-zA-Z0-9_]+ { return text(); }

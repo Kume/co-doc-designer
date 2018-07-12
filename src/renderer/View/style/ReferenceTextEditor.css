@@ -1,6 +1,29 @@
 .reference-text-editor-hint {
   display: flex;
   flex-direction: row;
-  width: 300px;
+  justify-content: space-between;
+  width: 25em;
   height: 1.2em;
+}
+
+.reference-text-editor-hint .label {
+  width: 80px;
+}
+
+.reference-text-editor-hint .description {
+  width: 25em;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+span .label {
+  background: #66d;
+  color: white;
+  border-radius: 5px;
+  padding-left: 0.5em;
+  padding-right: 0.5em;
+  padding-top: 0.1em;
+  padding-bottom: 0.1em;
+  font-weight: bold;
 }

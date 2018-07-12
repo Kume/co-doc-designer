@@ -24,7 +24,6 @@ class App extends React.Component {
         this.dataMapper = DataMapper.build(schema && schema.fileMap, new FileDataStorage(path.dirname(fileNames[0])));
         const loaded = await this.dataMapper.loadAsync();
         const model = UIDefinitionFactory.create(schema!.uiRoot as UIDefinitionConfigObject);
-        console.log('loaded', loaded.toJsonObject());
         this.root!.load(model, loaded);
       });
     });

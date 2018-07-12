@@ -287,16 +287,18 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     }
   }
 
-  public collectValue(path: DataPath): DataCollectionElement[] {
+  public collectValue(path: DataPath, absolutePath?: DataPath): DataCollectionElement[] {
+    if (!absolutePath) { absolutePath = DataPath.absoluteEmpty; }
     if (path.elements.isEmpty()) {
-      return [{data: this}];
+      return [{data: this, path: absolutePath}];
     }
 
     if (path.firstElement.isWildCard) {
       if (path.elements.size === 1 && path.pointsKey) {
         return this._validList.map(node => ({
           index: node!.key,
-          data: node!.keyAsDataModel
+          data: node!.keyAsDataModel,
+          path: absolutePath!.push(node!.key)
         })).toArray();
       } else {
         let values: DataCollectionElement[] = [];
@@ -304,7 +306,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
         this.forEachData((data, index) => {
           let tmpValues = data.collectValue(childPath);
           if (path.isSingleElement) {
-            tmpValues = tmpValues.map(value => ({index, data: value.data}));
+            tmpValues = tmpValues.map(value => ({index, data: value.data, path: absolutePath!.push(index)}));
           }
           values = values.concat(tmpValues);
         });
@@ -315,11 +317,11 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       if (index >= 0) {
         const node = this.list.get(index) as ValidMapDataModelElement;
         if (path.elements.size === 1 && path.pointsKey) {
-          return [{ index, data: node.keyAsDataModel}];
+          return [{index, data: node.keyAsDataModel, path: absolutePath!.push(node.key)}];
         } else {
           let values = node.value.collectValue(path.shift());
           if (path.isSingleElement) {
-            return values.map(value => ({index, data: value.data}));
+            return values.map(value => ({index, data: value.data, path: absolutePath!.push(node.key)}));
           } else {
             return values;
           }

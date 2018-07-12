@@ -36,14 +36,28 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             key: 'ref_text',
             label: '参照テキスト',
             references: {
-              ref1: {
-                path: '/references2/*',
-                keys: [
+              ref2: {
+                name: '参照2',
+                paths: [
                   {
-                    path: '$key'
+                    path: '/references2/*',
+                    keyPath: '$key',
+                    description: '{{name}}'
                   },
                   {
-                    path: 'values/$key'
+                    path: 'values/*',
+                    keyPath: '$key',
+                    description: '{{name}}'
+                  }
+                ]
+              },
+              table: {
+                name: '自己テーブル参照',
+                paths: [
+                  {
+                    path: '../table_data/*',
+                    keyPath: '$key',
+                    description: '{{text}} {{select}}'
                   }
                 ]
               }

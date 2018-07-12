@@ -41,7 +41,6 @@ export default class DataPath extends DataPathRecord {
   }
 
   public static join(head: DataPath, tail: DataPath) {
-    console.log(!head.isAbsolute, head.pointsKey, tail.isAbsolute);
     if (!head.isAbsolute || head.pointsKey || tail.isAbsolute) {
       throw new Error('Invalid path join');
     }

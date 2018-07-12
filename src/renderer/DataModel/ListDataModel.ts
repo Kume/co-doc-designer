@@ -156,16 +156,17 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     }
   }
 
-  public collectValue(path: DataPath): DataCollectionElement[] {
+  public collectValue(path: DataPath, absolutePath?: DataPath): DataCollectionElement[] {
+    if (!absolutePath) { absolutePath = DataPath.absoluteEmpty; }
     if (path.elements.isEmpty()) {
-      return [{ data: this }];
+      return [{ data: this, path: absolutePath }];
     }
 
     const firstElement = path.firstElement;
     if (firstElement.isWildCard) {
       if (path.isSingleElement && path.pointsKey) {
         return this.mapDataWithIndex((value, index) => ({
-          index, data: new IntegerDataModel(index as number)
+          index, data: new IntegerDataModel(index as number), path: absolutePath!.push(index)
         }));
       } else {
         let values: DataCollectionElement[] = [];
@@ -173,7 +174,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
         this.forEachData((data, index) => {
           let tmpValues = data.collectValue(childPath);
           if (path.isSingleElement) {
-            tmpValues = tmpValues.map(value => ({index, data: value.data}));
+            tmpValues = tmpValues.map(value => ({index, data: value.data, path: absolutePath!.push(index)}));
           }
           values = values.concat(tmpValues);
         });
@@ -182,11 +183,11 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     } else if (firstElement.canBeListIndex && this.isValidIndex(firstElement.asListIndex)) {
       const index = firstElement.asListIndex;
       if (path.isSingleElement && path.pointsKey) {
-        return [{ index, data: new IntegerDataModel(index)}];
+        return [{ index, data: new IntegerDataModel(index), path: absolutePath!.push(index)}];
       } else {
         const values = this.list.get(index).collectValue(path.shift());
         if (path.isSingleElement) {
-          return values.map(value => ({index, data: value.data}));
+          return values.map(value => ({index, data: value.data, path: absolutePath!.push(index)}));
         } else {
           return values;
         }

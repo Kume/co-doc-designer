@@ -5,6 +5,7 @@ import { DataAction } from './DataAction';
 
 export interface DataCollectionElement {
   index?: CollectionIndex;
+  path: DataPath;
   data: DataModelBase;
 }
 
@@ -21,7 +22,7 @@ export namespace DataCollectionElement {
 export default abstract class DataModelBase {
   public abstract getValue(path: DataPath): DataModelBase | undefined;
   public abstract applyAction(path: DataPath, action: DataAction, metadata?: DataPathElementMetadata): DataModelBase;
-  public abstract collectValue(path: DataPath): DataCollectionElement[];
+  public abstract collectValue(path: DataPath, absolutePath?: DataPath): DataCollectionElement[];
   public abstract removeValue(path: DataPath): DataModelBase;
   public abstract toJS(): string;
   public abstract toJsonObject(): any;

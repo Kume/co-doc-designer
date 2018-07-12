@@ -23,10 +23,6 @@
   to { transform: rotate(360deg); }
 }
 
-span .label {
-  background: red
-}
-
 /* Tab */
 div.ui-tab-head {
   display: flex;

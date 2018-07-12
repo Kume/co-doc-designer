@@ -6,9 +6,9 @@ import { TemplateLine } from '../Model/TemplateEngine';
 
 interface TemplateReferenceConfig {
   readonly name?: string;
-  readonly path: string;
-  readonly keys: {
+  readonly paths: {
     path: string;
+    keyPath: string;
     description?: string;
   }[];
 }
@@ -16,9 +16,9 @@ interface TemplateReferenceConfig {
 export interface TemplateReference {
   readonly key: string;
   readonly name?: string;
-  readonly path: DataPath;
-  readonly keys: {
+  readonly paths: {
     path: DataPath;
+    keyPath: DataPath;
     description?: TemplateLine;
   }[];
 }
@@ -41,10 +41,10 @@ export default class TextUIDefinition extends UIDefinitionBase {
       return {
         key,
         name: reference.name,
-        path: DataPath.parse(reference.path),
-        keys: reference.keys.map(key => ({
-          path: DataPath.parse(key.path),
-          description: key.description === undefined ? undefined : new TemplateLine(key.description)
+        paths: reference.paths.map(path => ({
+          path: DataPath.parse(path.path),
+          keyPath: DataPath.parse(path.keyPath),
+          description: path.description === undefined ? undefined : new TemplateLine(path.description)
         }))
       };
     });

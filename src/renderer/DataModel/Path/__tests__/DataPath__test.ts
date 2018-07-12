@@ -28,6 +28,12 @@ describe('Unit tests for DataPath', () => {
         DataPath.parse('..bar');
       }).toThrow();
     });
+
+    it('Can parse single key path', () => {
+      const path = DataPath.parse('$key');
+      expect(path.elements.size).toBe(0);
+      expect(path.pointsKey).toBe(true);
+    });
   });
 
   describe('Unit tests for equals', () => {

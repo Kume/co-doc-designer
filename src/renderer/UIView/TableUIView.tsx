@@ -44,12 +44,12 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
   }
 
   private get settings(): Handsontable.DefaultSettings {
-    console.log('settings', this.props.model.rawData(this.props.collectValue));
     return {
       data: this.props.model.rawData(this.props.collectValue),
       afterChange: this.onChange.bind(this),
       cells: this.getColumnSettings.bind(this),
-      colHeaders: this.columnHeaders
+      colHeaders: this.columnHeaders,
+      collectValue: this.props.collectValue
     };
   }
 

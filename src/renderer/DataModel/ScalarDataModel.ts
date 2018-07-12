@@ -56,9 +56,9 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
     }
   }
 
-  public collectValue(path: DataPath): DataCollectionElement[] {
+  public collectValue(path: DataPath, absolutePath?: DataPath): DataCollectionElement[] {
     if (path.elements.isEmpty()) {
-      return [{data: this}];
+      return [{data: this, path: absolutePath || DataPath.absoluteEmpty}];
     } else {
       return [];
     }

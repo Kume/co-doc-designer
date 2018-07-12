@@ -75,9 +75,15 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
             source: child.definition.options,
             strict: false
           };
+        } else if (child.definition.references) {
+          return {
+            editor: 'reference',
+            dataPath: this.dataPath.push(column),
+            references: child.definition.references
+          };
         } else {
           return {
-            editor: 'test'
+            type: 'text'
           };
         }
       } else if (child instanceof CheckBoxUIModel) {
