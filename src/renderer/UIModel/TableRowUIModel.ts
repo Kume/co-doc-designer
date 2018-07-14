@@ -12,11 +12,24 @@ import CheckBoxUIModel from './CheckBoxUIModel';
 import SelectUIModel from './SelectUIModel';
 import { UIModelAction } from './UIModelActions';
 import { List } from 'immutable';
+import { TemplateReference } from '../UIDefinition/TextUIDefinition';
+
+export interface ReferenceCellSetting {
+  editor: 'reference';
+  dataPath: DataPath;
+  references: ReadonlyArray<TemplateReference>;
+}
 
 export type CellData = number | string | undefined | boolean;
 export interface TableChangeForRow {
   column: number;
   value: any;
+}
+
+export interface ColumnSetting {
+  type?: 'text' | 'autocomplete' | 'checkbox' | 'dropdown';
+  source?: string[];
+  strict?: boolean;
 }
 
 type IndexType = string | symbol;
@@ -65,7 +78,7 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
     return actions;
   }
 
-  public columnSettings(collectValue: CollectValue, column: number) {
+  public columnSettings(collectValue: CollectValue, column: number): ColumnSetting | ReferenceCellSetting {
     const child = this.childAtIndex(column);
     if (child) {
       if (child instanceof TextUIModel) {

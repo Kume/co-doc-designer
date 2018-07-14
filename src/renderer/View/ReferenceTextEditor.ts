@@ -12,7 +12,7 @@ import * as ReactDOM from 'react-dom';
 
 export interface ReferenceTextEditorProps {
   readonly lineNumbers?: boolean;
-  readonly references?: TemplateReference[];
+  readonly references?: ReadonlyArray<TemplateReference>;
   readonly dataPath: DataPath;
   readonly collectValue: CollectValue;
   readonly onChange?: (text: string) => void;
@@ -180,7 +180,7 @@ export default class ReferenceTextEditor {
     return;
   }
 
-  private renderOption(li: HTMLElement, self: any, data) {
+  private renderOption(li: HTMLElement, self: any, data: any) {
     li.innerHTML = `
     <span class="description">${data.key || data.text} : ${data.displayText}</span>
   `;

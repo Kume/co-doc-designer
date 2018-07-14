@@ -31,7 +31,7 @@ export interface TextUIDefinitionConfigObject extends UIDefinitionConfigObject {
 
 export default class TextUIDefinition extends UIDefinitionBase {
   public options?: Array<string>;
-  public readonly references?: TemplateReference[];
+  public readonly references?: ReadonlyArray<TemplateReference>;
 
   public constructor(config: TextUIDefinitionConfigObject) {
     super(config.label, DataPathElement.parse(config.key));

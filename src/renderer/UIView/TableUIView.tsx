@@ -4,8 +4,9 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import 'handsontable/dist/handsontable.css';
 import Handsontable from 'handsontable';
 import TableUIModel from '../UIModel/TableUIModel';
+import { HandsonTableSettings } from '../View/HandsonTable/ReferenceTextCellEditor';
 
-require('../View/HandsonTable/ExtendTextEditor');
+require('../View/HandsonTable/ReferenceTextCellEditor');
 
 interface State extends UIViewBaseState {
 }
@@ -43,7 +44,7 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
     }
   }
 
-  private get settings(): Handsontable.DefaultSettings {
+  private get settings(): Handsontable.DefaultSettings & HandsonTableSettings {
     return {
       data: this.props.model.rawData(this.props.collectValue),
       afterChange: this.onChange.bind(this),

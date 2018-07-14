@@ -1,8 +1,14 @@
 import handsontable from 'handsontable';
 import * as CodeMirror from '../../../../lib/codemirror/lib/codemirror';
 import ReferenceTextEditor from '../ReferenceTextEditor';
+import { ReferenceCellSetting } from '../../UIModel/TableRowUIModel';
+import { CollectValue } from '../../UIModel/types';
 
-export default class ExtendTextEditor extends handsontable.editors.TextEditor {
+export interface HandsonTableSettings {
+  collectValue: CollectValue;
+}
+
+export default class ReferenceTextCellEditor extends handsontable.editors.TextEditor {
   public textareaParentStyle: CSSStyleDeclaration;
   private textArea: HTMLTextAreaElement;
   private textAreaParent: HTMLDivElement;
@@ -28,11 +34,12 @@ export default class ExtendTextEditor extends handsontable.editors.TextEditor {
     this.textareaParentStyle.minWidth = '0px';
     setTimeout(
       () => {
-        const settings = this.instance.getSettings();
+        const settings = this.instance.getSettings() as HandsonTableSettings;
+        const cellProperties = this.cellProperties as ReferenceCellSetting;
         this.editor = new ReferenceTextEditor(this.textArea, {
           collectValue: settings.collectValue,
-          dataPath: this.cellProperties.dataPath,
-          references: this.cellProperties.references
+          dataPath: cellProperties.dataPath,
+          references: cellProperties.references
         });
         this.codeMirror = this.editor.applyCodeMirror();
       },
@@ -58,4 +65,4 @@ export default class ExtendTextEditor extends handsontable.editors.TextEditor {
   }
 }
 
-handsontable.editors.registerEditor('reference', ExtendTextEditor);
+handsontable.editors.registerEditor('reference', ReferenceTextCellEditor);
