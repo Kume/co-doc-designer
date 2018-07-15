@@ -68,6 +68,7 @@ export default class UIModelManager {
   }
 
   public applyActions(actions: UIModelAction[]): void {
+    if (actions.length === 0) { return; }
     const groupedActions = UIModelManager.groupActions(actions);
     for (const action of groupedActions.updateDataActions) {
       this.applyUpdateDataAction(action);

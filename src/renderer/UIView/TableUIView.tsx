@@ -22,6 +22,13 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
     };
   }
 
+  componentWillReceiveProps (props: UIViewBaseProps<TableUIModel>) {
+    const { rowFocus } = props.model;
+    if (rowFocus !== undefined && this._handsontable) {
+      this._handsontable.selectRows(rowFocus);
+    }
+  }
+
   render(): React.ReactNode {
     return (
       <div>
@@ -42,6 +49,17 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
       this._handsontable.updateSettings(this.settings, false);
     } else {
       this._handsontable = new Handsontable(container, this.settings);
+      // this._handsontable.addHook('afterBeginEditing', (row: number, column: number) => {
+      //   this.props.focus(this.props.model.props.dataPath.push(column).push(row));
+      //   console.log('afterBeginEditing', {row, column});
+      // });
+      // this._handsontable.addHook('afterDeselect', () => {
+      //   console.log('afterDeselect');
+      // });
+      const { rowFocus } = this.props.model;
+      if (rowFocus !== undefined && this._handsontable) {
+        this._handsontable.selectRows(rowFocus);
+      }
     }
   }
 

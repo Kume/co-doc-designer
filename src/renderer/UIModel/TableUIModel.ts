@@ -9,7 +9,7 @@ import DataPathElement from '../DataModel/Path/DataPathElement';
 import TableRowUIModel, { CellData } from './TableRowUIModel';
 import { CollectValue } from './types';
 import { TableChangeForRow } from './TableRowUIModel';
-import { UIModelAction, UIModelUpdateDataAction } from './UIModelActions';
+import { UIModelAction, UIModelFocusAction, UIModelUpdateDataAction } from './UIModelActions';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { InsertDataAction } from '../DataModel/DataAction';
 
@@ -48,6 +48,9 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
         // TODO
       }
     });
+    if (actions.length > 0) {
+      actions.push({ type: 'Focus', path: this.props.dataPath } as UIModelFocusAction);
+    }
     return actions;
   }
 
@@ -70,6 +73,21 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
       }
     });
     return actions;
+  }
+
+  public get rowFocus(): number | undefined {
+    const { focusedPath, data } = this.props;
+    if (focusedPath && focusedPath.isSingleElement) {
+      const { firstElement } = focusedPath;
+      if (firstElement.isListIndex) {
+        return firstElement.asListIndex;
+      } else if (firstElement.canBeMapKey && this.definition.dataType === CollectionDataModelType.Map) {
+        if (data instanceof MapDataModel) {
+          return data.indexForKey(firstElement.asMapKey);
+        }
+      }
+    }
+    return undefined;
   }
 
   public columnSettings(collectValue: CollectValue, row?: number, column?: number) {

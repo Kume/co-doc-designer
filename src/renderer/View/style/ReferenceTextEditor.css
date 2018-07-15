@@ -27,3 +27,7 @@ span .label {
   padding-bottom: 0.1em;
   font-weight: bold;
 }
+
+ul.CodeMirror-hints {
+  z-index: 200;
+}
