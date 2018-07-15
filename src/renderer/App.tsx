@@ -9,10 +9,28 @@ import FileDataStorage from './DataModel/Storage/FileDataStorage';
 import { UIDefinitionFactory } from './UIDefinition/UIDefinitionFactory';
 import UIDefinitionConfigObject from './UIDefinition/UIDefinitionConfigObject';
 import ObjectDataStorage from './DataModel/Storage/ObjectDataStorage';
+import '@fortawesome/react-fontawesome';
+import { faFile, faSave } from '@fortawesome/free-regular-svg-icons';
+import IconButton from './View/IconButton';
 
-class App extends React.Component {
+interface Props {
+
+}
+
+interface State {
+  isFileLoaded: boolean;
+}
+
+class App extends React.Component<Props, State> {
   private root: RootUIView | null = null;
   private dataMapper: DataMapper;
+
+  constructor(props: Props) {
+    super(props);
+    this.state = {
+      isFileLoaded: false
+    };
+  }
 
   _openFile() {
     const electron = require('electron');
@@ -25,6 +43,7 @@ class App extends React.Component {
         const loaded = await this.dataMapper.loadAsync();
         const model = UIDefinitionFactory.create(schema!.uiRoot as UIDefinitionConfigObject);
         this.root!.load(model, loaded);
+        this.setState({isFileLoaded: true});
       });
     });
   }
@@ -58,6 +77,10 @@ class App extends React.Component {
 
     return (
       <div className="App">
+        <div style={{display: 'flex', flexDirection: 'row'}}>
+          <IconButton icon={faFile} onClick={() => this._openFile()} />
+          <IconButton icon={faSave} onClick={() => this._saveFile()} disabled={!this.state.isFileLoaded} />
+        </div>
         <RootUIView ref={ref => this.root = ref}/>
         <input type="button" value="Open" onClick={() => this._openFile()} />
         <input type="button" value="Save" onClick={() => this._saveFile()} />
