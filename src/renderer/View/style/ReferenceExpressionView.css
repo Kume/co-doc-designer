@@ -3,15 +3,14 @@ span.reference-expression-category {
   color: white;
   border-radius: 0.4em;
   padding: 0.1em 0.1em 0.1em 0.5em;
-  font-weight: bold;
 }
 
 span.reference-expression-keys {
   background: white;
+  opacity: 0.95;
   color: #444;
   padding-left: 0.2em;
   margin-left: 0.2em;
   padding-right: 0.4em;
   border-radius: 0 0.4em 0.4em 0;
-  font-weight: bold;
 }

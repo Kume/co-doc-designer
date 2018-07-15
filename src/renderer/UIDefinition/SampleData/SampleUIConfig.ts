@@ -136,16 +136,38 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                   path: '/references/*/name'
                 }
               },
-              <SelectUIDefinitionConfigObject> {
-                type: 'select',
-                key: 'select_ref2',
-                label: '参照選択2',
-                options: {
-                  path: '/references/*',
-                  valuePath: 'name',
-                  labelPath: 'value'
+              {
+                type: 'text',
+                key: 'ref_text',
+                label: '参照テキスト',
+                references: {
+                  ref2: {
+                    name: '参照2',
+                    paths: [
+                      {
+                        path: '/references2/*',
+                        keyPath: '$key',
+                        description: '{{name}}'
+                      },
+                      {
+                        path: 'values/*',
+                        keyPath: '$key',
+                        description: '{{name}}'
+                      }
+                    ]
+                  },
+                  table: {
+                    name: '自己テーブル参照',
+                    paths: [
+                      {
+                        path: '../../*',
+                        keyPath: '$key',
+                        description: '{{text}} {{select}}'
+                      }
+                    ]
+                  }
                 }
-              },
+              }
             ]
           },
           {
@@ -279,20 +301,31 @@ export const sampleDataForUIConfig = {
           text: 'Text Value',
           select: '選択肢２',
           select_ref: '参照名３',
-          select_ref2: '参照名５',
+          ref_text: '特に参照のない文章です。'
         },
         b: {
           text: 'Text Value',
           select: '選択肢１',
           select_ref: '参照名３',
-          select_ref2: '参照名５',
+          ref_text: 'ここに{{table:c}}参照を埋め込む。'
         },
         c: {
           text: 'Text Value',
           select: '選択肢２',
           select_ref: '参照名５',
-          select_ref2: '参照名４',
+          ref_text: ''
         },
+        d: {
+          text: 'Text Value',
+          select: '選択肢２',
+          select_ref: '参照名５'
+        },
+        e: {
+          text: 'Text Value',
+          select: '選択肢２',
+          select_ref: '参照名５',
+          ref_text: '複数行{{ref2:ref_key1.value_key1_1}}に\n参照を\n埋め込んで{{table:d}}います。'
+        }
       },
       tab_form_text: 'タブ内のテキスト入力値',
       tab_table: {

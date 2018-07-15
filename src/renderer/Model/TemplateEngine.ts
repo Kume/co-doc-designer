@@ -87,5 +87,50 @@ export class TemplateLine {
   }
 }
 
+interface TemplateTextElement {
+  type: 'text' | 'token' | 'break';
+  text?: string;
+}
+
 export default class TemplateEngine {
+  private readonly _elements: TemplateTextElement[];
+
+  constructor(text: string) {
+    const elements: TemplateTextElement[] = [];
+    const lines = text.split('\n');
+    for (const line of lines) {
+      try {
+        const templateLine = new TemplateLine(line);
+        const tokens = templateLine.tokens;
+        if (tokens.length === 0) {
+          elements.push({ type: 'text', text: line });
+        } else {
+          let start = 0;
+          for (const token of tokens) {
+            const beforeToken = line.substr(start, token.start - start);
+            if (beforeToken) {
+              elements.push({ type: 'text', text: beforeToken });
+            }
+            elements.push({ type: 'token', text: token.key });
+            start = token.end;
+          }
+          const last = line.substr(start);
+          if (last) {
+            elements.push({ type: 'text', text: last });
+          }
+        }
+      } catch (error) {
+        if (line) {
+          elements.push({ type: 'text', text: line });
+        }
+      }
+      elements.push({ type: 'break' });
+    }
+    elements.unshift();
+    this._elements = elements;
+  }
+
+  get elements(): TemplateTextElement[] {
+    return this._elements;
+  }
 }

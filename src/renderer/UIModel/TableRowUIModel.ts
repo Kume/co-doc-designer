@@ -16,6 +16,7 @@ import { TemplateReference } from '../UIDefinition/TextUIDefinition';
 
 export interface ReferenceCellSetting {
   editor: 'reference';
+  renderer: 'reference';
   dataPath: DataPath;
   references: ReadonlyArray<TemplateReference>;
 }
@@ -91,6 +92,7 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
         } else if (child.definition.references) {
           return {
             editor: 'reference',
+            renderer: 'reference',
             dataPath: this.dataPath.push(column),
             references: child.definition.references
           };
