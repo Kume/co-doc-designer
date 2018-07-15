@@ -5,6 +5,9 @@ import CollectionDataModelUtil, {
   CollectionDataModelType,
   CollectionDataModelTypeString
 } from '../DataModel/CollectionDataModelUtil';
+import { CollectionDataModel } from '../DataModel/DataModelBase';
+import MapDataModel from '../DataModel/MapDataModel';
+import ListDataModel from '../DataModel/ListDataModel';
 
 export interface TableUIDefinitionConfigObject extends UIDefinitionConfigObject {
   dataType?: CollectionDataModelTypeString;
@@ -35,5 +38,13 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
       });
     }
     return this._keyOrder;
+  }
+
+  public get defaultData(): CollectionDataModel {
+    if (this.dataType === CollectionDataModelType.Map) {
+      return MapDataModel.empty;
+    } else {
+      return ListDataModel.empty;
+    }
   }
 }

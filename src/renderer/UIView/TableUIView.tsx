@@ -17,7 +17,6 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
 
   constructor(props: UIViewBaseProps<TableUIModel>, context?: any) {
     super(props, context);
-    this.add = this.add.bind(this);
     this.state = {
     };
   }
@@ -33,14 +32,8 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
     return (
       <div>
         <div ref={(ref) => this.initHandsontable(ref)} />
-        <input type="button" value="+" onClick={this.add} />
       </div>
     );
-  }
-
-  public add(): void {
-    const { applyAction, model } = this.props;
-    applyAction(model.add());
   }
 
   private initHandsontable(container: HTMLElement | null) {
@@ -48,14 +41,22 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
     if (this._handsontable) {
       this._handsontable.updateSettings(this.settings, false);
     } else {
-      this._handsontable = new Handsontable(container, this.settings);
+      const handsontable: any = new Handsontable(container, this.settings);
+      this._handsontable = handsontable;
       // this._handsontable.addHook('afterBeginEditing', (row: number, column: number) => {
       //   this.props.focus(this.props.model.props.dataPath.push(column).push(row));
       //   console.log('afterBeginEditing', {row, column});
       // });
-      // this._handsontable.addHook('afterDeselect', () => {
-      //   console.log('afterDeselect');
-      // });
+      handsontable.addHook('beforeRemoveRow', (start: number, size: number) => {
+        const { model, applyAction } = this.props;
+        applyAction(model.deleteRows(start, size));
+        return false;
+      });
+      handsontable.addHook('beforeCreateRow', (start: number, size: number) => {
+        const { model, applyAction } = this.props;
+        applyAction(model.insertRows(start, size));
+        return false;
+      });
       const { rowFocus } = this.props.model;
       if (rowFocus !== undefined && this._handsontable) {
         this._handsontable.selectRows(rowFocus);
@@ -69,8 +70,10 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
       afterChange: this.onChange.bind(this),
       cells: this.getColumnSettings.bind(this),
       colHeaders: this.columnHeaders,
+      rowHeaders: true,
       collectValue: this.props.collectValue,
-      focus: this.props.focus
+      focus: this.props.focus,
+      contextMenu: ['row_above', 'row_below', 'remove_row']
     };
   }
 

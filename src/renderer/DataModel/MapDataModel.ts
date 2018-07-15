@@ -474,10 +474,6 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     if (!(value instanceof StringDataModel)) {
       throw new Error('Cannot set value that is not string as key');
     }
-    const indexForKey = this.indexForKey(value.value);
-    if (indexForKey >= 0 && indexForKey !== targetIndex) {
-      throw new Error('Cannot set duplicated key');
-    }
     return true;
   }
 

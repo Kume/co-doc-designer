@@ -1,5 +1,5 @@
 import DataPath from '../DataModel/Path/DataPath';
-import { DataAction, DeleteDataAction, MoveDataAction, SetDataAction } from '../DataModel/DataAction';
+import { DataAction, DeleteDataAction, InsertDataAction, MoveDataAction, SetDataAction } from '../DataModel/DataAction';
 import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
 import { UIModelState } from './types';
 import { ModelPath } from './UIModel';
@@ -34,6 +34,24 @@ export namespace UIModelAction {
         type: 'UpdateData',
         path,
         dataAction: <SetDataAction> { type: 'Set', data }
+      };
+    }
+
+    export function appendData(path: DataPath, data: DataModelBase): UIModelUpdateDataAction {
+      return {
+        type: 'UpdateData',
+        path,
+        dataAction: <InsertDataAction> { type: 'Insert', data, isAfter: true }
+      };
+    }
+
+    export function insertData(
+      path: DataPath, data: DataModelBase, targetIndex: CollectionIndex
+    ): UIModelUpdateDataAction {
+      return {
+        type: 'UpdateData',
+        path,
+        dataAction: <InsertDataAction> { type: 'Insert', data, targetIndex }
       };
     }
 
