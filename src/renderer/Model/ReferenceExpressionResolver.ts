@@ -14,7 +14,6 @@ export default class ReferenceExpressionResolver {
   private readonly _expression: ReferenceExpression;
   private readonly _referenceDefinition: TemplateReference;
   private readonly _collectValue: CollectValue;
-  private readonly _currentDataPath: DataPath;
 
   private static keyFromData(item: DataCollectionElement, keyPath: DataPath): string | undefined {
     if (keyPath.isEmptyPath && keyPath.pointsKey) {
@@ -38,13 +37,11 @@ export default class ReferenceExpressionResolver {
   constructor(
     expression: ReferenceExpression,
     referenceDefinition: TemplateReference,
-    collectValue: CollectValue,
-    currentDataPath: DataPath
+    collectValue: CollectValue
   ) {
     this._expression = expression;
     this._referenceDefinition = referenceDefinition;
     this._collectValue = collectValue;
-    this._currentDataPath = currentDataPath;
   }
 
   public get isLast(): boolean {
@@ -57,24 +54,30 @@ export default class ReferenceExpressionResolver {
     }
   }
 
-  public get fixedData(): { data: DataModelBase, path: DataPath } | undefined {
+  public fixedData(path: DataPath): { data: DataModelBase, path: DataPath } | undefined {
     const { fixedKeys } = this._expression;
-    if (fixedKeys.length === 0) { return undefined; }
+    const { paths } = this._referenceDefinition;
+    if (fixedKeys.length === 0 || fixedKeys.length > paths.length) { return undefined; }
 
-    const paths = this._referenceDefinition.paths;
-    const collected = this._collectValue(paths[0].path, this._currentDataPath);
-    return collected.find(item => ReferenceExpressionResolver.keyFromData(item, paths[0].keyPath) === fixedKeys[0]);
+    let found: { data: DataModelBase, path: DataPath } | undefined;
+    for (let i = 0; i < fixedKeys.length; i++) {
+      found = this._collectValue(paths[i].path, path)
+        .find(item => ReferenceExpressionResolver.keyFromData(item, paths[i].keyPath) === fixedKeys[i]);
+      if (!found) { return undefined; }
+      path = found.path;
+    }
+    return found;
   }
 
-  public get hints(): HintForAutoComplete[] {
+  public hints(path: DataPath): HintForAutoComplete[] {
     if (this._expression.currentType !== 'keys') { return []; }
-    const { fixedData } = this;
+    const fixedData = this.fixedData(path);
     const { fixedKeys, currentKey } = this._expression;
     const currentPath = this._referenceDefinition.paths[fixedKeys.length];
     if (!currentPath) { return []; }
     const collected = fixedData
       ? fixedData.data.collectValue(currentPath.path, fixedData.path)
-      : this._collectValue(currentPath.path, this._currentDataPath);
+      : this._collectValue(currentPath.path, path);
     return collected.map(item => {
       const lastMark = this.isLast ? '}}' : '.';
       const key = ReferenceExpressionResolver.keyFromData(item, currentPath.keyPath);
@@ -85,5 +88,20 @@ export default class ReferenceExpressionResolver {
         displayText: currentPath.description ? currentPath.description.fill(item.data, item.index) : ''
       };
     }).filter(item => !!item) as HintForAutoComplete[];
+  }
+
+  public resolve(path: DataPath): { data: DataModelBase, path: DataPath } | undefined {
+    const { keys } = this._expression;
+    const { paths } = this._referenceDefinition;
+    if (keys.length !== paths.length) { return undefined; }
+
+    let found: { data: DataModelBase, path: DataPath } | undefined;
+    for (let i = 0; i < keys.length; i++) {
+      found = this._collectValue(paths[i].path, path)
+        .find(item => ReferenceExpressionResolver.keyFromData(item, paths[i].keyPath) === keys[i]);
+      if (!found) { return undefined; }
+      path = found.path;
+    }
+    return found;
   }
 }

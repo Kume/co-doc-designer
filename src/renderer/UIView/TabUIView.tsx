@@ -7,7 +7,7 @@ import TabUIModel from '../UIModel/TabUIModel';
 export default class TabUIView extends UIViewBase<TabUIModel, UIViewBaseProps<TabUIModel>, UIViewBaseState> {
   public render(): ReactNode {
     const { model, applyAction, focus } = this.props;
-    const CurrentComponent = UIViewFactory.createUIView(model.child);
+    const CurrentComponent = (model.child && UIViewFactory.createUIView(model.child));
 
     return (
       <div>
@@ -25,12 +25,12 @@ export default class TabUIView extends UIViewBase<TabUIModel, UIViewBaseProps<Ta
           })}
         </div>
         <div className="ui-tab-content">
-          <CurrentComponent
-            model={model.child}
+          {CurrentComponent && <CurrentComponent
+            model={model.child!}
             applyAction={applyAction}
             collectValue={this.props.collectValue}
             focus={focus}
-          />
+          />}
         </div>
       </div>
     );

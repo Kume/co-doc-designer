@@ -124,6 +124,18 @@ class DataPathElement extends DataPathElementRecord {
     }
   }
 
+  public asCollectionIndexOrUndefined(prioritizeListIndex?: boolean): CollectionIndex | undefined {
+    switch (this._type) {
+      case DataPathElement.Type.MapKey:
+      case DataPathElement.Type.ListIndex:
+        return this._value as CollectionIndex;
+      case DataPathElement.Type.Both:
+        return prioritizeListIndex ? Number(this._value) : this._value;
+      default:
+        return undefined;
+    }
+  }
+
   public toString(): string {
     switch (this._type) {
       case DataPathElement.Type.Reverse:

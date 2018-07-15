@@ -91,4 +91,9 @@ export default class ReferenceExpression {
     if (!keys) { return []; }
     return keys.text.slice(0, keys.text.length - 1) as string[];
   }
+
+  get keys(): string[] {
+    if (!this.parsed || !this.parsed.keys) { return []; }
+    return this.parsed.keys.text.map(text => text || '');
+  }
 }

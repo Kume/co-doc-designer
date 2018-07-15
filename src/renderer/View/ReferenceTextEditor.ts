@@ -164,9 +164,8 @@ export default class ReferenceTextEditor {
     const codeMirror = this.codeMirror!;
     const ref = this.props.references!.find(ref => ref.key === category);
     if (!ref) { return; }
-    const resolver = new ReferenceExpressionResolver(
-      referenceExpression, ref, this.props.collectValue, this.props.dataPath);
-    const hints = resolver.hints;
+    const resolver = new ReferenceExpressionResolver(referenceExpression, ref, this.props.collectValue);
+    const hints = resolver.hints(this.props.dataPath);
     if (hints.length > 0) {
       codeMirror.showHint({
         completeSingle: false,

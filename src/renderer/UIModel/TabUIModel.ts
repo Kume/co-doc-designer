@@ -42,11 +42,21 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
 
   public get selectedTab(): string {
     const { focusedPath } = this.props;
-    if (focusedPath && !focusedPath.isEmptyPath && focusedPath.firstElement.canBeMapKey) {
-      return focusedPath.firstElement.asMapKey;
+    let key: string | undefined;
+    if (focusedPath && !focusedPath.isEmptyPath) {
+      const { firstElement } = focusedPath;
+      if (firstElement.canBeMapKey) {
+        key = firstElement.asMapKey;
+      } else if (firstElement.isListIndex) {
+        const { mapData } = this;
+        if (mapData && mapData.keyForIndex(firstElement.asListIndex)) {
+          key = mapData.keyForIndex(firstElement.asListIndex)!;
+        }
+      }
     }
+    if (key && this.isValidKey(key)) { return key; }
     const state = this.state;
-    if (state && state.selectedTab) {
+    if (state && state.selectedTab && this.isValidKey(state.selectedTab)) {
       return state.selectedTab;
     }
     return this.defaultTab;
@@ -79,6 +89,10 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
       path: this.props.modelPath,
       state: nextState
     }];
+  }
+
+  private isValidKey(key: string): boolean {
+    return this.definition.contents.some(content => content!.key.asMapKey === key);
   }
 
   private get defaultTab(): string {

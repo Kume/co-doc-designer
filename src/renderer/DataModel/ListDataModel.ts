@@ -172,7 +172,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
         let values: DataCollectionElement[] = [];
         const childPath = path.shift();
         this.forEachData((data, index) => {
-          let tmpValues = data.collectValue(childPath);
+          let tmpValues = data.collectValue(childPath, absolutePath!.push(index));
           if (path.isSingleElement) {
             tmpValues = tmpValues.map(value => ({index, data: value.data, path: absolutePath!.push(index)}));
           }
@@ -185,7 +185,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       if (path.isSingleElement && path.pointsKey) {
         return [{ index, data: new IntegerDataModel(index), path: absolutePath!.push(index)}];
       } else {
-        const values = this.list.get(index).collectValue(path.shift());
+        const values = this.list.get(index).collectValue(path.shift(), absolutePath!.push(index));
         if (path.isSingleElement) {
           return values.map(value => ({index, data: value.data, path: absolutePath!.push(index)}));
         } else {

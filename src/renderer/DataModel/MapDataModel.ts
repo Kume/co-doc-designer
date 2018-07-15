@@ -304,9 +304,10 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
         let values: DataCollectionElement[] = [];
         const childPath = path.shift();
         this.forEachData((data, index) => {
-          let tmpValues = data.collectValue(childPath);
+          absolutePath = absolutePath!.push(index);
+          let tmpValues = data.collectValue(childPath, absolutePath);
           if (path.isSingleElement) {
-            tmpValues = tmpValues.map(value => ({index, data: value.data, path: absolutePath!.push(index)}));
+            tmpValues = tmpValues.map(value => ({index, data: value.data, path: absolutePath!}));
           }
           values = values.concat(tmpValues);
         });
@@ -319,9 +320,10 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
         if (path.elements.size === 1 && path.pointsKey) {
           return [{index, data: node.keyAsDataModel, path: absolutePath!.push(node.key)}];
         } else {
-          let values = node.value.collectValue(path.shift());
+          absolutePath = absolutePath!.push(index);
+          let values = node.value.collectValue(path.shift(), absolutePath);
           if (path.isSingleElement) {
-            return values.map(value => ({index, data: value.data, path: absolutePath!.push(node.key)}));
+            return values.map(value => ({index, data: value.data, path: absolutePath!}));
           } else {
             return values;
           }

@@ -8,14 +8,16 @@
     "js-yaml": "^3.11.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
-    "react-scripts-ts": "2.14.0"
+    "react-scripts-ts": "2.14.0",
+    "tooltip.js": "^1.2.0"
   },
   "scripts": {
     "dev": "electron-webpack dev",
     "compile": "electron-webpack",
+    "typescript": "electron-webpack --noEmit",
     "build": "yarn compile && electron-builder",
     "test": "react-scripts-ts test --env=jsdom",
-    "lint": "tslint --project ./"
+    "lint": "tslint --project tsconfig.json -c tslint.json"
   },
   "devDependencies": {
     "@types/jest": "^22.2.2",

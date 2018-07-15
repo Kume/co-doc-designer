@@ -3,9 +3,11 @@ import * as CodeMirror from '../../../../lib/codemirror/lib/codemirror';
 import ReferenceTextEditor from '../ReferenceTextEditor';
 import { ReferenceCellSetting } from '../../UIModel/TableRowUIModel';
 import { CollectValue } from '../../UIModel/types';
+import DataPath from '../../DataModel/Path/DataPath';
 
 export interface HandsonTableSettings {
   collectValue: CollectValue;
+  focus: (path: DataPath) => void;
 }
 
 export default class ReferenceTextCellEditor extends handsontable.editors.TextEditor {

@@ -51,7 +51,8 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
       afterChange: this.onChange.bind(this),
       cells: this.getColumnSettings.bind(this),
       colHeaders: this.columnHeaders,
-      collectValue: this.props.collectValue
+      collectValue: this.props.collectValue,
+      focus: this.props.focus
     };
   }
 

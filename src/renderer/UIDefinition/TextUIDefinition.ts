@@ -23,6 +23,12 @@ export interface TemplateReference {
   }[];
 }
 
+export interface TemplateReferencePath {
+  path: DataPath;
+  keyPath: DataPath;
+  description?: TemplateLine;
+}
+
 export interface TextUIDefinitionConfigObject extends UIDefinitionConfigObject {
   emptyToNull: boolean;
   options?: Array<string>;
