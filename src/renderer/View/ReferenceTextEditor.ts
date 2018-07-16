@@ -46,6 +46,16 @@ export default class ReferenceTextEditor {
     codeMirror.on('blur', () => {
       if (this.props.onChange) { this.props.onChange(codeMirror.getValue()); }
     });
+    codeMirror.on('keypress', (editor, event: KeyboardEvent) => {
+      if (event.key === ' ' && (event.ctrlKey || event.metaKey)) {
+        const doc = codeMirror.getDoc();
+        const cursor = doc.getCursor();
+        doc.replaceRange('{{}}', cursor);
+        doc.setCursor({line: cursor.line, ch: cursor.ch + 2});
+        return true;
+      }
+      return false;
+    });
     codeMirror.on('cursorActivity', () => {
       this.tryAutocomplete();
       this.markToken();
@@ -84,7 +94,7 @@ export default class ReferenceTextEditor {
         if (token.key.trim() === '') {
           continue;
         }
-        const found = doc.findMarksAt({line: lineIndex, ch: token.start});
+        const found = doc.findMarksAt({line: lineIndex, ch: token.start + 1});
         if (found.length > 0) {
           continue;
         }
@@ -119,9 +129,6 @@ export default class ReferenceTextEditor {
     const currentToken = templateLine.getTemplateTokenOn(cursor.ch);
     const { references } = this.props;
     if (currentToken && references) {
-      if (cursor.ch < currentToken.start + 2) {
-        return;
-      }
       const currentText = currentToken.key.substr(0, cursor.ch - currentToken.start - 2);
       const referenceExpression = new ReferenceExpression(currentText);
 

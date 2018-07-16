@@ -40,7 +40,6 @@ export function makeReferenceExpressionView(
         title: () => {
           return ReferenceExpressionResolver.resolve(refExp, referenceDefinitions, collectValue, dataPath) || '';
         },
-        // container: document.documentElement,
         boundariesElement: document.documentElement,
         placement: 'bottom'
       });
