@@ -15,6 +15,26 @@ export default class ReferenceExpressionResolver {
   private readonly _referenceDefinition: TemplateReference;
   private readonly _collectValue: CollectValue;
 
+  public static resolve(
+    refExp: ReferenceExpression,
+    referenceDefinitions: ReadonlyArray<TemplateReference>,
+    collectValue: CollectValue,
+    dataPath: DataPath
+  ): string | undefined {
+    const definition = referenceDefinitions.find(def => def.key === refExp.category);
+    if (!definition) { return; }
+    const resolver = new ReferenceExpressionResolver(refExp, definition, collectValue);
+    const resolved = resolver.resolve(dataPath);
+    if (!resolved) { return; }
+    const pathReference = definition.paths[definition.paths.length - 1];
+    const collectionIndex = resolved.path.isEmptyPath
+      ? undefined
+      : resolved.path.lastElement.asCollectionIndexOrUndefined();
+    return pathReference.description
+      ? pathReference.description.fill(resolved.data, collectionIndex)
+      : resolved.data.toString();
+  }
+
   private static keyFromData(item: DataCollectionElement, keyPath: DataPath): string | undefined {
     if (keyPath.isEmptyPath && keyPath.pointsKey) {
       if (item.index === undefined || typeof item.index === 'string') {

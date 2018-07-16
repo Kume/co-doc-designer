@@ -41,7 +41,8 @@ export default class ReferenceTextCellEditor extends handsontable.editors.TextEd
         this.editor = new ReferenceTextEditor(this.textArea, {
           collectValue: settings.collectValue,
           dataPath: cellProperties.dataPath,
-          references: cellProperties.references
+          references: cellProperties.references,
+          focus: settings.focus
         });
         this.codeMirror = this.editor.applyCodeMirror();
       },

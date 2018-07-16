@@ -39,22 +39,27 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
 
   public inputChanges(collectValue: CollectValue, changes: TableChange[]): UIModelAction[] {
     let actions: UIModelAction[] = [];
+    if (!this.collectionData) {
+      actions.push(UIModelAction.Creators.setData(this.props.dataPath, this.definition.defaultData));
+    }
+
     const changesByRow = TableUIModel.coordinateChanges(changes);
     const createdForRow: Map<number, TableRowUIModel> = new Map();
     const {dataPath, modelPath } = this.props;
+
     changesByRow.forEach((value, key) => {
       const row = this.children.get(key) as TableRowUIModel | undefined;
       if (row) {
         actions = actions.concat(row.input(collectValue, value));
       } else {
         if (!createdForRow.has(key)) {
-          actions.push(UIModelAction.Creators.appendData(this.props.dataPath, this.definition.defaultData));
+          actions.push(UIModelAction.Creators.appendData(this.props.dataPath, this.definition.defaultRowData));
           const newChildProps = new UIModelProps({
             stateNode: undefined,
             dataPath: dataPath.push(key),
             modelPath: modelPath.push(key),
             focusedPath: undefined,
-            data: this.definition.defaultData,
+            data: this.definition.defaultRowData,
             key: this.selectedKey(key)
           });
           createdForRow.set(key, new TableRowUIModel(this.childDefinitionAt(key), newChildProps));
@@ -70,8 +75,12 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
 
   public deleteRows(start: number, size: number): UIModelAction[] {
     let actions: UIModelAction[] = [];
+    if (!this.collectionData) {
+      actions.push(UIModelAction.Creators.setData(this.props.dataPath, this.definition.defaultData));
+    }
+
     for (let i = 0; i < size; i++) {
-      actions.push(UIModelAction.Creators.deleteData(this.props.dataPath, i + start));
+      actions.push(UIModelAction.Creators.deleteData(this.props.dataPath, start));
     }
     if (actions.length > 0) {
       actions.push({ type: 'Focus', path: this.props.dataPath } as UIModelFocusAction);
@@ -81,6 +90,10 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
 
   public insertRows(start: number, size: number) {
     let actions: UIModelAction[] = [];
+    if (!this.collectionData) {
+      actions.push(UIModelAction.Creators.setData(this.props.dataPath, this.definition.defaultData));
+    }
+
     for (let i = 0; i < size; i++) {
       actions.push(UIModelAction.Creators.insertData(this.props.dataPath, this.definition.defaultData, i + start));
     }
@@ -94,9 +107,7 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
     const actions: UIModelAction[] = [];
 
     if (!this.collectionData) {
-      const defaultData = this.definition.dataType === CollectionDataModelType.List
-        ? ListDataModel.empty : MapDataModel.empty;
-      actions.push(UIModelAction.Creators.setData(this.props.dataPath, defaultData));
+      actions.push(UIModelAction.Creators.setData(this.props.dataPath, this.definition.defaultData));
     }
 
     actions.push(<UIModelUpdateDataAction> {

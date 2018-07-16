@@ -6,15 +6,14 @@ import DataPath from '../DataModel/Path/DataPath';
 import { CollectValue } from '../UIModel/types';
 import ReferenceExpression from '../Model/ReferenceExpression';
 import ReferenceExpressionResolver from '../Model/ReferenceExpressionResolver';
-import * as React from 'react';
-import { ReferenceExpressionView } from './ReferenceExpressionView';
-import * as ReactDOM from 'react-dom';
+import { makeReferenceExpressionView } from './ReferenceExpressionView';
 
 export interface ReferenceTextEditorProps {
   readonly lineNumbers?: boolean;
   readonly references?: ReadonlyArray<TemplateReference>;
   readonly dataPath: DataPath;
   readonly collectValue: CollectValue;
+  readonly focus: (path: DataPath) => void;
   readonly onChange?: (text: string) => void;
 }
 
@@ -22,13 +21,6 @@ export default class ReferenceTextEditor {
   public readonly textArea: HTMLTextAreaElement;
   public readonly props: ReferenceTextEditorProps;
   private codeMirror?: CodeMirror.EditorFromTextArea;
-
-  private static _makeTokenElement(expression: ReferenceExpression): HTMLSpanElement {
-    const span = document.createElement('span');
-    const props = {category: expression.category || '-', keys: expression.keyText};
-    ReactDOM.render(React.createElement(ReferenceExpressionView, props), span);
-    return span;
-  }
 
   constructor(textArea: HTMLTextAreaElement, props: ReferenceTextEditorProps) {
     this.textArea = textArea;
@@ -99,8 +91,13 @@ export default class ReferenceTextEditor {
         if (hasFocus && cursor.line === lineIndex && currentToken && currentToken.start === token.start) {
           continue;
         }
-        const referenceExpression = new ReferenceExpression(token.key);
-        const span = ReferenceTextEditor._makeTokenElement(referenceExpression);
+        const span = makeReferenceExpressionView(
+          token.key,
+          this.props.references!,
+          this.props.collectValue,
+          this.props.focus,
+          this.props.dataPath,
+          false);
         doc.markText(
           CodeMirror.Pos(lineIndex, token.start),
           CodeMirror.Pos(lineIndex, token.end),
@@ -122,7 +119,11 @@ export default class ReferenceTextEditor {
     const currentToken = templateLine.getTemplateTokenOn(cursor.ch);
     const { references } = this.props;
     if (currentToken && references) {
-      const referenceExpression = new ReferenceExpression(currentToken.key);
+      if (cursor.ch < currentToken.start + 2) {
+        return;
+      }
+      const currentText = currentToken.key.substr(0, cursor.ch - currentToken.start - 2);
+      const referenceExpression = new ReferenceExpression(currentText);
 
       if (referenceExpression.currentType === 'category') {
           codeMirror.showHint({

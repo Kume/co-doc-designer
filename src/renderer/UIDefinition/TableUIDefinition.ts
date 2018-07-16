@@ -47,4 +47,8 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
       return ListDataModel.empty;
     }
   }
+
+  public get defaultRowData(): CollectionDataModel {
+    return MapDataModel.empty;
+  }
 }

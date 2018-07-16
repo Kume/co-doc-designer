@@ -51,7 +51,8 @@ export default class TextUIView extends UIViewBase<TextUIModel, UIViewBaseProps<
       collectValue,
       dataPath: model.props.dataPath,
       references: model.definition.references,
-      onChange: (text) => this.props.applyAction(this.props.model.input(text))
+      onChange: (text) => this.props.applyAction(this.props.model.input(text)),
+      focus: this.props.focus
     });
     this._referenceTextEditor.applyCodeMirror();
   }

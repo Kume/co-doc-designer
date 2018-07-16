@@ -26,6 +26,8 @@ span.reference-expression-keys {
   padding: 2px;
   text-align: center;
   width: 300px;
+  z-index: 300;
+  overflow: visible;
 }
 .popper .popper__arrow,
 .tooltip .tooltip-arrow {
