@@ -21,13 +21,6 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
     };
   }
 
-  componentWillReceiveProps (props: UIViewBaseProps<TableUIModel>) {
-    const { rowFocus } = props.model;
-    if (rowFocus !== undefined && this._handsontable) {
-      this._handsontable.selectRows(rowFocus);
-    }
-  }
-
   render(): React.ReactNode {
     return (
       <div>
@@ -57,10 +50,11 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
         applyAction(model.insertRows(start, size));
         return false;
       });
-      const { rowFocus } = this.props.model;
-      if (rowFocus !== undefined && this._handsontable) {
-        this._handsontable.selectRows(rowFocus);
-      }
+    }
+    const { rowFocus } = this.props.model;
+    if (rowFocus !== undefined && this._handsontable) {
+      this._handsontable.deselectCell();
+      this._handsontable.selectRows(rowFocus);
     }
   }
 

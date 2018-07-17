@@ -1,6 +1,7 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
+import MapDataModel from '../DataModel/MapDataModel';
 
 export interface TabUIDefinitionConfigObject extends UIDefinitionConfigObject {
   keyFlatten?: boolean;
@@ -29,5 +30,9 @@ export default class TabUIDefinition extends MultiContentsUIDefinition {
       });
     }
     return this._keyOrder;
+  }
+
+  public get defaultData(): MapDataModel {
+    return MapDataModel.empty;
   }
 }

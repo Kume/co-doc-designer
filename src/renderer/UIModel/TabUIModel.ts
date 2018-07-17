@@ -157,6 +157,8 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   private makeDataPathElementWithMetadata(sourceElement: DataPathElement): DataPathElement {
     let keyOrder: List<string> = sourceElement.metadata.get('keyOrder') || List();
     const newKeyOrder = keyOrder.concat(this.definition.keyOrder) as List<string>;
-    return sourceElement.setMetadata(sourceElement.metadata.set('keyOrder', newKeyOrder));
+    return sourceElement.setMetadata(sourceElement.metadata
+      .set('keyOrder', newKeyOrder)
+      .set('defaultData', this.definition.defaultData));
   }
 }

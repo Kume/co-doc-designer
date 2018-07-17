@@ -55,6 +55,19 @@ class App extends React.Component<Props, State> {
     }
   }
 
+  async _saveAsJson() {
+    const root = this.root;
+    if (root && root.state.model && root.state.model.props.data) {
+      const electron = require('electron');
+      const dialog = electron.remote.dialog;
+      dialog.showSaveDialog({}, (fileName: string) => {
+        fs.writeFile(fileName, JSON.stringify(root.state.model!.props.data!.toJsonObject()), () => {
+
+        });
+      });
+    }
+  }
+
   async _showYaml() {
     const root = this.root;
     if (root && root.state.model && root.state.model.props.data) {
@@ -82,8 +95,7 @@ class App extends React.Component<Props, State> {
           <IconButton icon={faSave} onClick={() => this._saveFile()} disabled={!this.state.isFileLoaded} />
         </div>
         <RootUIView ref={ref => this.root = ref}/>
-        <input type="button" value="Open" onClick={() => this._openFile()} />
-        <input type="button" value="Save" onClick={() => this._saveFile()} />
+        <input type="button" value="Save As Json" onClick={() => this._saveAsJson()} />
         <input type="button" value="Show data as yaml" onClick={() => this._showYaml()} />
       </div>
     );

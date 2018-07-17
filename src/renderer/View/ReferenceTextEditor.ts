@@ -19,7 +19,7 @@ export interface ReferenceTextEditorProps {
 
 export default class ReferenceTextEditor {
   public readonly textArea: HTMLTextAreaElement;
-  public readonly props: ReferenceTextEditorProps;
+  public props: ReferenceTextEditorProps;
   private codeMirror?: CodeMirror.EditorFromTextArea;
 
   constructor(textArea: HTMLTextAreaElement, props: ReferenceTextEditorProps) {

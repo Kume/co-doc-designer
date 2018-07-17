@@ -83,6 +83,7 @@ export default class UIModelManager {
   }
 
   public focus(path: DataPath): void {
+    console.log('focus', path.toString());
     this._focusedPath = path;
     this._rootUIModel = UIModelFactory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
     const adjustStateActions = this._rootUIModel.adjustState();

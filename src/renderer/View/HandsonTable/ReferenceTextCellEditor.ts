@@ -55,6 +55,14 @@ export default class ReferenceTextCellEditor extends handsontable.editors.TextEd
 
   setValue(value: string): void {
     this.value = value;
+    const settings = this.instance.getSettings() as HandsonTableSettings;
+    const cellProperties = this.cellProperties as ReferenceCellSetting;
+    this.editor.props = {
+      collectValue: settings.collectValue,
+      dataPath: cellProperties.dataPath,
+      references: cellProperties.references,
+      focus: settings.focus
+    };
   }
 
   focus(): void {

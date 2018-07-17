@@ -32,6 +32,7 @@ export function makeReferenceExpressionView(
       const resolved = resolver.resolve(dataPath);
       if (!resolved) { return; }
       focus(resolved.path);
+      return true;
     };
 
     if (useTooltip) {

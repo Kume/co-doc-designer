@@ -173,6 +173,12 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
           const newNode = new MapDataModelElement(path.firstElement.asMapKeyOrUndefined, action.data);
           const updated = this.set('list', this.list.push(newNode));
           return keyOrder ? updated.applyKeyOrder(keyOrder.toArray()) : updated;
+        } else if (DataAction.isInsertDataAction(action) && pathElement.metadata.has('defaultData')) {
+          const updatedData = pathElement.metadata.get('defaultData')!.applyAction(
+            path.shift(), action, pathElement.metadata);
+          const newNode = new MapDataModelElement(path.firstElement.asMapKeyOrUndefined, updatedData);
+          const updated = this.set('list', this.list.push(newNode));
+          return keyOrder ? updated.applyKeyOrder(keyOrder.toArray()) : updated;
         } else {
           throw new DataOperationError('Invalid path for action', {path, action, targetData: this});
         }
