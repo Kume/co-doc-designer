@@ -101,6 +101,15 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
               labelPath: 'text'
             }
           },
+          <SelectUIDefinitionConfigObject> {
+            type: 'select',
+            key: 'select_ref_multi',
+            label: '参照複数選択',
+            isMulti: true,
+            options: {
+              path: '/references/*/name'
+            }
+          },
           {
             type: 'table',
             key: 'table_data',
@@ -135,6 +144,17 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                 options: {
                   path: '/references/*/name'
                 }
+              },
+              <SelectUIDefinitionConfigObject> {
+                type: 'select',
+                key: 'select_ref_multi',
+                label: '複数選択',
+                isMulti: true,
+                options: [
+                  '選択肢１',
+                  '選択肢２',
+                  '選択肢３'
+                ]
               },
               {
                 type: 'text',

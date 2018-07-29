@@ -6,6 +6,7 @@ import Handsontable from 'handsontable';
 import TableUIModel from '../UIModel/TableUIModel';
 import { HandsonTableSettings } from '../View/HandsonTable/ReferenceTextCellEditor';
 import '../View/HandsonTable/ReferenceTextCellRenderer';
+import '../View/HandsonTable/SelectCellEditor';
 
 require('../View/HandsonTable/ReferenceTextCellEditor');
 

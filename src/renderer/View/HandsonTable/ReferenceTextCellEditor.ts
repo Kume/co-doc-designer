@@ -1,4 +1,4 @@
-import handsontable from 'handsontable';
+import handsontable, { GridSettings } from 'handsontable';
 import * as CodeMirror from '../../../../lib/codemirror/lib/codemirror';
 import ReferenceTextEditor from '../ReferenceTextEditor';
 import { ReferenceCellSetting } from '../../UIModel/TableRowUIModel';
@@ -13,13 +13,15 @@ export interface HandsonTableSettings {
 export default class ReferenceTextCellEditor extends handsontable.editors.TextEditor {
   public textareaParentStyle: CSSStyleDeclaration;
   private textArea: HTMLTextAreaElement;
+  private dummyTextArea: HTMLTextAreaElement;
   private textAreaParent: HTMLDivElement;
   private codeMirror: CodeMirror.EditorFromTextArea;
   private value: string;
   private editor: ReferenceTextEditor;
+  private readonly state: string;
 
   public get TEXTAREA(): any {
-    return this.textArea;
+    return this.dummyTextArea;
   }
 
   public get TEXTAREA_PARENT(): any {
@@ -34,6 +36,10 @@ export default class ReferenceTextCellEditor extends handsontable.editors.TextEd
     (this.instance as any).rootElement.appendChild(this.textAreaParent);
     this.textareaParentStyle = this.textAreaParent.style;
     this.textareaParentStyle.minWidth = '0px';
+    this.textareaParentStyle.zIndex = '-1';
+    this.dummyTextArea = document.createElement('textarea');
+    this.dummyTextArea.className = 'copyPaste';
+    this.textAreaParent.appendChild(this.dummyTextArea);
     setTimeout(
       () => {
         const settings = this.instance.getSettings() as HandsonTableSettings;
@@ -65,14 +71,37 @@ export default class ReferenceTextCellEditor extends handsontable.editors.TextEd
     };
   }
 
+  open() {
+    if (this.codeMirror) {
+      this.codeMirror.setValue(this.value || '');
+      this.codeMirror.focus();
+      this.dummyTextArea.style.display = 'none';
+    }
+    super.open();
+  }
+
+  prepare(
+    row: number,
+    col: number,
+    prop: string | number,
+    TD: HTMLElement,
+    originalValue: any,
+    cellProperties: GridSettings
+  ) {
+    this.value = originalValue;
+    super.prepare(row, col, prop, TD, originalValue, cellProperties);
+  }
+
   focus(): void {
-    this.codeMirror.setValue(this.value);
-    this.codeMirror.focus();
+    if (this.state !== 'STATE_EDITING') {
+      this.dummyTextArea.style.display = 'block';
+      this.dummyTextArea.select();
+    }
   }
 
   refreshDimensions() {
     super.refreshDimensions();
-    this.textareaParentStyle.minWidth = this.textArea.style.width;
+    this.textareaParentStyle.minWidth = this.dummyTextArea.style.width;
   }
 }
 

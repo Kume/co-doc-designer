@@ -1,0 +1,12 @@
+div.Select-option {
+  min-width: 12em;
+}
+
+div.Select-menu-outer {
+  min-width: 100%;
+  width: auto;
+}
+
+div.Select-control {
+  min-width: 12em;
+}

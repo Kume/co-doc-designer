@@ -21,7 +21,14 @@ export interface ReferenceCellSetting {
   references: ReadonlyArray<TemplateReference>;
 }
 
-export type CellData = number | string | undefined | boolean;
+export interface MultiSelectCellSetting {
+  editor: 'multi_select';
+  // renderer: 'multi_select';
+  dataPath: DataPath;
+  model: SelectUIModel;
+}
+
+export type CellData = number | string | undefined | boolean | string[];
 export interface TableChangeForRow {
   column: number;
   value: any;
@@ -47,7 +54,11 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
       } else if (child instanceof CheckBoxUIModel) {
         cells.push(child.isChecked);
       } else if (child instanceof SelectUIModel) {
-        cells.push(child.labelForValue(collectValue, child.value));
+        if (child.definition.isMulti) {
+          cells.push(JSON.stringify(child.value));
+        } else {
+          cells.push(child.labelForValue(collectValue, child.value));
+        }
       }
       return '';
     });
@@ -72,14 +83,21 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
             actions = actions.concat(child.input(change.value));
           }
         } else if (child instanceof SelectUIModel) {
-          actions = actions.concat(child.inputLabel(change.value.toString(), collectValue));
+          if (child.definition.isMulti) {
+            const value = JSON.parse(change.value);
+            actions = actions.concat(child.input(value));
+          } else {
+            actions = actions.concat(child.inputLabel(change.value.toString(), collectValue));
+          }
         }
       }
     }
     return actions;
   }
 
-  public columnSettings(collectValue: CollectValue, column: number): ColumnSetting | ReferenceCellSetting {
+  public columnSettings(
+    collectValue: CollectValue, column: number
+  ): ColumnSetting | ReferenceCellSetting | MultiSelectCellSetting {
     const child = this.childAtIndex(column);
     if (child) {
       if (child instanceof TextUIModel) {
@@ -106,10 +124,18 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
           type: 'checkbox'
         };
       } else if (child instanceof SelectUIModel) {
-        return {
-          type: 'dropdown',
-          source: child.options(collectValue).map(option => option.label)
-        };
+        if (child.definition.isMulti) {
+          return {
+            editor: 'multi_select',
+            dataPath: this.dataPath.push(column),
+            model: child
+          };
+        } else {
+          return {
+            type: 'dropdown',
+            source: child.options(collectValue).map(option => option.label)
+          };
+        }
       }
     }
     return {};

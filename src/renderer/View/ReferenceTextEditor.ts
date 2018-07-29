@@ -189,7 +189,7 @@ export default class ReferenceTextEditor {
 
   private renderOption(li: HTMLElement, self: any, data: any) {
     li.innerHTML = `
-    <span class="description">${data.key || data.text} : ${data.displayText}</span>
+    <span class="description">${data.key || data.text} ${data.displayText}</span>
   `;
     li.className += ` reference-text-editor-hint type--${data.type}`;
   }

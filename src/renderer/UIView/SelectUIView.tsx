@@ -1,24 +1,25 @@
 import * as React from 'react';
+import Select from 'react-select';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import SelectUIModel from '../UIModel/SelectUIModel';
+import 'react-select/dist/react-select.css';
+import './style/SelectUIView.css';
+
+interface SelectValue {
+  label: string;
+  value: string;
+}
 
 export default class SelectUIView extends UIViewBase<SelectUIModel, UIViewBaseProps<SelectUIModel>, UIViewBaseState> {
-  private _select: HTMLSelectElement;
   render(): React.ReactNode {
     const { model, collectValue } = this.props;
     return (
-      <select
-        onChange={this.onUpdate}
-        ref={ref => this._select = ref!}
+      <Select
         value={model.value || ''}
-      >
-        <option value="" />
-        {model.options(collectValue).map(option => (
-          <option value={option.value} key={option.value}>
-            {option.label}
-          </option>
-        ))}
-      </select>
+        onChange={this.onUpdate}
+        options={model.options(collectValue)}
+        multi={model.definition.isMulti}
+      />
     );
   }
 
@@ -27,7 +28,11 @@ export default class SelectUIView extends UIViewBase<SelectUIModel, UIViewBasePr
     this.onUpdate = this.onUpdate.bind(this);
   }
 
-  private onUpdate(): void {
-    this.props.applyAction(this.props.model.input(this._select.value));
+  private onUpdate(value: SelectValue | SelectValue[] | null): void {
+    if (Array.isArray(value)) {
+      this.props.applyAction(this.props.model.input(value.map(v => v.value)));
+    } else {
+      this.props.applyAction(this.props.model.input(value && value.value));
+    }
   }
 }

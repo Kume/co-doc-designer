@@ -6,13 +6,15 @@
     "@fortawesome/fontawesome-svg-core": "^1.2.0",
     "@fortawesome/free-regular-svg-icons": "^5.1.0-11",
     "@fortawesome/react-fontawesome": "^0.1.0-11",
-    "handsontable": "^2.0.0",
+    "handsontable": "5.0.0",
     "immutable": "^3.8.2",
     "js-yaml": "^3.11.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-scripts-ts": "2.14.0",
-    "tooltip.js": "^1.2.0"
+    "react-select": "^1.2.1",
+    "tooltip.js": "^1.2.0",
+    "underscore": "^1.9.1"
   },
   "scripts": {
     "dev": "electron-webpack dev",
@@ -28,6 +30,8 @@
     "@types/node": "^9.6.0",
     "@types/react": "^16.0.41",
     "@types/react-dom": "^16.0.4",
+    "@types/react-select": "^1.2.11",
+    "@types/underscore": "^1.8.8",
     "electron": "^1.8.4",
     "electron-builder": "^20.8.1",
     "electron-webpack": "^1.13.0",

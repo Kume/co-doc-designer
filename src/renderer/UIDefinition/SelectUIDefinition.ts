@@ -23,10 +23,12 @@ export interface SelectUIDynamicOptions {
 export interface SelectUIDefinitionConfigObject extends UIDefinitionConfigObject {
   emptyToNull: boolean;
   options: SelectOptionFullDefinition | Array<string | SelectOption>;
+  isMulti?: boolean;
 }
 
 export default class SelectUIDefinition extends UIDefinitionBase {
   public readonly labelPath?: DataPath;
+  public readonly isMulti: boolean;
   private _staticOptions?: Array<SelectOption>;
   private _dynamicOptions?: SelectUIDynamicOptions;
 
@@ -51,6 +53,7 @@ export default class SelectUIDefinition extends UIDefinitionBase {
         valuePath: config.options.valuePath ? DataPath.parse(config.options.valuePath) : undefined,
       };
     }
+    this.isMulti = !!config.isMulti;
   }
 
   get dynamicOptions(): SelectUIDynamicOptions | undefined {
