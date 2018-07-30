@@ -1,0 +1,41 @@
+div.ui-content-list--container {
+  display: flex;
+  flex-direction: row;
+}
+
+input.ui-content-list--search-input {
+  margin-right: 10px;
+  width: 120px;
+}
+
+ul.ui-content-list--list {
+  border: 1px solid gray;
+  margin: 0 10px 0 0;
+  padding: 0;
+  width: 120px;
+}
+
+ul.ui-content-list--list li {
+  border-bottom: 1px solid gray;
+  padding-left: 0.2rem;
+  list-style: none;
+  height: 1.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+ul.ui-content-list--list li:last-child {
+  border-bottom: 0;
+}
+
+ul.ui-content-list--list li.selected {
+  background-color: lightblue;
+}
+
+.ui-content-list--button-area {
+  margin-top: 5px;
+}
+
+.ui-content-list--button-area input {
+  margin-right: 5px;
+}

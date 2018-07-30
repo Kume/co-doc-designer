@@ -2,6 +2,7 @@ import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import UIViewFactory from './UIViewFactory';
 import ContentListUIModel, { ContentListIndex } from '../UIModel/ContentListUIModel';
+import './style/ContentListUIView.css';
 
 export default class ContentListUIView
   extends UIViewBase<ContentListUIModel, UIViewBaseProps<ContentListUIModel>, UIViewBaseState> {
@@ -29,6 +30,7 @@ export default class ContentListUIView
                 return (
                   <li
                     key={index.index}
+                    title={index.title}
                     onClick={() => this.props.focus(index.path)}
                     className={index.isSelected ? 'selected' : ''}
                   >
