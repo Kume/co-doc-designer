@@ -23,7 +23,7 @@ export interface ReferenceCellSetting {
 
 export interface MultiSelectCellSetting {
   editor: 'multi_select';
-  // renderer: 'multi_select';
+  renderer: 'multi_select';
   dataPath: DataPath;
   model: SelectUIModel;
 }
@@ -84,8 +84,12 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
           }
         } else if (child instanceof SelectUIModel) {
           if (child.definition.isMulti) {
-            const value = JSON.parse(change.value);
-            actions = actions.concat(child.input(value));
+            try {
+              const value = JSON.parse(change.value);
+              actions = actions.concat(child.input(value));
+            } catch (error) {
+              // JSONエラーになる入力は受け付けない
+            }
           } else {
             actions = actions.concat(child.inputLabel(change.value.toString(), collectValue));
           }
@@ -127,6 +131,7 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
         if (child.definition.isMulti) {
           return {
             editor: 'multi_select',
+            renderer: 'multi_select',
             dataPath: this.dataPath.push(column),
             model: child
           };

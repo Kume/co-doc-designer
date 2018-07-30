@@ -89,8 +89,12 @@ export default class SelectCellEditor extends handsontable.editors.TextEditor {
   // }
 
   public setValue(value: string | null): void {
-    this.value = value ? JSON.parse(value) : [];
-    this.rerender();
+    try {
+      this.value = value ? JSON.parse(value) : [];
+      this.rerender();
+    } catch (error) {
+      // jsonエラーになる入力は無視する
+    }
   }
 
   public getValue(): string {
