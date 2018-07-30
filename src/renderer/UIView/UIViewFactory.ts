@@ -17,6 +17,8 @@ import TextAreaUIModel from '../UIModel/TextAreaUIModel';
 import TextAreaUIView from './TextAreaUIView';
 import TableUIModel from '../UIModel/TableUIModel';
 import TableUIView from './TableUIView';
+import NumberUIModel from '../UIModel/NumberUIModel';
+import NumberUIView from './NumberUIView';
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel): ComponentClass<UIViewBaseProps<UIModel>> {
@@ -43,6 +45,9 @@ export default class UIViewFactory {
     }
     if (model instanceof TableUIModel) {
       return TableUIView;
+    }
+    if (model instanceof NumberUIModel) {
+      return NumberUIView;
     }
     return UIViewBase;
   }

@@ -16,6 +16,8 @@ import TableUIDefinition from '../UIDefinition/TableUIDefinition';
 import TableUIModel from './TableUIModel';
 import TextAreaUIModel from './TextAreaUIModel';
 import TextAreaUIDefinition from '../UIDefinition/TextAreaUIDefinition';
+import NumberUIDefinition from '../UIDefinition/NumberUIDefinition';
+import NumberUIModel from './NumberUIModel';
 
 export class UIModelFactory {
   public static create(definition: UIDefinitionBase, props: UIModelProps, oldModel?: UIModel<any>): UIModel<any> {
@@ -42,6 +44,9 @@ export class UIModelFactory {
     }
     if (definition instanceof TextAreaUIDefinition) {
       return new TextAreaUIModel(definition, props);
+    }
+    if (definition instanceof NumberUIDefinition) {
+      return new NumberUIModel(definition, props);
     }
     throw new Error('Invalid ui definition.');
   }

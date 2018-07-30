@@ -32,6 +32,11 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             label: 'テキスト'
           },
           {
+            type: 'number',
+            key: 'num',
+            label: '数値入力'
+          },
+          {
             type: 'text',
             key: 'ref_text',
             label: '参照テキスト',
@@ -313,6 +318,7 @@ export const sampleDataForUIConfig = {
   main: {
     main_rec1: {
       text: 'Text Value',
+      num: 99,
       select: '選択肢２',
       select_ref: '参照名１',
       select_ref2: '参照名２',
@@ -327,11 +333,18 @@ export const sampleDataForUIConfig = {
           text: 'Text Value',
           select: '選択肢１',
           select_ref: '参照名３',
+          select_ref_multi: [
+            '選択肢２',
+            '選択肢１'
+          ],
           ref_text: 'ここに{{table:c}}参照を埋め込む。'
         },
         c: {
           text: 'Text Value',
           select: '選択肢２',
+          select_ref_multi: [
+            '無効選択肢'
+          ],
           select_ref: '参照名５',
           ref_text: ''
         },

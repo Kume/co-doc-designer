@@ -101,6 +101,14 @@ export class StringDataModel extends ScalarDataModel {
 
 export class NumberDataModel extends ScalarDataModel {
   public readonly value: number;
+
+  public static create(value: number): NumberDataModel {
+    if (Number.isInteger(value)) {
+      return new IntegerDataModel(value);
+    } else {
+      return new FloatDataModel(value);
+    }
+  }
 }
 
 export class IntegerDataModel extends NumberDataModel {

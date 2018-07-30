@@ -3,6 +3,7 @@ import { DataAction, DeleteDataAction, InsertDataAction, MoveDataAction, SetData
 import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
 import { UIModelState } from './types';
 import { ModelPath } from './UIModel';
+import InvalidCallError from '../../common/Error/InvalidCallError';
 
 type UIModelActionType = 'UpdateData' | 'UpdateState' | 'Focus';
 
@@ -55,12 +56,28 @@ export namespace UIModelAction {
       };
     }
 
-    export function deleteData(path: DataPath, targetIndex: CollectionIndex): UIModelUpdateDataAction {
-      return {
-        type: 'UpdateData',
-        path,
-        dataAction: <DeleteDataAction> { type: 'Delete', targetIndex }
-      };
+    export function deleteData(path: DataPath, targetIndex?: CollectionIndex): UIModelUpdateDataAction {
+      if (targetIndex === undefined) {
+        if (path.isEmptyPath) {
+          throw new InvalidCallError('');
+        }
+        const { lastElement } = path;
+        if (lastElement.canBeCollectionIndex()) {
+          return {
+            type: 'UpdateData',
+            path: path.pop(),
+            dataAction: <DeleteDataAction> { type: 'Delete', targetIndex: lastElement.asCollectionIndex() }
+          };
+        } else {
+          throw new InvalidCallError('');
+        }
+      } else {
+        return {
+          type: 'UpdateData',
+          path,
+          dataAction: <DeleteDataAction> { type: 'Delete', targetIndex }
+        };
+      }
     }
 
     export function moveData(path: DataPath, from: CollectionIndex, to: CollectionIndex): UIModelUpdateDataAction {

@@ -13,6 +13,7 @@ import SelectUIModel from './SelectUIModel';
 import { UIModelAction } from './UIModelActions';
 import { List } from 'immutable';
 import { TemplateReference } from '../UIDefinition/TextUIDefinition';
+import NumberUIModel from './NumberUIModel';
 
 export interface ReferenceCellSetting {
   editor: 'reference';
@@ -28,14 +29,14 @@ export interface MultiSelectCellSetting {
   model: SelectUIModel;
 }
 
-export type CellData = number | string | undefined | boolean | string[];
+export type CellData = number | string | undefined | boolean | string[] | null;
 export interface TableChangeForRow {
   column: number;
   value: any;
 }
 
 export interface ColumnSetting {
-  type?: 'text' | 'autocomplete' | 'checkbox' | 'dropdown';
+  type?: 'text' | 'autocomplete' | 'checkbox' | 'dropdown' | 'numeric';
   source?: string[];
   strict?: boolean;
 }
@@ -59,6 +60,10 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
         } else {
           cells.push(child.labelForValue(collectValue, child.value));
         }
+      } else if (child instanceof NumberUIModel) {
+        cells.push(child.number);
+      } else {
+        cells.push(null);
       }
       return '';
     });
@@ -141,6 +146,10 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
             source: child.options(collectValue).map(option => option.label)
           };
         }
+      } else if (child instanceof NumberUIModel) {
+        return {
+          type: 'numeric'
+        };
       }
     }
     return {};

@@ -10,6 +10,7 @@ import TabUIDefinition from './TabUIDefinition';
 import SingleContentUIDefinition from './SingleContentUIDefinition';
 import TextAreaUIDefinition from './TextAreaUIDefinition';
 import SelectUIDefinition, { SelectUIDefinitionConfigObject } from './SelectUIDefinition';
+import NumberUIDefinition from './NumberUIDefinition';
 
 export class UIDefinitionFactory {
   public static create(config: UIDefinitionConfigObject): UIDefinitionBase {
@@ -45,6 +46,10 @@ export class UIDefinitionFactory {
 
       case 'tab':
         model = new TabUIDefinition(config);
+        break;
+
+      case 'number':
+        model = new NumberUIDefinition(config);
         break;
 
       default:
