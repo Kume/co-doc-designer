@@ -10,6 +10,8 @@ interface HintForAutoComplete {
   displayText: string;
 }
 
+type DataWithPath = { data: DataModelBase, path: DataPath };
+
 export default class ReferenceExpressionResolver {
   private readonly _expression: ReferenceExpression;
   private readonly _referenceDefinition: TemplateReference;
@@ -74,7 +76,7 @@ export default class ReferenceExpressionResolver {
     }
   }
 
-  public fixedData(path: DataPath): { data: DataModelBase, path: DataPath } | undefined {
+  public fixedData(path: DataPath): DataWithPath | undefined {
     const { fixedKeys } = this._expression;
     const { paths } = this._referenceDefinition;
     if (fixedKeys.length === 0 || fixedKeys.length > paths.length) { return undefined; }
@@ -96,7 +98,7 @@ export default class ReferenceExpressionResolver {
     const currentPath = this._referenceDefinition.paths[fixedKeys.length];
     if (!currentPath) { return []; }
     const collected = fixedData
-      ? fixedData.data.collectValue(currentPath.path, fixedData.path)
+      ? this._collectValue(currentPath.path, fixedData.path, {basePathData: fixedData.data})
       : this._collectValue(currentPath.path, path);
     return collected.map(item => {
       const lastMark = this.isLast ? '}}' : '.';

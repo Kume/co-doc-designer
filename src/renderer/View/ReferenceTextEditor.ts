@@ -138,11 +138,7 @@ export default class ReferenceTextEditor {
             hint: this.categoryOptions(cursor.line, currentToken, referenceExpression.currentKey)
           });
       } else if (referenceExpression.currentType === 'keys' && referenceExpression.category) {
-        if (referenceExpression.fixedKeys.length === 0) {
-          this.keyOptions(cursor.line, currentToken, referenceExpression);
-        } else if (referenceExpression.fixedKeys.length === 1) {
-          this.keyOptions(cursor.line, currentToken, referenceExpression);
-        }
+        this.keyOptions(cursor.line, currentToken, referenceExpression);
       }
     }
   }

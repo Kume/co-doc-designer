@@ -123,7 +123,7 @@ export default class DataPath extends DataPathRecord {
   }
 
   public toString(): string {
-    return this.elements.map(path => path!.toString()).join('.');
+    return this.elements.map(path => path!.toString()).join('/') + (this.pointsKey ? '/$key' : '');
   }
 
   public set(key: string, value: any): this {
@@ -172,6 +172,31 @@ export default class DataPath extends DataPathRecord {
 
   public pop(): this {
     return this.set('elements', this.elements.pop());
+  }
+
+  public setAt(index: number, element: DataPathElement): this {
+    return this.set('elements', this.elements.set(index, element));
+  }
+
+  public get hasVariable(): boolean {
+    return this.elements.some(element => element!.isVariable);
+  }
+
+  public get hasReverse(): boolean {
+    if (this.isEmptyPath) { return false; }
+    return this.firstElement.isReverse;
+  }
+
+  public get isForward(): boolean {
+    return !this.hasReverse && !(this.isEmptyPath && this.pointsKey);
+  }
+
+  public get variableElements(): {index: number, element: DataPathElement}[] {
+    const variables: {index: number, element: DataPathElement}[] = [];
+    this.elements.forEach((element, index) => {
+      if (element!.isVariable) { variables.push({index: index!, element: element!}); }
+    });
+    return variables;
   }
 
   public push(element: DataPathElementCompatible): this {

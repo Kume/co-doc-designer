@@ -11,6 +11,8 @@ import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import { UIModelFactory } from './UIModelFactory';
 import DataPath from '../DataModel/Path/DataPath';
 import { DataAction } from '../DataModel/DataAction';
+import DataPathElement from '../DataModel/Path/DataPathElement';
+import { CollectValueHint } from './types';
 
 interface GroupedActions {
   updateDataActions: UIModelUpdateDataAction[];
@@ -78,12 +80,10 @@ export default class UIModelManager {
     if (groupedActions.focusAction) {
       this.focus(groupedActions.focusAction.path);
     }
-    console.log('applyActions', this.dataModel && this.dataModel.toJsonObject(), actions);
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 
   public focus(path: DataPath): void {
-    console.log('focus', path.toString());
     this._focusedPath = path;
     this._rootUIModel = UIModelFactory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
     const adjustStateActions = this._rootUIModel.adjustState();
@@ -94,10 +94,34 @@ export default class UIModelManager {
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 
-  public collectValue(targetPath: DataPath, basePath: DataPath): DataCollectionElement[] {
+  public collectValue(targetPath: DataPath, basePath: DataPath, hint?: CollectValueHint): DataCollectionElement[] {
     if (!this._dataModel) { return []; }
-    const path = targetPath.isAbsolute ? targetPath : DataPath.join(basePath, targetPath);
-    return this._dataModel.collectValue(path);
+    const filledTargetPath = this.fillDataPathVariable(targetPath, basePath, hint);
+    if (!filledTargetPath) { return []; }
+    if (filledTargetPath.isAbsolute) {
+      return this._dataModel.collectValue(filledTargetPath);
+    } else {
+      if (hint && hint.basePathData && filledTargetPath.isForward) {
+        return hint.basePathData.collectValue(filledTargetPath);
+      } else {
+        return this._dataModel.collectValue(DataPath.join(basePath, filledTargetPath));
+      }
+    }
+  }
+
+  public fillDataPathVariable(path: DataPath, basePath: DataPath, hint?: CollectValueHint): DataPath | undefined {
+    const variables = path.variableElements;
+    if (variables.length === 0) { return path; }
+    if (!this._dataModel) { return undefined; }
+    for (const variable of variables) {
+      const filled = this.fillDataPathVariable(variable.element.variablePath!, basePath);
+      if (!filled) { return undefined; }
+      const absolutePath = filled.isAbsolute ? filled : DataPath.join(basePath, filled);
+      const value = this._dataModel.getValue(absolutePath); // TODO hintを使った最適化
+      if (!value) { return undefined; }
+      path = path.setAt(variable.index, DataPathElement.create(value.toString()));
+    }
+    return path;
   }
 
   get focusedPath(): DataPath | undefined {

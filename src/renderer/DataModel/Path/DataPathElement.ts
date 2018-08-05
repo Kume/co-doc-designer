@@ -148,6 +148,8 @@ class DataPathElement extends DataPathElementRecord {
         return this._value.toString();
       case DataPathElement.Type.WildCard:
         return typeof this._value === 'string' ? this._value : '*';
+      case DataPathElement.Type.Variable:
+        return '[' + this._value.toString() + ']';
       default:
         return '???';
     }
@@ -187,8 +189,16 @@ class DataPathElement extends DataPathElementRecord {
     return this._type === DataPathElement.Type.Reverse;
   }
 
+  public get isVariable(): boolean {
+    return this._type === DataPathElement.Type.Variable;
+  }
+
   public setMetadata(metadata: DataPathElementMetadata): this {
     return this.set('metadata', metadata) as this;
+  }
+
+  public get variablePath(): DataPath | undefined {
+    return this.isVariable ? this._value : undefined;
   }
 }
 

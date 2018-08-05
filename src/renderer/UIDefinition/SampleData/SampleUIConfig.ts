@@ -181,11 +181,26 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                       }
                     ]
                   },
-                  table: {
+                  t: {
                     name: '自己テーブル参照',
                     paths: [
                       {
                         path: '../../*',
+                        keyPath: '$key',
+                        description: '{{text}} {{select}}'
+                      }
+                    ]
+                  },
+                  table: {
+                    name: '他テーブル参照',
+                    paths: [
+                      {
+                        path: '/main/*/$key',
+                        keyPath: '$key',
+                        description: '{{text}}'
+                      },
+                      {
+                        path: '/main/[$key]/table_data/*/$key',
                         keyPath: '$key',
                         description: '{{text}} {{select}}'
                       }

@@ -16,11 +16,7 @@ interface TemplateReferenceConfig {
 export interface TemplateReference {
   readonly key: string;
   readonly name?: string;
-  readonly paths: {
-    path: DataPath;
-    keyPath: DataPath;
-    description?: TemplateLine;
-  }[];
+  readonly paths: TemplateReferencePath[];
 }
 
 export interface TemplateReferencePath {
