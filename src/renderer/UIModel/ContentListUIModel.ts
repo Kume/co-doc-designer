@@ -72,7 +72,7 @@ export default class ContentListUIModel extends SingleContentUIModel<ContentList
   public moveDown(): UIModelAction[] {
     const from = this.selectedIndex!;
     return [
-      UIModelAction.Creators.moveData(this.dataPath, from, from + 1),
+      UIModelAction.Creators.moveData(this.dataPath, from, from + 2),
       <UIModelFocusAction> { type: 'Focus', path: this.dataPath.push(from + 1) }
     ];
   }
