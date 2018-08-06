@@ -1,7 +1,11 @@
 import UIModel  from './UIModel';
 import { is } from 'immutable';
 import * as _ from 'underscore';
-import SelectUIDefinition, { SelectOption, SelectUIDynamicOptions } from '../UIDefinition/SelectUIDefinition';
+import SelectUIDefinition, {
+  isDynamicOption,
+  SelectOptionConfig,
+  SelectDynamicOption
+} from '../UIDefinition/SelectUIDefinition';
 import { NullDataModel, NumberDataModel, StringDataModel } from '../DataModel/ScalarDataModel';
 import { UIModelAction } from './UIModelActions';
 import DataModelFactory from '../DataModel/DataModelFactory';
@@ -11,7 +15,7 @@ import DataModelBase from '../DataModel/DataModelBase';
 import ListDataModel from '../DataModel/ListDataModel';
 
 export default class SelectUIModel extends UIModel<SelectUIDefinition> {
-  private static _toSelectOption(data: DataCollectionElement, options: SelectUIDynamicOptions): SelectOption {
+  private static _toSelectOption(data: DataCollectionElement, options: SelectDynamicOption): SelectOptionConfig {
     const labelData = options.labelPath ? DataCollectionElement.getValue(data, options.labelPath) : data.data;
     const valueData = options.valuePath ? DataCollectionElement.getValue(data, options.valuePath) : data.data;
     return {
@@ -61,16 +65,27 @@ export default class SelectUIModel extends UIModel<SelectUIDefinition> {
     return optionForValue ? optionForValue.label : '';
   }
 
-  public options(collectValue: CollectValue): SelectOption[] {
-    if (this.definition.staticOptions) {
-      return this.definition.staticOptions;
+  public options(collectValue: CollectValue): SelectOptionConfig[] {
+    let addedValues: Set<string | number> = new Set();
+    let options: SelectOptionConfig[] = [];
+    for (const option of this.definition.options) {
+      if (isDynamicOption(option)) {
+        collectValue(option.path, this.props.dataPath)
+          .forEach(value => {
+            const formattedOption = SelectUIModel._toSelectOption(value, option);
+            if (!addedValues.has(formattedOption.value)) {
+              options.push(formattedOption);
+              addedValues.add(formattedOption.value);
+            }
+          });
+      } else {
+        if (!addedValues.has(option.value)) {
+          options.push(option);
+          addedValues.add(option.value);
+        }
+      }
     }
-    const dynamicOptions = this.definition.dynamicOptions;
-    if (dynamicOptions) {
-      return collectValue(dynamicOptions.path, this.props.dataPath)
-        .map(value => SelectUIModel._toSelectOption(value, dynamicOptions));
-    }
-    return [];
+    return options;
   }
 
   public input(value: string | number | undefined | null | any[]): UIModelAction[] {
