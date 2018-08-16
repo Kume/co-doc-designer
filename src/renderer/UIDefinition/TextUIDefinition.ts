@@ -4,19 +4,27 @@ import DataPathElement from '../DataModel/Path/DataPathElement';
 import DataPath from '../DataModel/Path/DataPath';
 import { TemplateLine } from '../Model/TemplateEngine';
 
+interface TemplateReferencePathConfig {
+  path: string;
+  keyPath: string;
+  description?: string;
+}
+
 interface TemplateReferenceConfig {
   readonly name?: string;
-  readonly paths: {
-    path: string;
-    keyPath: string;
-    description?: string;
-  }[];
+  readonly paths: (TemplateReferencePathConfig | TemplateReferencePathConfig[])[];
+}
+
+export interface TextUIDefinitionConfigObject extends UIDefinitionConfigObject {
+  emptyToNull: boolean;
+  options?: Array<string>;
+  references?: { [key: string]: TemplateReferenceConfig };
 }
 
 export interface TemplateReference {
   readonly key: string;
   readonly name?: string;
-  readonly paths: TemplateReferencePath[];
+  readonly paths: TemplateReferencePath[][];
 }
 
 export interface TemplateReferencePath {
@@ -25,10 +33,12 @@ export interface TemplateReferencePath {
   description?: TemplateLine;
 }
 
-export interface TextUIDefinitionConfigObject extends UIDefinitionConfigObject {
-  emptyToNull: boolean;
-  options?: Array<string>;
-  references?: { [key: string]: TemplateReferenceConfig };
+function pathItemConfigToDefinition(config: TemplateReferencePathConfig): TemplateReferencePath {
+  return {
+    path: DataPath.parse(config.path),
+    keyPath: DataPath.parse(config.keyPath),
+    description: config.description === undefined ? undefined : new TemplateLine(config.description)
+  };
 }
 
 export default class TextUIDefinition extends UIDefinitionBase {
@@ -43,11 +53,13 @@ export default class TextUIDefinition extends UIDefinitionBase {
       return {
         key,
         name: reference.name,
-        paths: reference.paths.map(path => ({
-          path: DataPath.parse(path.path),
-          keyPath: DataPath.parse(path.keyPath),
-          description: path.description === undefined ? undefined : new TemplateLine(path.description)
-        }))
+        paths: reference.paths.map(path => {
+          if (Array.isArray(path)) {
+            return path.map(pathItemConfigToDefinition);
+          } else {
+            return [pathItemConfigToDefinition(path)];
+          }
+        })
       };
     });
   }

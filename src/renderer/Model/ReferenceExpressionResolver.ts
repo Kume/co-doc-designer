@@ -28,7 +28,7 @@ export default class ReferenceExpressionResolver {
     const resolver = new ReferenceExpressionResolver(refExp, definition, collectValue);
     const resolved = resolver.resolve(dataPath);
     if (!resolved) { return; }
-    const pathReference = definition.paths[definition.paths.length - 1];
+    const pathReference = definition.paths[definition.paths.length - 1][resolved.pathIndex];
     const collectionIndex = resolved.path.isEmptyPath
       ? undefined
       : resolved.path.lastElement.asCollectionIndexOrUndefined();
@@ -83,8 +83,11 @@ export default class ReferenceExpressionResolver {
 
     let found: { data: DataModelBase, path: DataPath } | undefined;
     for (let i = 0; i < fixedKeys.length; i++) {
-      found = this._collectValue(paths[i].path, path)
-        .find(item => ReferenceExpressionResolver.keyFromData(item, paths[i].keyPath) === fixedKeys[i]);
+      for (const j of paths[i]) {
+        found = this._collectValue(j.path, path)
+          .find(item => ReferenceExpressionResolver.keyFromData(item, j.keyPath) === fixedKeys[i]);
+        if (found) { break; }
+      }
       if (!found) { return undefined; }
       path = found.path;
     }
@@ -95,32 +98,46 @@ export default class ReferenceExpressionResolver {
     if (this._expression.currentType !== 'keys') { return []; }
     const fixedData = this.fixedData(path);
     const { fixedKeys, currentKey } = this._expression;
-    const currentPath = this._referenceDefinition.paths[fixedKeys.length];
-    if (!currentPath) { return []; }
-    const collected = fixedData
-      ? this._collectValue(currentPath.path, fixedData.path, {basePathData: fixedData.data})
-      : this._collectValue(currentPath.path, path);
-    return collected.map(item => {
-      const lastMark = this.isLast ? '}}' : '.';
-      const key = ReferenceExpressionResolver.keyFromData(item, currentPath.keyPath);
-      if (!key || (currentKey && !key.startsWith(currentKey))) { return undefined; }
-      return {
-        text: `${this._expression.category}:${fixedKeys.map(key => key + '.').join('')}${key}${lastMark}`,
-        key,
-        displayText: currentPath.description ? currentPath.description.fill(item.data, item.index) : ''
-      };
-    }).filter(item => !!item) as HintForAutoComplete[];
+    const currentPaths = this._referenceDefinition.paths[fixedKeys.length];
+    if (!currentPaths) { return []; }
+
+    const hints: HintForAutoComplete[] = [];
+    const addedKeys = new Set<string>();
+    for (const currentPath of currentPaths) {
+      const collected = fixedData
+        ? this._collectValue(currentPath.path, fixedData.path, {basePathData: fixedData.data})
+        : this._collectValue(currentPath.path, path);
+      collected.forEach(item => {
+        const lastMark = this.isLast ? '}}' : '.';
+        const key = ReferenceExpressionResolver.keyFromData(item, currentPath.keyPath);
+        if (!key || addedKeys.has(key)) { return; }
+        addedKeys.add(key);
+        if (currentKey && !key.startsWith(currentKey)) { return; }
+
+        hints.push({
+          text: `${this._expression.category}:${fixedKeys.map(key => key + '.').join('')}${key}${lastMark}`,
+          displayText: currentPath.description ? currentPath.description.fill(item.data, item.index) : ''
+        });
+      });
+    }
+    return hints;
   }
 
-  public resolve(path: DataPath): { data: DataModelBase, path: DataPath } | undefined {
+  public resolve(path: DataPath): { data: DataModelBase, path: DataPath, pathIndex: number } | undefined {
     const { keys } = this._expression;
     const { paths } = this._referenceDefinition;
     if (keys.length !== paths.length) { return undefined; }
 
-    let found: { data: DataModelBase, path: DataPath } | undefined;
+    let found: { data: DataModelBase, path: DataPath, pathIndex: number } | undefined;
     for (let i = 0; i < keys.length; i++) {
-      found = this._collectValue(paths[i].path, path)
-        .find(item => ReferenceExpressionResolver.keyFromData(item, paths[i].keyPath) === keys[i]);
+      for (let j = 0; j < paths[i].length; j++) {
+        const _found = this._collectValue(paths[i][j].path, path)
+          .find(item => ReferenceExpressionResolver.keyFromData(item, paths[i][j].keyPath) === keys[i]);
+        if (_found) {
+          found = {data: _found.data, path: _found.path, pathIndex: j};
+          break;
+        }
+      }
       if (!found) { return undefined; }
       path = found.path;
     }
