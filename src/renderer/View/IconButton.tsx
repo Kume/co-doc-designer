@@ -25,7 +25,7 @@ export default class IconButton extends React.Component<Props, State> {
     let color = '#666';
 
     if (disabled) {
-      color = '#aaa';
+      color = '#bbb';
     } else if (this.state.isMouseOver) {
       color = 'blue';
     }

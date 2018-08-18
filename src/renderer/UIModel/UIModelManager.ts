@@ -36,6 +36,7 @@ function digStateNode(node: UIModelStateNode, path: ModelPath): UIModelStateNode
 export default class UIModelManager {
   public notifyModelChanged: () => void | Promise<void>;
   public notifyModalModelChanged: () => void | Promise<void>;
+  public notifyHistoryChanged: () => void | Promise<void>;
 
   private _rootStateNode?: UIModelStateNode;
   private _rootUIModel: UIModel<any>;
@@ -43,6 +44,8 @@ export default class UIModelManager {
   private _dataModel: DataModelBase | undefined;
   private readonly _rootUIDefinition: UIDefinitionBase;
   private _focusedPath: DataPath | undefined;
+  private _backHistory: (DataPath | undefined)[] = [];
+  private _forwardHistory: (DataPath | undefined)[] = [];
 
   private static groupActions(actions: UIModelAction[]): GroupedActions {
     const updateDataActions: UIModelUpdateDataAction[] = [];
@@ -83,7 +86,14 @@ export default class UIModelManager {
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 
-  public focus(path: DataPath): void {
+  public focus(path: DataPath | undefined, ignoreHistory: boolean = false): void {
+    if (!ignoreHistory) {
+      this._backHistory.push(this._focusedPath);
+      if (this._backHistory.length > 100) {
+        this._backHistory.shift();
+      }
+      this._forwardHistory = [];
+    }
     this._focusedPath = path;
     this._rootUIModel = UIModelFactory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
     const adjustStateActions = this._rootUIModel.adjustState();
@@ -92,6 +102,25 @@ export default class UIModelManager {
       this._rootUIModel = UIModelFactory.create(this._rootUIDefinition, this.propsForRootModel, this._rootUIModel);
     }
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
+    if (!ignoreHistory && this.notifyHistoryChanged) { this.notifyHistoryChanged(); }
+  }
+
+  public back(): void {
+    const backHistoryLength = this._backHistory.length;
+    if (backHistoryLength === 0) { return; }
+    const backPath = this._backHistory.pop();
+    this._forwardHistory.push(this._focusedPath);
+    this.focus(backPath, true);
+    if (this.notifyHistoryChanged) { this.notifyHistoryChanged(); }
+  }
+
+  public forward(): void {
+    const forwaordHistoryLength = this._forwardHistory.length;
+    if (forwaordHistoryLength === 0) { return; }
+    const forwardPath = this._forwardHistory.pop()!;
+    this._backHistory.push(this._focusedPath);
+    this.focus(forwardPath, true);
+    if (this.notifyHistoryChanged) { this.notifyHistoryChanged(); }
   }
 
   public collectValue(targetPath: DataPath, basePath: DataPath, hint?: CollectValueHint): DataCollectionElement[] {
@@ -146,6 +175,14 @@ export default class UIModelManager {
 
   get modalUIModel(): UIModel<any> {
     return this._modalUIModel;
+  }
+
+  get canBack(): boolean {
+    return this._backHistory.length > 0;
+  }
+
+  get canForward(): boolean {
+    return this._forwardHistory.length > 0;
   }
 
   private applyUpdateDataAction(action: UIModelUpdateDataAction): void {
