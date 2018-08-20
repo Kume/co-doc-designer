@@ -10,6 +10,10 @@ export interface HandsonTableSettings {
   focus: (path: DataPath) => void;
 }
 
+interface CodemirrorEvent {
+  isImmediatePropagationEnabled: boolean;
+}
+
 export default class ReferenceTextCellEditor extends handsontable.editors.TextEditor {
   public textareaParentStyle: CSSStyleDeclaration;
   private textArea: HTMLTextAreaElement;
@@ -51,6 +55,37 @@ export default class ReferenceTextCellEditor extends handsontable.editors.TextEd
           focus: settings.focus
         });
         this.codeMirror = this.editor.applyCodeMirror();
+
+        this.codeMirror.on('keydown', (codeMirror, event: KeyboardEvent & CodemirrorEvent) => {
+          switch (event.code) {
+            case 'Enter':
+              if (event.altKey) {
+                this.editor.breakAtCursor();
+                event.isImmediatePropagationEnabled = false;
+                event.cancelBubble = true;
+              }
+              event.preventDefault();
+              break;
+            case 'Backspace':
+            case 'Delete':
+              event.isImmediatePropagationEnabled = false;
+              event.cancelBubble = true;
+              break;
+            case 'ArrowLeft':
+            case 'ArrowRight':
+            case 'ArrowUp':
+            case 'ArrowDown':
+              if (this.isInFullEditMode()) {
+                event.isImmediatePropagationEnabled = false;
+                event.cancelBubble = true;
+              }
+              break;
+            default:
+          }
+        });
+
+        // Codemirror内のtextareaをhandsontableの入力と認識させるためのhack
+        document.querySelector('.handsontable div.CodeMirror textarea')!.className = 'copyPaste';
       },
       0);
   }

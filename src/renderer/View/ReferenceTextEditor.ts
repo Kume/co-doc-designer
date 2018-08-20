@@ -77,6 +77,13 @@ export default class ReferenceTextEditor {
     }
   }
 
+  public breakAtCursor(): void {
+    if (!this.codeMirror) { return; }
+
+    const doc = this.codeMirror.getDoc();
+    doc.replaceRange('\n', doc.getCursor());
+  }
+
   private markToken(): void {
     const codeMirror = this.codeMirror!;
     const doc = codeMirror.getDoc();
