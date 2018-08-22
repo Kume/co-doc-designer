@@ -84,6 +84,13 @@ export default class ReferenceTextEditor {
     doc.replaceRange('\n', doc.getCursor());
   }
 
+  public get isHintShowing(): boolean {
+    const codeMirror = this.codeMirror!;
+    if (!codeMirror.hasFocus()) { return false; }
+    const {currentToken} = this.getCurrentForAutocomplete(codeMirror);
+    return !!currentToken;
+  }
+
   private markToken(): void {
     const codeMirror = this.codeMirror!;
     const doc = codeMirror.getDoc();
@@ -129,11 +136,7 @@ export default class ReferenceTextEditor {
   private tryAutocomplete(): void {
     const codeMirror = this.codeMirror!;
     if (!codeMirror.hasFocus()) { return; }
-    const doc = codeMirror.getDoc();
-    const cursor = doc.getCursor();
-    const line = doc.getLine(cursor.line);
-    const templateLine = new TemplateLine(line);
-    const currentToken = templateLine.getTemplateTokenOn(cursor.ch);
+    const {cursor, currentToken} = this.getCurrentForAutocomplete(codeMirror);
     const { references } = this.props;
     if (currentToken && references) {
       const currentText = currentToken.key.substr(0, cursor.ch - currentToken.start - 2);
@@ -148,6 +151,15 @@ export default class ReferenceTextEditor {
         this.keyOptions(cursor.line, currentToken, referenceExpression);
       }
     }
+  }
+
+  private getCurrentForAutocomplete(codeMirror: CodeMirror.EditorFromTextArea) {
+    const doc = codeMirror.getDoc();
+    const cursor = doc.getCursor();
+    const line = doc.getLine(cursor.line);
+    const templateLine = new TemplateLine(line);
+    const currentToken = templateLine.getTemplateTokenOn(cursor.ch);
+    return {cursor, currentToken};
   }
 
   private categoryOptions(line: number, token: TemplateToken, searchKey: string) {

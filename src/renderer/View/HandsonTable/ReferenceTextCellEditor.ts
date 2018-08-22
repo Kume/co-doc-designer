@@ -14,6 +14,11 @@ interface CodemirrorEvent {
   isImmediatePropagationEnabled: boolean;
 }
 
+function disableImmediatePropagation(event: KeyboardEvent & CodemirrorEvent) {
+  event.isImmediatePropagationEnabled = false;
+  event.cancelBubble = true;
+}
+
 export default class ReferenceTextCellEditor extends handsontable.editors.TextEditor {
   public textareaParentStyle: CSSStyleDeclaration;
   private textArea: HTMLTextAreaElement;
@@ -61,23 +66,26 @@ export default class ReferenceTextCellEditor extends handsontable.editors.TextEd
             case 'Enter':
               if (event.altKey) {
                 this.editor.breakAtCursor();
-                event.isImmediatePropagationEnabled = false;
-                event.cancelBubble = true;
+                disableImmediatePropagation(event);
+              } else if (this.editor.isHintShowing) {
+                console.log('isHintShowing');
+                disableImmediatePropagation(event);
+                break;
               }
               event.preventDefault();
               break;
             case 'Backspace':
             case 'Delete':
-              event.isImmediatePropagationEnabled = false;
-              event.cancelBubble = true;
+            case 'Home':
+            case 'End':
+              disableImmediatePropagation(event);
               break;
             case 'ArrowLeft':
             case 'ArrowRight':
             case 'ArrowUp':
             case 'ArrowDown':
               if (this.isInFullEditMode()) {
-                event.isImmediatePropagationEnabled = false;
-                event.cancelBubble = true;
+                disableImmediatePropagation(event);
               }
               break;
             default:

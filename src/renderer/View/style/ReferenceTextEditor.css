@@ -31,3 +31,11 @@ span .label {
 ul.CodeMirror-hints {
   z-index: 200;
 }
+
+.handsontableInputHolder .CodeMirror {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}
+
+.handsontableInputHolder .CodeMirror-lines {
+  padding: 2px 0;
+}

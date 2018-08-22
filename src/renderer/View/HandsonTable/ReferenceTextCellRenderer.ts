@@ -27,7 +27,10 @@ export default function ReferenceTextCellRenderer (
   for (const element of templateEngine.elements) {
     switch (element.type) {
       case 'text':
-        td.appendChild(document.createTextNode(element.text!));
+        const span = document.createElement('span');
+        span.appendChild(document.createTextNode(element.text!));
+        span.style.whiteSpace = 'pre';
+        td.appendChild(span);
         break;
       case 'token':
         td.appendChild(makeReferenceExpressionView(
