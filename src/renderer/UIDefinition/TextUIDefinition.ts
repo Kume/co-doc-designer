@@ -1,6 +1,5 @@
 import UIDefinitionBase from './UIDefinitionBase';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
-import DataPathElement from '../DataModel/Path/DataPathElement';
 import DataPath from '../DataModel/Path/DataPath';
 import { TemplateLine } from '../Model/TemplateEngine';
 
@@ -17,6 +16,7 @@ interface TemplateReferenceConfig {
 
 export interface TextUIDefinitionConfigObject extends UIDefinitionConfigObject {
   emptyToNull: boolean;
+  multiline?: boolean;
   options?: Array<string>;
   references?: { [key: string]: TemplateReferenceConfig };
 }
@@ -42,11 +42,13 @@ function pathItemConfigToDefinition(config: TemplateReferencePathConfig): Templa
 }
 
 export default class TextUIDefinition extends UIDefinitionBase {
-  public options?: Array<string>;
+  public readonly multiline: boolean;
+  public readonly options?: ReadonlyArray<string>;
   public readonly references?: ReadonlyArray<TemplateReference>;
 
   public constructor(config: TextUIDefinitionConfigObject) {
-    super(config.label, DataPathElement.parse(config.key));
+    super(config.label, config.key);
+    this.multiline = !!config.multiline;
     this.options = config.options;
     this.references = config.references && Object.keys(config.references).map(key => {
       const reference = config.references![key];

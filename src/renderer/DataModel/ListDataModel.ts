@@ -35,10 +35,6 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     super({list: ListDataModel.formatValues(list)});
   }
 
-  public set(key: string, value: any): this {
-    return super.set(key, value) as this;
-  }
-
   public push(value: DataModelBase): this {
     return this.set('list', this.list.push(value));
   }
@@ -55,17 +51,11 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
 
   public indexForValue(value: DataModelBase | undefined): number | undefined {
     if (value === undefined) { return undefined; }
-    const size = this.list.size;
-    for (let i = 0; i < size; i++) {
-      if (this.list.get(i).equals(value)) {
-        return i;
-      }
-    }
-    return undefined;
+    return this.list.findIndex(i => i.equals(value));
   }
 
   public applyAction(path: DataPath, action: DataAction, metadata?: DataPathElementMetadata): DataModelBase {
-    if (path.isEmptyPath) {
+    if (!path.isNotEmptyPath()) {
       switch (action.type) {
         case 'Insert':
           return this.applyInsertAction(action as InsertDataAction);
@@ -81,7 +71,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       if (pathElement.canBeListIndex) {
         const index = pathElement.asListIndex;
         if (this.isValidIndex(index)) {
-          const item = this.list.get(index);
+          const item = this.list.get(index)!;
           return this.set('list', this.list.set(index, item.applyAction(path.shift(), action, pathElement.metadata)));
         } else {
           throw new DataOperationError('Invalid index', {path, action, targetData: this});
@@ -139,7 +129,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     let to = action.to as number;
     if (action.isAfter) { to += 1; }
     if (to > action.from) { to -= 1; }
-    const targetData = this.list.get(action.from as number);
+    const targetData = this.list.get(action.from as number)!;
     return this.set('list', this.list.delete(action.from as number).insert(to, targetData));
   }
 
@@ -147,9 +137,10 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
     if (path.elements.isEmpty()) {
       return this;
     } else {
-      const pathElement = path.elements.first();
+      const pathElement = path.elements.first()!;
       if (pathElement.canBeListIndex) {
-        return this.list.get(pathElement.asListIndex).getValue(path.shift());
+        const child = this.list.get(pathElement.asListIndex);
+        return child && child.getValue(path.shift());
       } else {
         return undefined;
       }
@@ -162,7 +153,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       return [{ data: this, path: absolutePath }];
     }
 
-    const firstElement = path.firstElement;
+    const firstElement = path.firstElement!;
     if (firstElement.isWildCard) {
       if (path.isSingleElement && path.pointsKey) {
         return this.mapDataWithIndex((value, index) => ({
@@ -185,7 +176,7 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       if (path.isSingleElement && path.pointsKey) {
         return [{ index, data: new IntegerDataModel(index), path: absolutePath!.push(index)}];
       } else {
-        const values = this.list.get(index).collectValue(path.shift(), absolutePath!.push(index));
+        const values = this.list.get(index)!.collectValue(path.shift(), absolutePath!.push(index));
         if (path.isSingleElement) {
           return values.map(value => ({index, data: value.data, path: absolutePath!.push(index)}));
         } else {
@@ -202,11 +193,16 @@ export default class ListDataModel extends ListDataModelRecord implements Collec
       throw new Error();
     }
 
-    const index = path.elements.get(0).asListIndex;
+    const index = path.elements.get(0)!.asListIndex;
     if (path.elements.size === 1) {
       return this.set('list', this.list.delete(index));
     } else {
-      return this.set('list', this.list.get(index).removeValue(path.shift()));
+      const target = this.list.get(index);
+      if (target) {
+        return this.set('list', this.list.set(index, target.removeValue(path.shift())));
+      } else {
+        throw new DataOperationError('Cannot remove for index', {path, targetData: this});
+      }
     }
   }
 

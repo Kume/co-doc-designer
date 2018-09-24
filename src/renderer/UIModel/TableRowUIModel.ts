@@ -37,7 +37,7 @@ export interface TableChangeForRow {
 
 export interface ColumnSetting {
   type?: 'text' | 'autocomplete' | 'checkbox' | 'dropdown' | 'numeric';
-  source?: string[];
+  source?: ReadonlyArray<string>;
   strict?: boolean;
 }
 
@@ -155,9 +155,9 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
     return {};
   }
 
-  protected childDefinitionAt(index: IndexType): UIDefinitionBase {
+  protected childDefinitionAt(index: IndexType): UIDefinitionBase | undefined {
     return this.definition.contents.find(content => {
-      const key = content!.key;
+      const key = content.key!;
       if (index === DataPathElement.keySymbol) {
         return key.isKey;
       } else {
@@ -169,7 +169,7 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
   protected childIndexes(): IndexType[] {
     if (this._childKeys) { return this._childKeys; }
     return this._childKeys = this.definition.contents
-      .map(content => this.dataPathToChildIndex(content!.key)!).toArray();
+      .map(content => this.dataPathToChildIndex(content.key!)!).toArray();
   }
 
   protected childPropsAt(index: IndexType): UIModelProps {
@@ -231,11 +231,11 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
   private get dataPath(): DataPath {
     if (!this._dataPath) {
       const { dataPath } = this.props;
-      if (dataPath.isEmptyPath) {
-        this._dataPath = dataPath;
-      } else {
+      if (dataPath.isNotEmptyPath()) {
         const { lastElement } = dataPath;
         this._dataPath = dataPath.pop().push(this.makeDataPathElementWithMetadata(lastElement));
+      } else {
+        this._dataPath = dataPath;
       }
     }
     return this._dataPath;

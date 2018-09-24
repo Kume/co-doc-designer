@@ -7,11 +7,15 @@ import DataPathElement from '../DataModel/Path/DataPathElement';
 import { UIModelAction, UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModelActions';
 import DataPath from '../DataModel/Path/DataPath';
 
-const TabUIModelStateRecord = Record({
-  selectedTab: undefined
-});
+interface TabUIModelStateProperty {
+  selectedTab: string | undefined;
+}
 
-export class TabUIModelState extends TabUIModelStateRecord {
+const stateDefaultValue: TabUIModelStateProperty = {
+  selectedTab: undefined
+};
+
+export class TabUIModelState extends Record(stateDefaultValue) {
   public readonly selectedTab: string | undefined;
 }
 
@@ -27,7 +31,7 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
 
   public adjustState(): UIModelUpdateStateAction[] {
     const focusedPath = this.props.focusedPath;
-    if (focusedPath && !focusedPath.isEmptyPath) {
+    if (focusedPath && focusedPath.isNotEmptyPath()) {
       const firstElement = focusedPath.firstElement;
       if (firstElement.canBeMapKey && firstElement.asMapKey !== this.defaultTab) {
         const focusTab = focusedPath.firstElement.asMapKey;
@@ -43,7 +47,7 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   public get selectedTab(): string {
     const { focusedPath } = this.props;
     let key: string | undefined;
-    if (focusedPath && !focusedPath.isEmptyPath) {
+    if (focusedPath && focusedPath.isNotEmptyPath()) {
       const { firstElement } = focusedPath;
       if (firstElement.canBeMapKey) {
         key = firstElement.asMapKey;
@@ -65,10 +69,10 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   public get tabs(): Tab[] {
     const selectedTab = this.selectedTab;
     return this.definition.contents.map(content => ({
-      key: content!.key.asMapKey,
-      label: content!.label,
-      path: this.dataPath.push(content!.key),
-      isSelected: content!.key.asMapKey === selectedTab
+      key: content.key!.asMapKey,
+      label: content.label,
+      path: this.dataPath.push(content.key!),
+      isSelected: content.key!.asMapKey === selectedTab
     })).toArray();
   }
 
@@ -92,11 +96,11 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   }
 
   private isValidKey(key: string): boolean {
-    return this.definition.contents.some(content => content!.key.asMapKey === key);
+    return this.definition.contents.some(content => content!.key!.asMapKey === key);
   }
 
   private get defaultTab(): string {
-    return this.definition.contents.first().key.asMapKey;
+    return this.definition.contents.first()!.key!.asMapKey;
   }
 
   private get mapData(): MapDataModel | undefined {
@@ -104,14 +108,14 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   }
 
   protected get childDefinition(): UIDefinitionBase {
-    return this.childDefinitionForKey(this.selectedTab);
+    return this.childDefinitionForKey(this.selectedTab)!;
   }
 
-  private childDefinitionForKey(key: string | DataPathElement) {
+  private childDefinitionForKey(key: string | DataPathElement): UIDefinitionBase | undefined {
     if (typeof key === 'string') {
-      return this.definition.contents.find(content => content!.key.asMapKey === key);
+      return this.definition.contents.find(content => content.keyString === key);
     } else {
-      return this.definition.contents.find(content => content!.key.equals(key));
+      return this.definition.contents.find(content => content.key!.equals(key));
     }
   }
 
@@ -144,11 +148,11 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
   private get dataPath(): DataPath {
     if (!this._dataPath) {
       const { dataPath } = this.props;
-      if (dataPath.isEmptyPath) {
-        this._dataPath = dataPath;
-      } else {
+      if (dataPath.isNotEmptyPath()) {
         const { lastElement } = dataPath;
         this._dataPath = dataPath.pop().push(this.makeDataPathElementWithMetadata(lastElement));
+      } else {
+        this._dataPath = dataPath;
       }
     }
     return this._dataPath;

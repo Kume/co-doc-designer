@@ -6,7 +6,7 @@ describe('Unit tests for TemplateLine', () => {
       const line = new TemplateLine('{{ test }}');
       expect(line.tokens.length).toBe(1);
       expect(line.tokens[0].start).toBe(0);
-      expect(line.tokens[0].key).toBe('test');
+      expect(line.tokens[0].key).toBe(' test ');
     });
 
     it('Can parse line has multi tokens.', () => {
@@ -22,7 +22,7 @@ describe('Unit tests for TemplateLine', () => {
       expect(line.tokens.length).toBe(1);
       expect(line.tokens[0].start).toBe(5);
       expect(line.tokens[0].end).toBe(15);
-      expect(line.tokens[0].key).toBe('test');
+      expect(line.tokens[0].key).toBe(' test ');
     });
   });
   describe('Unit tests for TemplateLine.getTemplateTokenOn', () => {

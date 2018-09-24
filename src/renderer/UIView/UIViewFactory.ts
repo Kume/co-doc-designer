@@ -13,8 +13,6 @@ import SelectUIModel from '../UIModel/SelectUIModel';
 import SelectUIView from './SelectUIView';
 import ContentListUIModel from '../UIModel/ContentListUIModel';
 import ContentListUIView from './ContentListUIView';
-import TextAreaUIModel from '../UIModel/TextAreaUIModel';
-import TextAreaUIView from './TextAreaUIView';
 import TableUIModel from '../UIModel/TableUIModel';
 import TableUIView from './TableUIView';
 import NumberUIModel from '../UIModel/NumberUIModel';
@@ -27,9 +25,6 @@ export default class UIViewFactory {
     }
     if (model instanceof TextUIModel) {
       return TextUIView;
-    }
-    if (model instanceof TextAreaUIModel) {
-      return TextAreaUIView;
     }
     if (model instanceof TabUIModel) {
       return TabUIView;

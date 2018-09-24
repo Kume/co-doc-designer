@@ -26,12 +26,16 @@ export interface ContentListIndex {
   description?: string;
 }
 
-const ContentListUIModelStateRecord = Record({
-  selectedIndex: undefined
-});
+interface ContentListUIModelStateProperty {
+  selectedIndex: number | null;
+}
 
-export class ContentListUIModelState extends ContentListUIModelStateRecord {
-  public readonly selectedIndex: number | undefined;
+const defaultValue: ContentListUIModelStateProperty = {
+  selectedIndex: null
+};
+
+export class ContentListUIModelState extends Record(defaultValue) {
+  public readonly selectedIndex: number | null;
 }
 
 export default class ContentListUIModel extends SingleContentUIModel<ContentListUIDefinition> {
@@ -39,7 +43,7 @@ export default class ContentListUIModel extends SingleContentUIModel<ContentList
 
   public adjustState(): UIModelUpdateStateAction[] {
     const focusedPath = this.props.focusedPath;
-    if (focusedPath && !focusedPath.isEmptyPath) {
+    if (focusedPath && focusedPath.isNotEmptyPath()) {
       const firstElement = focusedPath.firstElement;
       if (firstElement.canBeListIndex) {
         const focusIndex = focusedPath.firstElement.asListIndex;
@@ -83,16 +87,20 @@ export default class ContentListUIModel extends SingleContentUIModel<ContentList
   }
 
   public add(): UIModelAction[] {
-    return [<UIModelUpdateDataAction> {
-      type: 'UpdateData',
-      path: this.dataPath,
-      dataAction: <InsertDataAction> {
-        targetIndex: this.selectedIndex,
-        isAfter: true,
-        data: MapDataModel.create([]),
-        type: 'Insert'
-      }
-    }];
+    const nextIndex = this.selectedIndex === undefined ? 0 : this.selectedIndex + 1;
+    return [
+      <UIModelUpdateDataAction> {
+        type: 'UpdateData',
+        path: this.dataPath,
+        dataAction: <InsertDataAction> {
+          targetIndex: this.selectedIndex,
+          isAfter: true,
+          data: MapDataModel.create([]),
+          type: 'Insert'
+        }
+      },
+      <UIModelFocusAction> { type: 'Focus', path: this.dataPath.push(nextIndex) }
+    ];
   }
 
   public delete(): UIModelAction[] {
@@ -170,7 +178,7 @@ export default class ContentListUIModel extends SingleContentUIModel<ContentList
     const listSize = collectionData.allDataSize;
     const { focusedPath } = this.props;
     let index: number | undefined;
-    if (focusedPath && !focusedPath.isEmptyPath) {
+    if (focusedPath && focusedPath.isNotEmptyPath()) {
       const { firstElement } = focusedPath;
       if (firstElement.canBeMapKey && collectionData instanceof MapDataModel) {
         index = collectionData.indexForKey(firstElement.asMapKey);
@@ -206,11 +214,11 @@ export default class ContentListUIModel extends SingleContentUIModel<ContentList
   private get dataPath(): DataPath {
     if (!this._dataPath) {
       const { dataPath } = this.props;
-      if (dataPath.isEmptyPath) {
-        this._dataPath = dataPath;
-      } else {
+      if (dataPath.isNotEmptyPath()) {
         const { lastElement } = dataPath;
         this._dataPath = dataPath.pop().push(this.makeDataPathElementWithMetadata(lastElement));
+      } else {
+        this._dataPath = dataPath;
       }
     }
     return this._dataPath;

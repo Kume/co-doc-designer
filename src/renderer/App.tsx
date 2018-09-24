@@ -24,8 +24,8 @@ class App extends React.Component<Props, State> {
       const electron = require('electron');
       const dialog = electron.remote.dialog;
       dialog.showSaveDialog({}, (fileName: string) => {
-        fs.writeFile(fileName, JSON.stringify(root.state.model!.props.data!.toJsonObject()), () => {
-
+        fs.writeFile(fileName, JSON.stringify(root.state.model!.props.data!.toJsonObject()), (error) => {
+          alert(error || '保存しました');
         });
       });
     }

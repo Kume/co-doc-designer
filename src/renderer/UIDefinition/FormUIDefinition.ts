@@ -11,20 +11,20 @@ export default class FormUIDefinition extends MultiContentsUIDefinition {
   private _keyOrder?: string[];
 
   public constructor(config: FormUIDefinitionConfigObject) {
-    super(config.label, DataPathElement.parse(config.key));
+    super(config.label, config.key);
     this.keyFlatten = !!config.keyFlatten;
   }
 
-  public get key(): DataPathElement {
-    return this.keyFlatten ? this.contents.first().key : this._key;
+  public get key(): DataPathElement | undefined {
+    return this.keyFlatten ? this.contents.first()!.key : this._key;
   }
 
   public get keyOrder(): string[] {
     if (!this._keyOrder) {
       this._keyOrder = [];
       this.contents.forEach(content => {
-        if (content!.key.canBeMapKey) {
-          this._keyOrder!.push(content!.key.asMapKey);
+        if (content.key!.canBeMapKey) {
+          this._keyOrder!.push(content.key!.asMapKey);
         }
       });
     }

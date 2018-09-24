@@ -14,8 +14,6 @@ import ContentListUIDefinition from '../UIDefinition/ContentListUIDefinition';
 import ContentListUIModel from './ContentListUIModel';
 import TableUIDefinition from '../UIDefinition/TableUIDefinition';
 import TableUIModel from './TableUIModel';
-import TextAreaUIModel from './TextAreaUIModel';
-import TextAreaUIDefinition from '../UIDefinition/TextAreaUIDefinition';
 import NumberUIDefinition from '../UIDefinition/NumberUIDefinition';
 import NumberUIModel from './NumberUIModel';
 
@@ -41,9 +39,6 @@ export class UIModelFactory {
     }
     if (definition instanceof TableUIDefinition) {
       return new TableUIModel(definition, props);
-    }
-    if (definition instanceof TextAreaUIDefinition) {
-      return new TextAreaUIModel(definition, props);
     }
     if (definition instanceof NumberUIDefinition) {
       return new NumberUIModel(definition, props);

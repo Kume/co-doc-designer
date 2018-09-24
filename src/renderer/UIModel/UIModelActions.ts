@@ -58,7 +58,7 @@ export namespace UIModelAction {
 
     export function deleteData(path: DataPath, targetIndex?: CollectionIndex): UIModelUpdateDataAction {
       if (targetIndex === undefined) {
-        if (path.isEmptyPath) {
+        if (!path.isNotEmptyPath()) {
           throw new InvalidCallError('');
         }
         const { lastElement } = path;

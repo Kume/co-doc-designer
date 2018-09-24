@@ -1,4 +1,3 @@
-import DataPathElement from '../DataModel/Path/DataPathElement';
 import UIDefinitionBase from './UIDefinitionBase';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 import DataPath from '../DataModel/Path/DataPath';
@@ -49,7 +48,7 @@ export default class SelectUIDefinition extends UIDefinitionBase {
   private _options: Array<SelectStaticOption | SelectDynamicOption> = [];
 
   public constructor(config: SelectUIDefinitionConfigObject) {
-    super(config.label, DataPathElement.parse(config.key));
+    super(config.label, config.key);
     if (Array.isArray(config.options)) {
       for (const option of config.options) {
         if (typeof option === 'string') {

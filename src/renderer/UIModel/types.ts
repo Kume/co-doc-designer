@@ -1,8 +1,8 @@
-import { Map } from 'immutable';
+import { Record } from 'immutable';
 import { DataCollectionElement, default as DataModelBase } from '../DataModel/DataModelBase';
 import DataPath from '../DataModel/Path/DataPath';
 
-export type UIModelState = Map<string, any>;
+export type UIModelState = Record<any>;
 export interface CollectValueHint {
   basePathData?: DataModelBase;
 }

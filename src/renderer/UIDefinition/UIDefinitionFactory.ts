@@ -8,7 +8,6 @@ import CheckBoxUIDefinition, { CheckBoxUIDefinitionConfigObject } from './CheckB
 import FormUIDefinition from './FormUIDefinition';
 import TabUIDefinition from './TabUIDefinition';
 import SingleContentUIDefinition from './SingleContentUIDefinition';
-import TextAreaUIDefinition from './TextAreaUIDefinition';
 import SelectUIDefinition, { SelectUIDefinitionConfigObject } from './SelectUIDefinition';
 import NumberUIDefinition from './NumberUIDefinition';
 
@@ -26,10 +25,6 @@ export class UIDefinitionFactory {
 
       case 'text':
         model = new TextUIDefinition(config as TextUIDefinitionConfigObject);
-        break;
-
-      case 'textarea':
-        model = new TextAreaUIDefinition(config as TextUIDefinitionConfigObject);
         break;
 
       case 'checkbox':

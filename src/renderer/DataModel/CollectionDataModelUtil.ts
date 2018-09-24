@@ -12,7 +12,7 @@ export type CollectionDataModelTypeString = 'list' | 'map';
 export default class CollectionDataModelUtil {
   public static parseModelType(
     str: CollectionDataModelTypeString | undefined,
-    defaultType: CollectionDataModelType = CollectionDataModelType.List
+    defaultType: CollectionDataModelType = CollectionDataModelType.Map
   ): CollectionDataModelType {
     switch (str) {
       case 'list':

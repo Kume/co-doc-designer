@@ -16,12 +16,17 @@ export enum ScalarDataModelType {
   Date
 }
 
-const ScalarDataModelRecord = Record({
+interface ScalarDataModelRecordProperty {
+  type: ScalarDataModelType;
+  value: null | ScalarDataSource;
+}
+
+const defaultValue: ScalarDataModelRecordProperty = {
   type: ScalarDataModelType.Null,
   value: null
-});
+};
 
-export default class ScalarDataModel extends ScalarDataModelRecord implements DataModelBase {
+export default class ScalarDataModel extends Record(defaultValue) implements DataModelBase {
   public readonly type: ScalarDataModelType;
   public readonly value: any;
 
@@ -38,11 +43,10 @@ export default class ScalarDataModel extends ScalarDataModelRecord implements Da
       case 'Move':
         throw new DataOperationError('Cannot move in scalar data.', {action, path, targetData: this});
       case 'Set':
-        if (path.isEmptyPath) {
-          return (<SetDataAction> action).data;
-        } else {
+        if (path.isNotEmptyPath()) {
           throw new DataOperationError('Cannot set under scalar data.', {action, path, targetData: this});
         }
+        return (<SetDataAction> action).data;
       default:
         throw new DataOperationError('Invalid data action.', {action, path, targetData: this});
     }

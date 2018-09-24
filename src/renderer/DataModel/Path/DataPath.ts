@@ -126,15 +126,11 @@ export default class DataPath extends DataPathRecord {
     return this.elements.map(path => path!.toString()).join('/') + (this.pointsKey ? '/$key' : '');
   }
 
-  public set(key: string, value: any): this {
-    return super.set(key, value) as this;
-  }
-
-  public get firstElement(): DataPathElement {
+  public get firstElement(): DataPathElement | undefined {
     return this.elements.first();
   }
 
-  public get lastElement(): DataPathElement {
+  public get lastElement(): DataPathElement | undefined {
     return this.elements.last();
   }
 
@@ -144,6 +140,10 @@ export default class DataPath extends DataPathRecord {
 
   public get isEmptyPath(): boolean {
     return this.elements.isEmpty();
+  }
+
+  public isNotEmptyPath(): this is NotEmptyDataPath {
+    return !this.elements.isEmpty();
   }
 
   public get reverseCount(): number {
@@ -184,7 +184,7 @@ export default class DataPath extends DataPathRecord {
 
   public get hasReverse(): boolean {
     if (this.isEmptyPath) { return false; }
-    return this.firstElement.isReverse;
+    return this.firstElement!.isReverse;
   }
 
   public get isForward(): boolean {
@@ -216,4 +216,9 @@ export default class DataPath extends DataPathRecord {
   public concat(otherPath: DataPath): this {
     return this.set('elements', this.elements.concat(otherPath.elements));
   }
+}
+
+interface NotEmptyDataPath extends DataPath {
+  firstElement: DataPathElement;
+  lastElement: DataPathElement;
 }

@@ -11,20 +11,22 @@ import DataModelFactory from './DataModelFactory';
 import { DataAction, DeleteDataAction, InsertDataAction, MoveDataAction, SetDataAction } from './DataAction';
 import DataOperationError from './Error/DataOperationError';
 
-const MapDataModelElementRecord = Record({
-  key: StringDataModel.empty,
+interface MapDataModelElementProperty {
+  key: string | undefined;
+  value: DataModelBase;
+}
+
+const defaultValue: MapDataModelElementProperty = {
+  key: '',
   value: NullDataModel.null
-});
+};
 
 export interface MapDataModelPrivateItem {
   k?: string;
   v: ScalarDataSource | object;
 }
 
-export class MapDataModelElement extends MapDataModelElementRecord {
-  public readonly key: string | undefined;
-  public readonly value: DataModelBase;
-
+export class MapDataModelElement extends Record(defaultValue) {
   protected _keyAsDataModel?: ScalarDataModel;
 
   public constructor(key: string | undefined, value: DataModelBase) {
@@ -140,13 +142,9 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return node && node.key;
   }
 
-  public set(key: string, value: any): this {
-    return super.set(key, value) as this;
-  }
-
   applyAction(path: DataPath, action: DataAction, metadata?: DataPathElementMetadata): DataModelBase {
     const keyOrder = metadata && metadata.get('keyOrder');
-    if (path.isEmptyPath) {
+    if (!path.isNotEmptyPath()) {
       let result = this.applyActionForThis(action, metadata);
       if (keyOrder && result instanceof MapDataModel) {
         return result.applyKeyOrder(keyOrder.toArray());
@@ -157,7 +155,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       const pathElement = path.firstElement;
       const index = this.indexForPath(pathElement);
       if (index >= 0) {
-        let node = this.list.get(index);
+        let node = this.list.get(index)!;
         if (action.type === 'Set' && path.pointsKey && path.elements.size === 1) {
           const newKey = (<SetDataAction> action).data;
           if (this.validateCanSetKey(index, newKey)) {
@@ -233,7 +231,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     let to = this.indexForCollectionIndex(action.to);
     if (action.isAfter) { to += 1; }
     if (to > from) { to -= 1; }
-    const targetData = this.list.get(from);
+    const targetData = this.list.get(from)!;
     return this.set('list', this.list.delete(from).insert(to, targetData));
   }
 
@@ -263,12 +261,12 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     if (path.elements.isEmpty()) {
       return this;
     } else {
-      const index = this.indexForPath(path.elements.first());
+      const index = this.indexForPath(path.elements.first()!);
       if (index >= 0) {
         if (path.pointsKey && path.elements.size === 1) {
-          return this.list.get(index).keyAsDataModel;
+          return this.list.get(index)!.keyAsDataModel;
         } else {
-          return this.list.get(index).value.getValue(path.shift());
+          return this.list.get(index)!.value.getValue(path.shift());
         }
       } else {
         return undefined;
@@ -280,10 +278,10 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     if (path.elements.isEmpty()) {
       throw new Error();
     } else if (path.elements.size === 1) {
-      const index = this.indexForKey(path.elements.get(0).asMapKey);
+      const index = this.indexForKey(path.elements.first()!.asMapKey);
       return this.set('list', this.list.delete(index));
     } else {
-      const key = path.elements.first().asMapKey;
+      const key = path.elements.first()!.asMapKey;
       const value = this.valueForKey(key);
       if (value) {
         const newValue = value.removeValue(path.shift());
@@ -299,7 +297,8 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
       return [{data: this, path: absolutePath}];
     }
 
-    if (path.firstElement.isWildCard) {
+    const firstElement = path.firstElement!;
+    if (firstElement.isWildCard) {
       if (path.elements.size === 1 && path.pointsKey) {
         return this._validList.map(node => ({
           index: node!.key,
@@ -320,7 +319,7 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
         return values;
       }
     } else {
-      const index = this.indexForPath(path.firstElement);
+      const index = this.indexForPath(firstElement);
       if (index >= 0) {
         const node = this.list.get(index) as ValidMapDataModelElement;
         if (path.elements.size === 1 && path.pointsKey) {

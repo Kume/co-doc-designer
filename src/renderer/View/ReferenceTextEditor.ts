@@ -2,6 +2,8 @@ import * as CodeMirror from '../../../lib/codemirror/lib/codemirror';
 import { TemplateReference } from '../UIDefinition/TextUIDefinition';
 import { TemplateLine, TemplateToken } from '../Model/TemplateEngine';
 import './style/ReferenceTextEditor';
+import './CodeEditor';
+import './style/CodeEditorStyle.css';
 import DataPath from '../DataModel/Path/DataPath';
 import { CollectValue } from '../UIModel/types';
 import ReferenceExpression from '../Model/ReferenceExpression';

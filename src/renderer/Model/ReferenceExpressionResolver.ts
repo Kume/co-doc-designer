@@ -29,9 +29,9 @@ export default class ReferenceExpressionResolver {
     const resolved = resolver.resolve(dataPath);
     if (!resolved) { return; }
     const pathReference = definition.paths[definition.paths.length - 1][resolved.pathIndex];
-    const collectionIndex = resolved.path.isEmptyPath
-      ? undefined
-      : resolved.path.lastElement.asCollectionIndexOrUndefined();
+    const collectionIndex = resolved.path.isNotEmptyPath()
+      ? resolved.path.lastElement.asCollectionIndexOrUndefined()
+      : undefined;
     return pathReference.description
       ? pathReference.description.fill(resolved.data, collectionIndex)
       : resolved.data.toString();

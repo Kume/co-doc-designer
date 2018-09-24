@@ -15,13 +15,20 @@ export interface DataPathElementMetadata extends Map<string, any> {
 }
 
 const defaultMetadata: DataPathElementMetadata = Map();
-const DataPathElementRecord = Record({
+
+interface DataPathElementProperty {
+  _type: DataPathElement.Type;
+  _value: any;
+  metadata: Map<string, any>;
+}
+
+const defaultValue: DataPathElementProperty = {
   _type: 0,
   _value: null,
   metadata: defaultMetadata
-});
+};
 
-class DataPathElement extends DataPathElementRecord {
+class DataPathElement extends Record(defaultValue) {
   public static readonly SpecialName = {
     Key: '$key'
   };
@@ -29,10 +36,6 @@ class DataPathElement extends DataPathElementRecord {
   get type(): DataPathElement.Type {
     return this._type;
   }
-
-  public readonly metadata: DataPathElementMetadata;
-  private readonly _value: any;
-  private readonly _type: DataPathElement.Type;
 
   public static create(value: DataPathElementCompatible): DataPathElement {
     if (value instanceof DataPathElement) {

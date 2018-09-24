@@ -125,7 +125,7 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
   public get rowFocus(): number | undefined {
     const { focusedPath, data } = this.props;
     if (focusedPath && focusedPath.isSingleElement) {
-      const { firstElement } = focusedPath;
+      const firstElement = focusedPath.firstElement!;
       if (firstElement.isListIndex) {
         return firstElement.asListIndex;
       } else if (firstElement.canBeMapKey && this.definition.dataType === CollectionDataModelType.Map) {

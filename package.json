@@ -8,7 +8,7 @@
     "@fortawesome/free-solid-svg-icons": "^5.1.0-11",
     "@fortawesome/react-fontawesome": "^0.1.0-11",
     "handsontable": "5.0.0",
-    "immutable": "^3.8.2",
+    "immutable": "4.0.0-rc.9",
     "js-yaml": "^3.11.0",
     "react": "^16.2.0",
     "react-dom": "^16.2.0",

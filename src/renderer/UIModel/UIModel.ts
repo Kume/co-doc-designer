@@ -1,7 +1,7 @@
 import DataModelBase, { CollectionIndex } from '../DataModel/DataModelBase';
 import DataPath from '../DataModel/Path/DataPath';
 import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
-import { is, Iterable, List, Map as ImmutableMap } from 'immutable';
+import { is, List, Map as ImmutableMap } from 'immutable';
 import { UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModelActions';
 import { UIModelState } from './types';
 import DataPathElement from '../DataModel/Path/DataPathElement';
@@ -10,10 +10,10 @@ export const stateKey = Symbol('stateKey');
 
 export interface UIModelStateNode
   extends ImmutableMap<CollectionIndex | symbol, UIModelStateNode | UIModelState | undefined> {
-  get(key: string | number | symbol): UIModelStateNode | undefined;
+  get(key: string | number | symbol): this | undefined;
   get(key: symbol): UIModelState | undefined;
-  setIn(path: any[], value: any): UIModelStateNode;
-  setIn(path: Iterable<any, any>, value: any): UIModelStateNode;
+  setIn(path: Array<CollectionIndex | symbol>, value: any): this;
+  setIn(path: List<CollectionIndex | symbol>, value: any): this;
 }
 
 export type ModelPath = List<CollectionIndex | symbol>;
@@ -150,7 +150,7 @@ export abstract class MultiContentUIModel<D extends UIDefinitionBase, I> extends
     if (indexes.length > 0) {
       for (const index of indexes) {
         const oldChild = oldModel && oldModel.children.get(index);
-        const newDefinition = newModel.childDefinitionAt(index);
+        const newDefinition = newModel.childDefinitionAt(index)!;
         const newProps = newModel.childPropsAt(index);
         children.set(index, newModel.createChildModel(newProps, newDefinition, oldChild));
       }
@@ -191,7 +191,7 @@ export abstract class MultiContentUIModel<D extends UIDefinitionBase, I> extends
   }
 
   protected constructChildDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
-    if (!dataPath.isEmptyPath) {
+    if (dataPath.isNotEmptyPath()) {
       const childIndex = this.dataPathToChildIndex(dataPath.firstElement);
       if (childIndex !== undefined) {
         const child = this.children.get(childIndex);
@@ -205,6 +205,6 @@ export abstract class MultiContentUIModel<D extends UIDefinitionBase, I> extends
 
   protected abstract childIndexes(): I[];
   protected abstract childPropsAt(index: I): UIModelProps | undefined;
-  protected abstract childDefinitionAt(index: I): UIDefinitionBase;
+  protected abstract childDefinitionAt(index: I): UIDefinitionBase | undefined;
   protected abstract dataPathToChildIndex(element: DataPathElement): I | undefined;
 }

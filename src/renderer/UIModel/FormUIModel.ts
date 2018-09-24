@@ -14,9 +14,9 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
   private _childKeys?: IndexType[];
   private _dataPath?: DataPath;
 
-  protected childDefinitionAt(index: IndexType): UIDefinitionBase {
+  protected childDefinitionAt(index: IndexType): UIDefinitionBase | undefined {
     return this.definition.contents.find(content => {
-      const key = content!.key;
+      const key = content.key!;
       if (index === DataPathElement.keySymbol) {
         return key.isKey;
       } else {
@@ -28,12 +28,13 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
   protected childIndexes(): IndexType[] {
     if (this._childKeys) { return this._childKeys; }
     return this._childKeys = this.definition.contents
-      .map(content => this.dataPathToChildIndex(content!.key)!).toArray();
+      .map(content => this.dataPathToChildIndex(content.key!)!).toArray();
   }
 
-  protected childPropsAt(index: IndexType): UIModelProps {
+  protected childPropsAt(index: IndexType): UIModelProps | undefined {
     const { dataPath, props: { modelPath, focusedPath, data } } = this;
     const childDefinition = this.childDefinitionAt(index);
+    if (!childDefinition) { return undefined; }
     if (childDefinition.keyFlatten) {
       return new UIModelProps({
         stateNode: this.childStateAt(index),
@@ -93,11 +94,11 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
   private get dataPath(): DataPath {
     if (!this._dataPath) {
       const { dataPath } = this.props;
-      if (dataPath.isEmptyPath) {
-        this._dataPath = dataPath;
-      } else {
+      if (dataPath.isNotEmptyPath()) {
         const { lastElement } = dataPath;
         this._dataPath = dataPath.pop().push(this.makeDataPathElementWithMetadata(lastElement));
+      } else {
+        this._dataPath = dataPath;
       }
     }
     return this._dataPath;

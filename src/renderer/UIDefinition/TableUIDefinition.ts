@@ -1,5 +1,4 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
-import DataPathElement from '../DataModel/Path/DataPathElement';
 import UIDefinitionConfigObject from './UIDefinitionConfigObject';
 import CollectionDataModelUtil, {
   CollectionDataModelType,
@@ -18,7 +17,7 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
   private _keyOrder?: string[];
 
   public constructor(config: TableUIDefinitionConfigObject) {
-    super(config.label, DataPathElement.parse(config.key));
+    super(config.label, config.key);
     if (config.dataType) {
       this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
     }
@@ -32,8 +31,8 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
     if (!this._keyOrder) {
       this._keyOrder = [];
       this.contents.forEach(content => {
-        if (content!.key.canBeMapKey) {
-          this._keyOrder!.push(content!.key.asMapKey);
+        if (content.key!.canBeMapKey) {
+          this._keyOrder!.push(content.key!.asMapKey);
         }
       });
     }
