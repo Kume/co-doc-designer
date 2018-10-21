@@ -63,13 +63,13 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
     return undefined;
   }
 
-  public constructDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
-    if (this.props.data instanceof MapDataModel) {
-      return this.constructChildDefaultValue(dataPath);
+  public constructDefaultValue(data: DataModelBase | undefined, dataPath: DataPath): UIModelUpdateDataAction[] {
+    if (data instanceof MapDataModel) {
+      return this.constructChildDefaultValue(data, dataPath);
     } else {
       return [
         UIModelAction.Creators.setData(this.dataPath, new MapDataModel({})),
-        ...this.constructChildDefaultValue(dataPath)
+        ...this.constructChildDefaultValue(data, dataPath)
       ];
     }
   }

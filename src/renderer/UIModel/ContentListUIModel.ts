@@ -118,9 +118,13 @@ export default class ContentListUIModel extends SingleContentUIModel<ContentList
           let isInvalid: boolean = false;
           const isSelected = index === this.selectedIndex;
           const path = this.dataPath.push(index);
-          const listIndexKey = this.definition.listIndexKey;
+          const { listIndexKey, itemLabel } = this.definition;
           if (listIndexKey === undefined) {
-            return { index, title: item.toString(), isSelected, isInvalid, path };
+            if (itemLabel) {
+              return { index, title: itemLabel.fill(item, index), isSelected, isInvalid, path };
+            } else {
+              return { index, title: item.toString(), isSelected, isInvalid, path };
+            }
           }
           if (listIndexKey.isKey) {
             const selectedKey = this.selectedKey(index);

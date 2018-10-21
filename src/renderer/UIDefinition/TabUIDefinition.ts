@@ -1,11 +1,14 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
 import DataPathElement from '../DataModel/Path/DataPathElement';
-import UIDefinitionConfigObject from './UIDefinitionConfigObject';
+import UIDefinitionConfig from './UIDefinitionConfig';
 import MapDataModel from '../DataModel/MapDataModel';
 import { StrictKeyedUIDefinition } from './UIDefinitionBase';
 import { List } from 'immutable';
+import { UIDefinitionFactory } from './UIDefinitionFactory';
+import { AnyDataSchema } from '../DataSchema';
+import ConfigError from '../../common/Error/ConfigError';
 
-export interface TabUIDefinitionConfigObject extends UIDefinitionConfigObject {
+export interface TabUIDefinitionConfig extends UIDefinitionConfig {
   keyFlatten?: boolean;
 }
 
@@ -14,9 +17,22 @@ export default class TabUIDefinition extends MultiContentsUIDefinition {
   public readonly contents: List<StrictKeyedUIDefinition>;
   private _keyOrder?: string[];
 
-  public constructor(config: TabUIDefinitionConfigObject) {
-    super(config.label, config.key);
+  public constructor(config: TabUIDefinitionConfig, dataSchema?: AnyDataSchema) {
+    super(config, dataSchema);
     this.keyFlatten = !!config.keyFlatten;
+    if (dataSchema) {
+      if (dataSchema.type === 'fixed_map') {
+        for (const child of config.contents || []) {
+          this.addContent(UIDefinitionFactory.create(child, dataSchema.items.get(child.key!)));
+        }
+      } else {
+        throw new ConfigError('invalid type of data schema for TabUIDefinitionConfig');
+      }
+    } else {
+      for (const child of config.contents || []) {
+        this.addContent(UIDefinitionFactory.create(child));
+      }
+    }
   }
 
   public get key(): DataPathElement | undefined {
@@ -40,3 +56,5 @@ export default class TabUIDefinition extends MultiContentsUIDefinition {
     return MapDataModel.empty;
   }
 }
+
+UIDefinitionFactory.register('tab', TabUIDefinition);

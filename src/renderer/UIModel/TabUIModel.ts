@@ -6,6 +6,7 @@ import { List, Record } from 'immutable';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import { UIModelAction, UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModelActions';
 import DataPath from '../DataModel/Path/DataPath';
+import DataModelBase from '../DataModel/DataModelBase';
 
 interface TabUIModelStateProperty {
   selectedTab: string | undefined;
@@ -76,9 +77,11 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
     })).toArray();
   }
 
-  public constructDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
-    const childResult = dataPath.isEmptyPath || !this.child ? [] : this.child.constructDefaultValue(dataPath.shift());
-    if (this.props.data instanceof MapDataModel) {
+  public constructDefaultValue(data: DataModelBase | undefined, dataPath: DataPath): UIModelUpdateDataAction[] {
+    const childResult = dataPath.isEmptyPath || !this.child
+      ? []
+      : this.child.constructDefaultValue(data && data.getValue(new DataPath(this.selectedTab)), dataPath.shift());
+    if (data instanceof MapDataModel) {
       return childResult;
     } else {
       return [UIModelAction.Creators.setData(this.dataPath, new MapDataModel({})), ...childResult];
@@ -150,6 +153,7 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
       const { dataPath } = this.props;
       if (dataPath.isNotEmptyPath()) {
         const { lastElement } = dataPath;
+        // Add metadata
         this._dataPath = dataPath.pop().push(this.makeDataPathElementWithMetadata(lastElement));
       } else {
         this._dataPath = dataPath;

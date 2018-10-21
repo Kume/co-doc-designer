@@ -1,13 +1,15 @@
 import DataPathElement from '../DataModel/Path/DataPathElement';
+import UIDefinitionConfig from './UIDefinitionConfig';
+import DataSchema from '../DataSchema/DataSchema';
 
 export default abstract class UIDefinitionBase {
   public readonly keyFlatten: boolean = false;
   protected readonly _key?: DataPathElement;
   private readonly _label: string;
 
-  public constructor(label?: string, key?: string) {
-    this._label = label || '';
-    this._key = key === undefined ? undefined : DataPathElement.parse(key);
+  public constructor(config: UIDefinitionConfig, dataSchema?: DataSchema) {
+    this._label = config.label || (dataSchema && dataSchema.label) || '';
+    this._key = config.key === undefined ? undefined : DataPathElement.parse(config.key);
   }
 
   public get label(): string {

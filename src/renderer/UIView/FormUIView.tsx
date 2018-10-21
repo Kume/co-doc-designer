@@ -5,6 +5,7 @@ import FormUIModel from '../UIModel/FormUIModel';
 
 export default class FormUIView extends UIViewBase<FormUIModel, UIViewBaseProps<FormUIModel>, UIViewBaseState> {
   render() {
+    console.log(this.props.model, this.props.model.children);
     return (
       <div>
         {Array.from(this.props.model.children.values()).map(childModel => {

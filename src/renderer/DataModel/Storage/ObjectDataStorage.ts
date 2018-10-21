@@ -12,4 +12,8 @@ export default class ObjectDataStorage implements DataStorage {
   public async loadAsync(paths: Array<string>): Promise<string> {
     return this._data[paths.join('/')];
   }
+
+  public async exists(paths: string[]): Promise<boolean> {
+    return true;
+  }
 }

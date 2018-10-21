@@ -1,12 +1,12 @@
 import { UIModelProps } from '../UIModel';
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
-import { default as TabUIDefinition, TabUIDefinitionConfigObject } from '../../UIDefinition/TabUIDefinition';
+import { default as TabUIDefinition, TabUIDefinitionConfig } from '../../UIDefinition/TabUIDefinition';
 import TabUIModel, { TabUIModelState } from '../TabUIModel';
 import DataPath from '../../DataModel/Path/DataPath';
 
 require('../UIModelFactory');
 
-const basicDefinitionConfig: TabUIDefinitionConfigObject = {
+const basicDefinitionConfig: TabUIDefinitionConfig = {
   type: 'tab',
   key: '',
   label: 'test',

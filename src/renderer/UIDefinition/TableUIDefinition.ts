@@ -1,5 +1,5 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
-import UIDefinitionConfigObject from './UIDefinitionConfigObject';
+import UIDefinitionConfig from './UIDefinitionConfig';
 import CollectionDataModelUtil, {
   CollectionDataModelType,
   CollectionDataModelTypeString
@@ -7,8 +7,11 @@ import CollectionDataModelUtil, {
 import { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
+import { UIDefinitionFactory } from './UIDefinitionFactory';
+import { AnyDataSchema } from '../DataSchema';
+import ConfigError from '../../common/Error/ConfigError';
 
-export interface TableUIDefinitionConfigObject extends UIDefinitionConfigObject {
+export interface TableUIDefinitionConfig extends UIDefinitionConfig {
   dataType?: CollectionDataModelTypeString;
 }
 
@@ -16,10 +19,29 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
   private _dataType: CollectionDataModelType = CollectionDataModelType.List;
   private _keyOrder?: string[];
 
-  public constructor(config: TableUIDefinitionConfigObject) {
-    super(config.label, config.key);
-    if (config.dataType) {
-      this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
+  public constructor(config: TableUIDefinitionConfig, dataSchema?: AnyDataSchema) {
+    super(config, dataSchema);
+    if (dataSchema) {
+      if (dataSchema.type === 'map') {
+        this._dataType = CollectionDataModelType.Map;
+        const { item } = dataSchema;
+        if (item.type === 'fixed_map') {
+          for (const child of config.contents || []) {
+            this.addContent(UIDefinitionFactory.create(child, item.items.get(child.key!)));
+          }
+        } else {
+          throw new ConfigError('invalid type of data schema for TableUIDefinition children');
+        }
+      } else {
+        throw new ConfigError('invalid type of data schema for TableUIDefinition');
+      }
+    } else {
+      if (config.dataType) {
+        this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
+      }
+      for (const child of config.contents || []) {
+        this.addContent(UIDefinitionFactory.create(child));
+      }
     }
   }
 
@@ -51,3 +73,5 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
     return MapDataModel.empty;
   }
 }
+
+UIDefinitionFactory.register('table', TableUIDefinition);

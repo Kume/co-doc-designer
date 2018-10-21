@@ -115,7 +115,7 @@ class MapMappingNode extends MappingNode {
     parentDirectory: Array<string>
   ): Promise<DataModelBase> {
     const basePath = parentPath.concat(this.path);
-    const mapData = data.getValue(basePath);
+    const mapData = data.getValue(basePath) || MapDataModel.empty;
     if (mapData instanceof MapDataModel) {
       for (const mapElement of mapData.list.toArray()) {
         if (mapElement.key) {
@@ -209,12 +209,14 @@ export default class DataMapper extends MappingNodeBase {
   private indexFileName: string = 'index.yml';
 
   public static build(
-    config: DataMapperConfig,
+    config: DataMapperConfig | undefined,
     storage: DataStorage,
     formatter: DataFormatter = new YamlDataFormatter()
   ): DataMapper {
     const mapper = new DataMapper(storage, formatter);
-    this._build(config.children || [], mapper);
+    if (config) {
+      this._build(config.children || [], mapper);
+    }
     return mapper;
   }
 
@@ -257,10 +259,13 @@ export default class DataMapper extends MappingNodeBase {
     await this.storage.saveAsync([this.indexFileName], this.formatter.format(data.toJsonObject()));
   }
 
-  public async loadAsync(): Promise<DataModelBase> {
+  public async loadAsync(): Promise<DataModelBase | undefined> {
+    if (!await this.storage.exists(['index.yml'])) {
+      return undefined;
+    }
     const source = await this.storage.loadAsync(['index.yml']);
-    const formated = this.formatter.parse(source);
-    let loaded = DataModelFactory.create(formated);
+    const formatted = this.formatter.parse(source);
+    let loaded = DataModelFactory.create(formatted);
     loaded = await this.loadChildrenAsync(loaded, this.storage, this.formatter, this.path, []);
     return loaded;
   }

@@ -1,15 +1,15 @@
-import UIDefinitionConfigObject from '../UIDefinitionConfigObject';
-import { ContentListUIDefinitionConfigObject } from '../ContentListUIDefinition';
-import { SelectUIDefinitionConfigObject } from '../SelectUIDefinition';
-import { FormUIDefinitionConfigObject } from '../FormUIDefinition';
-import { TableUIDefinitionConfigObject } from '../TableUIDefinition';
+import UIDefinitionConfig from '../UIDefinitionConfigObject';
+import { ContentListUIDefinitionConfig } from '../ContentListUIDefinition';
+import { SelectUIDefinitionConfig } from '../SelectUIDefinition';
+import { FormUIDefinitionConfig } from '../FormUIDefinition';
+import { TableUIDefinitionConfig } from '../TableUIDefinition';
 
-export const sampleUIConfig: UIDefinitionConfigObject = {
+export const sampleUIConfig: UIDefinitionConfig = {
   type: 'tab',
   key: '',
   label: '',
   contents: [
-    <ContentListUIDefinitionConfigObject> {
+    <ContentListUIDefinitionConfig> {
       type: 'contentList',
       key: 'main',
       label: 'Main',
@@ -68,7 +68,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
               }
             }
           },
-          <SelectUIDefinitionConfigObject> {
+          <SelectUIDefinitionConfig> {
             type: 'select',
             key: 'select',
             label: '選択',
@@ -78,7 +78,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
               '選択肢３'
             ]
           },
-          <SelectUIDefinitionConfigObject> {
+          <SelectUIDefinitionConfig> {
             type: 'select',
             key: 'select_ref',
             label: '参照選択',
@@ -86,7 +86,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
               path: '/references/*/name'
             }
           },
-          <SelectUIDefinitionConfigObject> {
+          <SelectUIDefinitionConfig> {
             type: 'select',
             key: 'select_ref2',
             label: '参照選択2',
@@ -96,7 +96,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
               labelPath: 'value'
             }
           },
-          <SelectUIDefinitionConfigObject> {
+          <SelectUIDefinitionConfig> {
             type: 'select',
             key: 'self_ref',
             label: '自己参照',
@@ -106,7 +106,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
               labelPath: 'text'
             }
           },
-          <SelectUIDefinitionConfigObject> {
+          <SelectUIDefinitionConfig> {
             type: 'select',
             key: 'select_ref_multi',
             label: '参照複数選択',
@@ -132,7 +132,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                 key: 'text',
                 label: 'テキスト'
               },
-              <SelectUIDefinitionConfigObject> {
+              <SelectUIDefinitionConfig> {
                 type: 'select',
                 key: 'select',
                 label: '選択',
@@ -142,7 +142,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                   '選択肢３'
                 ]
               },
-              <SelectUIDefinitionConfigObject> {
+              <SelectUIDefinitionConfig> {
                 type: 'select',
                 key: 'select_ref',
                 label: '参照選択',
@@ -150,7 +150,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
                   path: '/references/*/name'
                 }
               },
-              <SelectUIDefinitionConfigObject> {
+              <SelectUIDefinitionConfig> {
                 type: 'select',
                 key: 'select_ref_multi',
                 label: '複数選択',
@@ -261,13 +261,13 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
         }
       ]
     },
-    <ContentListUIDefinitionConfigObject> {
+    <ContentListUIDefinitionConfig> {
       type: 'contentList',
       key: 'references2',
       label: '参照値2',
       dataType: 'map',
       listIndexKey: '$key',
-      content: <FormUIDefinitionConfigObject> {
+      content: <FormUIDefinitionConfig> {
         type: 'form',
         key: '',
         label: '',
@@ -282,7 +282,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
             key: 'name',
             label: '名前'
           },
-          <TableUIDefinitionConfigObject> {
+          <TableUIDefinitionConfig> {
             type: 'table',
             key: 'values',
             label: '値定義',
@@ -308,7 +308,7 @@ export const sampleUIConfig: UIDefinitionConfigObject = {
         ]
       },
     },
-    <FormUIDefinitionConfigObject> {
+    <FormUIDefinitionConfig> {
       type: 'form',
       key: 'unused',
       label: 'フラットフォーム',

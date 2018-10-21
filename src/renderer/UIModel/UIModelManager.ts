@@ -83,6 +83,7 @@ export default class UIModelManager {
     if (groupedActions.focusAction) {
       this.focus(groupedActions.focusAction.path);
     }
+    // console.log('action applied', this._dataModel && this._dataModel!.toJsonObject(), actions);
     if (this.notifyModelChanged) { this.notifyModelChanged(); }
   }
 
@@ -186,7 +187,7 @@ export default class UIModelManager {
   }
 
   private applyUpdateDataAction(action: UIModelUpdateDataAction): void {
-    for (const constructDefaultAction of this._rootUIModel.constructDefaultValue(action.path)) {
+    for (const constructDefaultAction of this._rootUIModel.constructDefaultValue(this._dataModel, action.path)) {
       if (constructDefaultAction.path.isEmptyPath && DataAction.isSetDataAction(constructDefaultAction.dataAction)) {
         this._dataModel = constructDefaultAction.dataAction.data;
       } else {

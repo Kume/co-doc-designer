@@ -1,5 +1,5 @@
 import FormUIModel from '../FormUIModel';
-import FormUIDefinition, { FormUIDefinitionConfigObject } from '../../UIDefinition/FormUIDefinition';
+import FormUIDefinition, { FormUIDefinitionConfig } from '../../UIDefinition/FormUIDefinition';
 import { UIModelProps } from '../UIModel';
 import MapDataModel from '../../DataModel/MapDataModel';
 import DataPath from '../../DataModel/Path/DataPath';
@@ -12,7 +12,7 @@ import { List } from 'immutable';
 
 require('../UIModelFactory');
 
-const basicDefinition: FormUIDefinitionConfigObject = <FormUIDefinitionConfigObject> {
+const basicDefinition: FormUIDefinitionConfig = <FormUIDefinitionConfig> {
   type: 'form',
   key: '',
   label: 'test',

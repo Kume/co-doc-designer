@@ -89,7 +89,7 @@ export default abstract class UIModel<D extends UIDefinitionBase = any> {
     return [];
   }
 
-  public constructDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
+  public constructDefaultValue(data: DataModelBase | undefined, dataPath: DataPath): UIModelUpdateDataAction[] {
     return [];
   }
 }
@@ -190,13 +190,14 @@ export abstract class MultiContentUIModel<D extends UIDefinitionBase, I> extends
     return actions;
   }
 
-  protected constructChildDefaultValue(dataPath: DataPath): UIModelUpdateDataAction[] {
+  protected constructChildDefaultValue(data: DataModelBase | undefined, dataPath: DataPath): UIModelUpdateDataAction[] {
     if (dataPath.isNotEmptyPath()) {
       const childIndex = this.dataPathToChildIndex(dataPath.firstElement);
       if (childIndex !== undefined) {
         const child = this.children.get(childIndex);
+        const childData = data && data.getValue(new DataPath(dataPath.firstElement));
         if (child) {
-          return child.constructDefaultValue(dataPath.shift());
+          return child.constructDefaultValue(childData, dataPath.shift());
         }
       }
     }

@@ -12,12 +12,13 @@ import { faArrowLeft, faArrowRight } from '@fortawesome/free-solid-svg-icons';
 import * as path from 'path';
 import FileDataStorage from '../DataModel/Storage/FileDataStorage';
 import * as Yaml from 'js-yaml';
-import UIDefinitionConfigObject from '../UIDefinition/UIDefinitionConfigObject';
+import UIDefinitionConfig from '../UIDefinition/UIDefinitionConfig';
 import DataMapper from '../DataModel/Storage/DataMapper';
 import * as fs from 'fs';
 import IconButton from '../View/IconButton';
 
 import '@fortawesome/react-fontawesome';
+import { DataSchemaFactory } from '../DataSchema';
 
 interface Props {
 }
@@ -61,7 +62,7 @@ export default class RootUIView extends React.Component<Props, State> {
     this.back = this.back.bind(this);
   }
 
-  public load(definition: UIDefinitionBase, data: DataModelBase): void {
+  public load(definition: UIDefinitionBase, data?: DataModelBase): void {
     this._manager = new UIModelManager(definition, data);
     this._manager.notifyModelChanged = () => {
       this.setState({model: this._manager.rootUIModel});
@@ -83,9 +84,10 @@ export default class RootUIView extends React.Component<Props, State> {
       if (!fileNames) { return; }
       fs.readFile(fileNames[0], async (err, data) => {
         const schema = Yaml.safeLoad(data.toString()) as any;
+        const dataSchema = DataSchemaFactory.create(schema.dataSchema);
         this.dataMapper = DataMapper.build(schema && schema.fileMap, new FileDataStorage(path.dirname(fileNames[0])));
         const loaded = await this.dataMapper.loadAsync();
-        const model = UIDefinitionFactory.create(schema!.uiRoot as UIDefinitionConfigObject);
+        const model = UIDefinitionFactory.create(schema!.uiRoot as UIDefinitionConfig, dataSchema);
         this.load(model, loaded);
         this.setState({isFileLoaded: true});
       });

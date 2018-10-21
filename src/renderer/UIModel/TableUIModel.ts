@@ -150,7 +150,8 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
   }
 
   protected createChildModel(
-    newProps: UIModelProps | undefined, definition: UIDefinitionBase, oldChild: UIModel | undefined): UIModel {
+    newProps: UIModelProps | undefined, definition: UIDefinitionBase, oldChild: UIModel | undefined
+  ): UIModel {
     if (newProps) {
       if (oldChild) {
         if (oldChild.definition !== definition || !oldChild.props.fastEquals(newProps)) {

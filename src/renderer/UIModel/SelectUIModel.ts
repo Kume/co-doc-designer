@@ -1,11 +1,7 @@
 import UIModel  from './UIModel';
 import { is } from 'immutable';
 import * as _ from 'underscore';
-import SelectUIDefinition, {
-  isDynamicOption,
-  SelectOptionConfig,
-  SelectDynamicOption
-} from '../UIDefinition/SelectUIDefinition';
+import SelectUIDefinition from '../UIDefinition/SelectUIDefinition';
 import { NullDataModel, NumberDataModel, StringDataModel } from '../DataModel/ScalarDataModel';
 import { UIModelAction } from './UIModelActions';
 import DataModelFactory from '../DataModel/DataModelFactory';
@@ -13,9 +9,10 @@ import { CollectValue } from './types';
 import { DataCollectionElement } from '../DataModel/DataModelBase';
 import DataModelBase from '../DataModel/DataModelBase';
 import ListDataModel from '../DataModel/ListDataModel';
+import { isDynamicOption, SelectDynamicOption, SelectOption, SelectOptionConfig } from '../common/commonConfig';
 
 export default class SelectUIModel extends UIModel<SelectUIDefinition> {
-  private static _toSelectOption(data: DataCollectionElement, options: SelectDynamicOption): SelectOptionConfig {
+  private static _toSelectOption(data: DataCollectionElement, options: SelectDynamicOption): SelectOption {
     const labelData = options.labelPath ? DataCollectionElement.getValue(data, options.labelPath) : data.data;
     const valueData = options.valuePath ? DataCollectionElement.getValue(data, options.valuePath) : data.data;
     return {

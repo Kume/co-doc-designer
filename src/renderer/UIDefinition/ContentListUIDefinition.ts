@@ -1,5 +1,5 @@
 import SingleContentUIDefinition from './SingleContentUIDefinition';
-import UIDefinitionConfigObject from './UIDefinitionConfigObject';
+import UIDefinitionConfig from './UIDefinitionConfig';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
@@ -9,20 +9,37 @@ import {
   CollectionDataModelTypeString,
   default as CollectionDataModelUtil
 } from '../DataModel/CollectionDataModelUtil';
+import { UIDefinitionFactory } from './UIDefinitionFactory';
+import { AnyDataSchema } from '../DataSchema';
+import ConfigError from '../../common/Error/ConfigError';
+import { TemplateLine } from '../Model/TemplateEngine';
 
-export interface ContentListUIDefinitionConfigObject extends UIDefinitionConfigObject {
+export interface ContentListUIDefinitionConfig extends UIDefinitionConfig {
   listIndexKey?: string;
   dataType?: CollectionDataModelTypeString;
 }
 
 export default class ContentListUIDefinition extends SingleContentUIDefinition {
-  private _listIndexKey?: DataPathElement;
-  private _dataType: CollectionDataModelType;
+  public readonly itemLabel?: TemplateLine;
+  private readonly _listIndexKey?: DataPathElement;
+  private readonly _dataType: CollectionDataModelType;
 
-  public constructor(config: ContentListUIDefinitionConfigObject) {
-    super(config.label, config.key);
+  public constructor(config: ContentListUIDefinitionConfig, dataSchema?: AnyDataSchema) {
+    super(config, dataSchema);
     this._listIndexKey = config.listIndexKey === undefined ? undefined : DataPathElement.parse(config.listIndexKey);
-    this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
+    if (dataSchema) {
+      if (dataSchema.type === 'map') {
+        this._dataType = CollectionDataModelType.Map;
+        this.itemLabel = dataSchema.item.dataLabel === undefined ?
+          undefined : new TemplateLine(dataSchema.item.dataLabel);
+        this.content = UIDefinitionFactory.create(config.content!, dataSchema.item);
+      } else {
+        throw new ConfigError('invalid type of data schema for ContentListUIDefinition');
+      }
+    } else {
+      this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
+      this.content = UIDefinitionFactory.create(config.content!);
+    }
   }
 
   get listIndexKey(): DataPathElement | undefined {
@@ -41,3 +58,5 @@ export default class ContentListUIDefinition extends SingleContentUIDefinition {
     }
   }
 }
+
+UIDefinitionFactory.register('contentList', ContentListUIDefinition);
