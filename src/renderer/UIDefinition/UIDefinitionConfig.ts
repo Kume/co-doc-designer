@@ -1,6 +1,7 @@
 export type UIDefinitionType =
   'contentList' |
   'table' |
+  'mappingTable' |
   'text' |
   'checkbox' |
   'select' |
@@ -15,4 +16,9 @@ export default interface UIDefinitionConfig {
   keyFlatten?: boolean;
   contents?: Array<UIDefinitionConfig>;
   content?: UIDefinitionConfig;
+}
+
+export interface MappingTableUIDefinitionConfig extends UIDefinitionConfig {
+  type: 'mappingTable';
+  sourcePath: string;
 }
