@@ -5,6 +5,7 @@ import * as React from 'react';
 import '../style/SelectCellEditor.css';
 import { HandsonTableSettings } from './ReferenceTextCellEditor';
 import { MultiSelectCellSetting } from '../../UIModel/TableRowUIModel';
+import SelectUIModel from '../../UIModel/SelectUIModel';
 
 interface SelectValue {
   label: string;
@@ -47,7 +48,7 @@ export default class SelectCellEditor extends handsontable.editors.TextEditor {
       this.element = React.createElement(Select, {
         onChange: this.onChange,
         multi: true,
-        options: cellProperties.model.options(settings.collectValue)
+        options: SelectUIModel.options(settings.collectValue, cellProperties.definition, cellProperties.dataPath)
       });
       ReactDOM.render(this.element, this.container);
     }, 0);
@@ -118,7 +119,7 @@ export default class SelectCellEditor extends handsontable.editors.TextEditor {
     const cellProperties = this.cellProperties as MultiSelectCellSetting;
     this.element = React.cloneElement(this.element, {
       value: this.value,
-      options: cellProperties.model.options(settings.collectValue)
+      options: SelectUIModel.options(settings.collectValue, cellProperties.definition, cellProperties.dataPath)
     });
     ReactDOM.render(this.element, this.container);
   }

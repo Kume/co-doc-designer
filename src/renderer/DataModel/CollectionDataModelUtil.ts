@@ -1,13 +1,12 @@
 import DataModelBase, { CollectionDataModel, CollectionIndex } from './DataModelBase';
 import MapDataModel from './MapDataModel';
 import ListDataModel from './ListDataModel';
+import { CollectionDataModelTypeString } from '../UIDefinition/UIDefinitionConfig';
 
 export enum CollectionDataModelType {
   Map,
   List
 }
-
-export type CollectionDataModelTypeString = 'list' | 'map';
 
 export default class CollectionDataModelUtil {
   public static parseModelType(

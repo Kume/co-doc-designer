@@ -9,6 +9,7 @@ import TableRowUIModel from './TableRowUIModel';
 import UIModel from './UIModel';
 import MappingTableUIDefinition from '../UIDefinition/MappingTableUIDefinition';
 import { UIModelAction, UIModelFocusAction } from './UIModelActions';
+import { TableUIModelCommon } from './TableUIModelCommon';
 
 type TableChange = [number, number, any, any];
 type TableChangesByRow = Map<number, TableChangeForRow[]>;
@@ -35,11 +36,18 @@ export default class MappingTableUIModel extends MultiContentUIModel<MappingTabl
     const emptyRowData = new Array(this.definition.contents.size);
 
     sourceData.forEachData((rowData, index) => {
-      const row = this.childDataAt(index as string);
-      data.push([
-        index,
-        ...emptyRowData
-      ]);
+      const row = this.children.get(index as string) as TableRowUIModel;
+      if (row) {
+        data.push([
+          index,
+          ...row.rawData(collectValue)
+        ]);
+      } else {
+        data.push([
+          index,
+          ...emptyRowData
+        ]);
+      }
     });
     return data;
   }
@@ -49,9 +57,6 @@ export default class MappingTableUIModel extends MultiContentUIModel<MappingTabl
     if (sourceData.length === 0) { return []; }
     const sourceDatum = sourceData[0].data;
     if (!(sourceDatum instanceof MapDataModel)) { return []; }
-
-    console.log(sourceDatum.keys);
-
     return sourceDatum.keys;
   }
 
@@ -94,17 +99,17 @@ export default class MappingTableUIModel extends MultiContentUIModel<MappingTabl
     if (child) {
       return child.columnSettings(collectValue, column - 1);
     } else {
-      const newChildProps = new UIModelProps({
-        stateNode: undefined,
-        dataPath: this.props.dataPath.push(key),
-        modelPath: this.props.modelPath.push(key),
-        focusedPath: undefined,
-        data: this.definition.defaultRowData,
-        key: key
-      });
-      const row = new TableRowUIModel(this.definition, newChildProps);
-      console.log(row.columnSettings(collectValue, column - 1));
-      return row.columnSettings(collectValue, column - 1);
+      const childDefinition = this.definition.contents.get(column - 1);
+      if (childDefinition) {
+        return TableUIModelCommon.cellSetting(
+          undefined,
+          childDefinition,
+          this.props.dataPath.push(key),
+          collectValue,
+          column - 1);
+      } else {
+        return {};
+      }
     }
   }
 
@@ -183,37 +188,32 @@ export default class MappingTableUIModel extends MultiContentUIModel<MappingTabl
     if (!sourceData) {
       return [];
     }
+
     const sourceKeys = sourceData.keys;
 
-    let actions: UIModelAction[] = [];
+    const { dataPath } = this.props;
+    const actions: UIModelAction[] = [];
     const data = this.props.data instanceof MapDataModel ? this.props.data : undefined;
     if (!data) {
-      actions.push(UIModelAction.Creators.setData(this.props.dataPath, this.definition.defaultData));
+      actions.push(UIModelAction.Creators.setData(dataPath, this.definition.defaultData));
     }
 
     const changesByRow = MappingTableUIModel.coordinateChanges(changes);
-    const createdForRow: Map<number, TableRowUIModel> = new Map();
-    const {dataPath, modelPath } = this.props;
+    const createdRow: Set<number> = new Set();
 
     changesByRow.forEach((value, keyIndex) => {
+      const inputValues = value.map((v) => ({ ...v, column: v.column - 1 }));
       const key = sourceKeys[keyIndex];
       const row = this.children.get(key) as TableRowUIModel | undefined;
       if (row) {
-        actions = actions.concat(row.input(collectValue, value));
+        actions.push(...row.input(collectValue, inputValues));
       } else {
-        if (!createdForRow.has(keyIndex)) {
-          actions.push(UIModelAction.Creators.appendData(this.props.dataPath, this.definition.defaultRowData));
-          const newChildProps = new UIModelProps({
-            stateNode: undefined,
-            dataPath: dataPath.push(key),
-            modelPath: modelPath.push(key),
-            focusedPath: undefined,
-            data: this.definition.defaultRowData,
-            key: key
-          });
-          // createdForRow.set(keyIndex, new TableRowUIModel(this.childDefinitionAt(key), newChildProps));
+        const valuePath = dataPath.push(key);
+        if (!createdRow.has(keyIndex)) {
+          actions.push(UIModelAction.Creators.setData(valuePath, this.definition.defaultRowData));
+          createdRow.add(keyIndex);
         }
-        actions = actions.concat(createdForRow.get(keyIndex)!.input(collectValue, value));
+        actions.push(...TableUIModelCommon.input(inputValues, collectValue, valuePath, this.definition.contents));
       }
     });
     if (actions.length > 0) {

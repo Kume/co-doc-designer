@@ -2,6 +2,7 @@ import UIModel  from './UIModel';
 import CheckBoxUIDefinition from '../UIDefinition/CheckBoxUIDefinition';
 import { BooleanDataModel } from '../DataModel/ScalarDataModel';
 import { UIModelAction } from './UIModelActions';
+import DataPath from '../DataModel/Path/DataPath';
 
 const trueStrings = ['true', 'True', 'TRUE', 'ok', 'OK', 'Ok', 'yes', 'Yes', 'YES'];
 const falseStrings = ['false', 'False', 'FALSE', 'ng', 'Ng', 'NG', 'no', 'No', 'NO'];
@@ -23,6 +24,13 @@ export default class CheckBoxUIModel extends UIModel<CheckBoxUIDefinition> {
     return false;
   }
 
+  public static input(definition: CheckBoxUIDefinition, dataPath: DataPath, value: string | boolean): UIModelAction[] {
+    if (typeof value === 'string') {
+      value = trueStrings.includes(value);
+    }
+    return [UIModelAction.Creators.setData(dataPath, BooleanDataModel.create(value))];
+  }
+
   public input(isChecked: string | boolean): UIModelAction[] {
     if (typeof isChecked === 'string') {
       isChecked = trueStrings.includes(isChecked);
@@ -30,7 +38,7 @@ export default class CheckBoxUIModel extends UIModel<CheckBoxUIDefinition> {
     if (this.isChecked === isChecked) {
       return [];
     } else {
-      return [UIModelAction.Creators.setData(this.props.dataPath, BooleanDataModel.create(isChecked))];
+      return CheckBoxUIModel.input(this.definition, this.props.dataPath, isChecked);
     }
   }
 }

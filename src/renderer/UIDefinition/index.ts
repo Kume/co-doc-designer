@@ -7,3 +7,4 @@ export * from './SelectUIDefinition';
 export * from './TableUIDefinition';
 export * from './TabUIDefinition';
 export * from './TextUIDefinition';
+export * from './UIDefinitionConfig';

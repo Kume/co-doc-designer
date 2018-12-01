@@ -1,23 +1,14 @@
 import SingleContentUIDefinition from './SingleContentUIDefinition';
-import UIDefinitionConfig from './UIDefinitionConfig';
+import { ContentListUIDefinitionConfig } from './UIDefinitionConfig';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
-import {
-  CollectionDataModelType,
-  CollectionDataModelTypeString,
-  default as CollectionDataModelUtil
-} from '../DataModel/CollectionDataModelUtil';
+import { CollectionDataModelType, default as CollectionDataModelUtil } from '../DataModel/CollectionDataModelUtil';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
 import { TemplateLine } from '../Model/TemplateEngine';
-
-export interface ContentListUIDefinitionConfig extends UIDefinitionConfig {
-  listIndexKey?: string;
-  dataType?: CollectionDataModelTypeString;
-}
 
 export default class ContentListUIDefinition extends SingleContentUIDefinition {
   public readonly itemLabel?: TemplateLine;

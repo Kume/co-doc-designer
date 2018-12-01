@@ -1,16 +1,12 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
 import DataPathElement from '../DataModel/Path/DataPathElement';
-import UIDefinitionConfig from './UIDefinitionConfig';
+import { TabUIDefinitionConfig } from './UIDefinitionConfig';
 import MapDataModel from '../DataModel/MapDataModel';
 import { StrictKeyedUIDefinition } from './UIDefinitionBase';
 import { List } from 'immutable';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
-
-export interface TabUIDefinitionConfig extends UIDefinitionConfig {
-  keyFlatten?: boolean;
-}
 
 export default class TabUIDefinition extends MultiContentsUIDefinition {
   public readonly keyFlatten: boolean;

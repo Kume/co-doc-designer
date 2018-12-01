@@ -1,8 +1,8 @@
-import UIDefinitionConfig from '../UIDefinitionConfigObject';
-import { ContentListUIDefinitionConfig } from '../ContentListUIDefinition';
-import { SelectUIDefinitionConfig } from '../SelectUIDefinition';
-import { FormUIDefinitionConfig } from '../FormUIDefinition';
-import { TableUIDefinitionConfig } from '../TableUIDefinition';
+import UIDefinitionConfig from '../UIDefinitionConfig';
+import { ContentListUIDefinitionConfig } from '../UIDefinitionConfig';
+import { SelectUIDefinitionConfig } from '../UIDefinitionConfig';
+import { FormUIDefinitionConfig } from '../UIDefinitionConfig';
+import { TableUIDefinitionConfig } from '../UIDefinitionConfig';
 
 export const sampleUIConfig: UIDefinitionConfig = {
   type: 'tab',

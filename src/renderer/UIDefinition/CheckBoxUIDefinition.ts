@@ -1,12 +1,8 @@
 import UIDefinitionBase from './UIDefinitionBase';
-import UIDefinitionConfig from './UIDefinitionConfig';
+import { CheckBoxUIDefinitionConfig } from './UIDefinitionConfig';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
-
-export interface CheckBoxUIDefinitionConfig extends UIDefinitionConfig {
-
-}
 
 export default class CheckBoxUIDefinition extends UIDefinitionBase {
   public constructor(config: CheckBoxUIDefinitionConfig, dataSchema?: AnyDataSchema) {

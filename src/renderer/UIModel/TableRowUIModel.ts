@@ -9,11 +9,13 @@ import DataModelBase from '../DataModel/DataModelBase';
 import { CollectValue } from './types';
 import TextUIModel from './TextUIModel';
 import CheckBoxUIModel from './CheckBoxUIModel';
-import SelectUIModel from './SelectUIModel';
+import SelectUIModel, { SelectUIModelValue } from './SelectUIModel';
 import { UIModelAction } from './UIModelActions';
 import { List } from 'immutable';
-import { TemplateReference } from '../UIDefinition/TextUIDefinition';
+import { TemplateReference } from '../UIDefinition';
 import NumberUIModel from './NumberUIModel';
+import { TableUIModelCommon } from './TableUIModelCommon';
+import SelectUIDefinition from '../UIDefinition/SelectUIDefinition';
 
 export interface ReferenceCellSetting {
   editor: 'reference';
@@ -26,7 +28,8 @@ export interface MultiSelectCellSetting {
   editor: 'multi_select';
   renderer: 'multi_select';
   dataPath: DataPath;
-  model: SelectUIModel;
+  definition: SelectUIDefinition;
+  value: SelectUIModelValue | undefined;
 }
 
 export type CellData = number | string | undefined | boolean | string[] | null;
@@ -87,6 +90,10 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
           if (CheckBoxUIModel.canInputValue(change.value)) {
             actions = actions.concat(child.input(change.value));
           }
+        } else if (child instanceof NumberUIModel) {
+          if (NumberUIModel.canInputValue(change.value)) {
+            actions = actions.concat(child.input(change.value));
+          }
         } else if (child instanceof SelectUIModel) {
           if (child.definition.isMulti) {
             try {
@@ -107,52 +114,8 @@ export default class TableRowUIModel extends MultiContentUIModel<TableUIDefiniti
   public columnSettings(
     collectValue: CollectValue, column: number
   ): ColumnSetting | ReferenceCellSetting | MultiSelectCellSetting {
-    const child = this.childAtIndex(column);
-    if (child) {
-      if (child instanceof TextUIModel) {
-        if (child.definition.options) {
-          return {
-            type: 'autocomplete',
-            source: child.definition.options,
-            strict: false
-          };
-        } else if (child.definition.references) {
-          return {
-            editor: 'reference',
-            renderer: 'reference',
-            dataPath: this.dataPath.push(column),
-            references: child.definition.references
-          };
-        } else {
-          return {
-            type: 'text'
-          };
-        }
-      } else if (child instanceof CheckBoxUIModel) {
-        return {
-          type: 'checkbox'
-        };
-      } else if (child instanceof SelectUIModel) {
-        if (child.definition.isMulti) {
-          return {
-            editor: 'multi_select',
-            renderer: 'multi_select',
-            dataPath: this.dataPath.push(column),
-            model: child
-          };
-        } else {
-          return {
-            type: 'dropdown',
-            source: child.options(collectValue).map(option => option.label)
-          };
-        }
-      } else if (child instanceof NumberUIModel) {
-        return {
-          type: 'numeric'
-        };
-      }
-    }
-    return {};
+    const childModel = this.childAtIndex(column)!;
+    return TableUIModelCommon.cellSetting(childModel, childModel.definition, this.dataPath, collectValue, column);
   }
 
   protected childDefinitionAt(index: IndexType): UIDefinitionBase | undefined {

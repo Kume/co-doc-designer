@@ -1,20 +1,9 @@
 import UIDefinitionBase from './UIDefinitionBase';
-import UIDefinitionConfig from './UIDefinitionConfig';
-import {
-  parseOptionsConfig,
-  SelectDynamicOption,
-  SelectOptionConfig,
-  SelectStaticOption
-} from '../common/commonConfig';
+import { SelectUIDefinitionConfig } from './UIDefinitionConfig';
+import { parseOptionsConfig, SelectDynamicOption, SelectStaticOption } from '../common/commonConfig';
 import { AnyDataSchema } from '../DataSchema';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import ConfigError from '../../common/Error/ConfigError';
-
-export interface SelectUIDefinitionConfig extends UIDefinitionConfig {
-  emptyToNull: boolean;
-  options?: SelectOptionConfig;
-  isMulti?: boolean;
-}
 
 export default class SelectUIDefinition extends UIDefinitionBase {
   public readonly isMulti: boolean;

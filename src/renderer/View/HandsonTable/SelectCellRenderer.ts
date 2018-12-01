@@ -1,6 +1,7 @@
 import handsontable from 'handsontable';
 import { HandsonTableSettings } from './ReferenceTextCellEditor';
 import { MultiSelectCellSetting } from '../../UIModel/TableRowUIModel';
+import SelectUIModel from '../../UIModel/SelectUIModel';
 
 export default function SelectCellRenderer (
   this: any,
@@ -20,9 +21,12 @@ export default function SelectCellRenderer (
     td.removeChild(child);
   }
 
-  for (const value of cellProperties.model.value as any[]) {
-    td.appendChild(document.createTextNode(cellProperties.model.labelForValue(settings.collectValue, value)));
-    td.appendChild(document.createElement('br'));
+  if (Array.isArray(cellProperties.value)) {
+    const options = SelectUIModel.options(settings.collectValue, cellProperties.definition, cellProperties.dataPath);
+    for (const value of cellProperties.value) {
+      td.appendChild(document.createTextNode(SelectUIModel.labelForValue(options, settings.collectValue, value)));
+      td.appendChild(document.createElement('br'));
+    }
   }
 }
 

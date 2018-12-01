@@ -3,8 +3,9 @@ import { List, Map } from 'immutable';
 import { UIModelUpdateStateAction } from '../UIModelActions';
 import { UIModelState } from '../types';
 import { stateKey } from '../UIModel';
-import { default as TabUIDefinition, TabUIDefinitionConfig } from '../../UIDefinition/TabUIDefinition';
+import { default as TabUIDefinition} from '../../UIDefinition/TabUIDefinition';
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
+import { TabUIDefinitionConfig } from '../../UIDefinition/UIDefinitionConfig';
 
 require('../UIModelFactory');
 

@@ -1,12 +1,9 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
-import UIDefinitionConfig from './UIDefinitionConfig';
+import { FormUIDefinitionConfig } from './UIDefinitionConfig';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
-
-export interface FormUIDefinitionConfig extends UIDefinitionConfig {
-}
 
 export default class FormUIDefinition extends MultiContentsUIDefinition {
   public readonly keyFlatten: boolean;

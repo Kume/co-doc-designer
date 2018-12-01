@@ -2,7 +2,6 @@ import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
 import MappingTableUIModel from '../UIModel/MappingTableUIModel';
 import Handsontable, { GridSettings } from 'handsontable';
 import { HandsonTableSettings } from '../View/HandsonTable/ReferenceTextCellEditor';
-import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
 import * as React from 'react';
 
 require('../View/HandsonTable/ReferenceTextCellEditor');
