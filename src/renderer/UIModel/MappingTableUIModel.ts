@@ -20,7 +20,8 @@ export default class MappingTableUIModel extends MultiContentUIModel<MappingTabl
     for (const change of changes) {
       const [row, column, , after] = change;
       if (!changesByRow.has(row)) { changesByRow.set(row, []); }
-      changesByRow.get(row)!.push({column, value: after});
+      const value = typeof after === 'string' ? after.replace(/\r$/, '') : after;
+      changesByRow.get(row)!.push({column, value});
     }
     return new Map(Array.from(changesByRow.entries()).sort((a, b) => a[0] === b[0] ? 0 : a[0] > b[0] ? 1 : - 1));
   }
