@@ -10,7 +10,7 @@ export default class NumberUIModel extends UIModel<NumberUIDefinition> {
   }
 
   public static input(definition: NumberUIDefinition, dataPath: DataPath, value: string | undefined): UIModelAction[] {
-    if (value === undefined) {
+    if (value === undefined || value === '') {
       return [UIModelAction.Creators.deleteData(dataPath)];
     } else {
       try {
