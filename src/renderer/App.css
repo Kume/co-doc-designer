@@ -94,3 +94,7 @@ div.ui-root-modal-content {
   background-color: white;
   border: 1px solid gray;
 }
+
+div.CodeMirror pre {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+}

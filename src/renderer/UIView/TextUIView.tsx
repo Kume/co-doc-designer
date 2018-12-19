@@ -31,6 +31,14 @@ export default class TextUIView extends UIViewBase<TextUIModel, UIViewBaseProps<
           ref={ref => this.initTextArea(ref)}
         />
       );
+    } else if (model.definition.multiline) {
+      return (
+        <textarea
+          defaultValue={model.text}
+          onChange={() => applyAction(model.input(this._textArea.value))}
+          ref={ref => this.initTextArea(ref)}
+        />
+      );
     } else {
       return (
         <input
