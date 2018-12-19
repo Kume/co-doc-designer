@@ -24,7 +24,8 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
     for (const change of changes) {
       const [row, column, , after] = change;
       if (!changesByRow.has(row)) { changesByRow.set(row, []); }
-      changesByRow.get(row)!.push({column, value: after});
+      const value = typeof after === 'string' ? after.replace(/\r$/, '') : after;
+      changesByRow.get(row)!.push({column, value});
     }
     return new Map(Array.from(changesByRow.entries()).sort((a, b) => a[0] === b[0] ? 0 : a[0] > b[0] ? 1 : - 1));
   }
@@ -137,7 +138,7 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
     return undefined;
   }
 
-  public columnSettings(collectValue: CollectValue, row?: number, column?: number) {
+  public cellSettings(collectValue: CollectValue, row?: number, column?: number) {
     if (row === undefined || column === undefined) {
       return {};
     }
@@ -152,17 +153,18 @@ export default class TableUIModel extends MultiContentUIModel<TableUIDefinition,
   protected createChildModel(
     newProps: UIModelProps | undefined, definition: UIDefinitionBase, oldChild: UIModel | undefined
   ): UIModel {
-    if (newProps) {
-      if (oldChild) {
-        if (oldChild.definition !== definition || !oldChild.props.fastEquals(newProps)) {
-          return new TableRowUIModel(this.definition, newProps, oldChild as TableRowUIModel);
-        }
-      } else {
-        return new TableRowUIModel(this.definition, newProps);
-      }
-    } else {
+    if (!newProps) {
       throw new Error();
     }
+
+    if (!oldChild) {
+      return new TableRowUIModel(this.definition, newProps);
+    }
+
+    if (oldChild.definition !== definition || !oldChild.props.fastEquals(newProps)) {
+      return new TableRowUIModel(this.definition, newProps, oldChild as TableRowUIModel);
+    }
+
     return oldChild;
   }
 

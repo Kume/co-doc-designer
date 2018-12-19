@@ -16,6 +16,8 @@ import TableUIDefinition from '../UIDefinition/TableUIDefinition';
 import TableUIModel from './TableUIModel';
 import NumberUIDefinition from '../UIDefinition/NumberUIDefinition';
 import NumberUIModel from './NumberUIModel';
+import MappingTableUIDefinition from '../UIDefinition/MappingTableUIDefinition';
+import MappingTableUIModel from './MappingTableUIModel';
 
 export class UIModelFactory {
   public static create(definition: UIDefinitionBase, props: UIModelProps, oldModel?: UIModel<any>): UIModel<any> {
@@ -42,6 +44,9 @@ export class UIModelFactory {
     }
     if (definition instanceof NumberUIDefinition) {
       return new NumberUIModel(definition, props);
+    }
+    if (definition instanceof MappingTableUIDefinition) {
+      return new MappingTableUIModel(definition, props);
     }
     throw new Error('Invalid ui definition.');
   }

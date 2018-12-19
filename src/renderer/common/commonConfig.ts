@@ -1,23 +1,14 @@
 import DataPath from '../DataModel/Path/DataPath';
+import {
+  SelectDynamicOptionConfig,
+  SelectOptionConfig,
+  SelectStaticOptionConfig
+} from '../UIDefinition/UIDefinitionConfig';
 
 export interface SelectOption<T = number | string> {
   label: string;
   value: T;
 }
-
-export interface SelectStaticOptionConfig<T = number | string> {
-  label: string;
-  value: T;
-}
-
-export interface SelectDynamicOptionConfig {
-  path: string;
-  labelPath?: string;
-  valuePath?: string;
-}
-
-export type SelectOptionConfig<T = number | string> =
-  SelectDynamicOptionConfig | Array<string | SelectStaticOptionConfig<T> | SelectDynamicOptionConfig>;
 
 
 export interface SelectDynamicOption {

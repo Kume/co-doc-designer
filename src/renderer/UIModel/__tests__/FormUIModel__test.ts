@@ -1,5 +1,5 @@
 import FormUIModel from '../FormUIModel';
-import FormUIDefinition, { FormUIDefinitionConfig } from '../../UIDefinition/FormUIDefinition';
+import FormUIDefinition from '../../UIDefinition/FormUIDefinition';
 import { UIModelProps } from '../UIModel';
 import MapDataModel from '../../DataModel/MapDataModel';
 import DataPath from '../../DataModel/Path/DataPath';
@@ -9,6 +9,7 @@ import { SetDataAction } from '../../DataModel/DataAction';
 import TextUIModel from '../TextUIModel';
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
 import { List } from 'immutable';
+import { FormUIDefinitionConfig } from '../../UIDefinition/UIDefinitionConfig';
 
 require('../UIModelFactory');
 

@@ -1,23 +1,19 @@
-import * as React from 'react';
 import UIViewBase, { UIViewBaseProps, UIViewBaseState } from './UIViewBase';
-import UIDefinitionBase from '../UIDefinition/UIDefinitionBase';
-import 'handsontable/dist/handsontable.css';
+import MappingTableUIModel from '../UIModel/MappingTableUIModel';
 import Handsontable, { GridSettings } from 'handsontable';
-import TableUIModel from '../UIModel/TableUIModel';
 import { HandsonTableSettings } from '../View/HandsonTable/ReferenceTextCellEditor';
-import '../View/HandsonTable/ReferenceTextCellRenderer';
-import '../View/HandsonTable/SelectCellEditor';
-import '../View/HandsonTable/SelectCellRenderer';
+import * as React from 'react';
 
 require('../View/HandsonTable/ReferenceTextCellEditor');
 
 interface State extends UIViewBaseState {
 }
 
-export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProps<TableUIModel>, State> {
+export default class MappingTableUIView extends
+  UIViewBase<MappingTableUIModel, UIViewBaseProps<MappingTableUIModel>, State> {
   private _handsontable: Handsontable;
 
-  constructor(props: UIViewBaseProps<TableUIModel>, context?: any) {
+  constructor(props: UIViewBaseProps<MappingTableUIModel>, context?: any) {
     super(props, context);
     this.state = {
     };
@@ -36,22 +32,7 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
     if (this._handsontable) {
       this._handsontable.updateSettings(this.settings, false);
     } else {
-      const handsontable: any = new Handsontable(container, this.settings);
-      this._handsontable = handsontable;
-      // this._handsontable.addHook('afterBeginEditing', (row: number, column: number) => {
-      //   this.props.focus(this.props.model.props.dataPath.push(column).push(row));
-      //   console.log('afterBeginEditing', {row, column});
-      // });
-      handsontable.addHook('beforeRemoveRow', (start: number, size: number) => {
-        const { model, applyAction } = this.props;
-        applyAction(model.deleteRows(start, size));
-        return false;
-      });
-      handsontable.addHook('beforeCreateRow', (start: number, size: number) => {
-        const { model, applyAction } = this.props;
-        applyAction(model.insertRows(start, size));
-        return false;
-      });
+      this._handsontable = new Handsontable(container, this.settings);
     }
     const { rowFocus } = this.props.model;
     if (rowFocus !== undefined && this._handsontable) {
@@ -65,7 +46,7 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
       data: this.props.model.rawData(this.props.collectValue),
       afterChange: this.onChange,
       cells: this.getCellSettings,
-      colHeaders: this.columnHeaders,
+      colHeaders: this.props.model.columnHeaders(),
       rowHeaders: true,
       collectValue: this.props.collectValue,
       focus: this.props.focus,
@@ -73,7 +54,7 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
     };
   }
 
-  private onChange = (changes: any[], source: string) => {
+  private onChange = (changes: any[], source: string): void => {
     if (!changes) { return; }
     const { model, applyAction, collectValue } = this.props;
     applyAction(model.inputChanges(collectValue, changes));
@@ -82,9 +63,5 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
   private getCellSettings = (row?: number, col?: number, prop?: object) => {
     const { model, collectValue } = this.props;
     return model.cellSettings(collectValue, row, col) as GridSettings;
-  }
-
-  private get columnHeaders(): Array<string> {
-    return this.props.model.definition.contents.map((content: UIDefinitionBase) => content.label).toArray();
   }
 }

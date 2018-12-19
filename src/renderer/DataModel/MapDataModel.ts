@@ -142,6 +142,10 @@ export default class MapDataModel extends MapDataModelRecord implements Collecti
     return node && node.key;
   }
 
+  public get keys(): string[] {
+    return this._validList.map(item => item.key).toArray();
+  }
+
   applyAction(path: DataPath, action: DataAction, metadata?: DataPathElementMetadata): DataModelBase {
     const keyOrder = metadata && metadata.get('keyOrder');
     if (!path.isNotEmptyPath()) {

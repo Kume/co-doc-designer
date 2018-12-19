@@ -2,10 +2,10 @@ import DataSchema, { DataSchemaConfig } from './DataSchema';
 import {
   parseOptionsConfig,
   SelectDynamicOption,
-  SelectOptionConfig,
   SelectStaticOption
 } from '../common/commonConfig';
 import { DataSchemaFactory } from './DataSchemaFactory';
+import { SelectOptionConfig } from '../UIDefinition/UIDefinitionConfig';
 
 type dataType = 'string';
 

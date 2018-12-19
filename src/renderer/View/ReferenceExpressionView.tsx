@@ -4,7 +4,7 @@ import DataPath from '../DataModel/Path/DataPath';
 import { CollectValue } from '../UIModel/types';
 import ReferenceExpression from '../Model/ReferenceExpression';
 import ReferenceExpressionResolver from '../Model/ReferenceExpressionResolver';
-import { TemplateReference } from '../UIDefinition/TextUIDefinition';
+import { TemplateReference } from '../UIDefinition';
 
 export function makeReferenceExpressionView(
   text: string,
@@ -41,7 +41,7 @@ export function makeReferenceExpressionView(
         title: () => {
           return ReferenceExpressionResolver.resolve(refExp, referenceDefinitions, collectValue, dataPath) || '';
         },
-        boundariesElement: document.documentElement,
+        boundariesElement: document.documentElement || undefined,
         placement: 'bottom'
       });
     } else {

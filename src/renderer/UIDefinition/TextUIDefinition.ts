@@ -1,28 +1,10 @@
 import UIDefinitionBase from './UIDefinitionBase';
-import UIDefinitionConfig from './UIDefinitionConfig';
+import { TemplateReferencePathConfig, TextUIDefinitionConfig } from './UIDefinitionConfig';
 import DataPath from '../DataModel/Path/DataPath';
 import { TemplateLine } from '../Model/TemplateEngine';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
-
-interface TemplateReferencePathConfig {
-  path: string;
-  keyPath: string;
-  description?: string;
-}
-
-interface TemplateReferenceConfig {
-  readonly name?: string;
-  readonly paths: (TemplateReferencePathConfig | TemplateReferencePathConfig[])[];
-}
-
-export interface TextUIDefinitionConfig extends UIDefinitionConfig {
-  emptyToNull: boolean;
-  multiline?: boolean;
-  options?: Array<string>;
-  references?: { [key: string]: TemplateReferenceConfig };
-}
 
 export interface TemplateReference {
   readonly key: string;

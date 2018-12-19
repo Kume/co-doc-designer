@@ -1,19 +1,12 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
-import UIDefinitionConfig from './UIDefinitionConfig';
-import CollectionDataModelUtil, {
-  CollectionDataModelType,
-  CollectionDataModelTypeString
-} from '../DataModel/CollectionDataModelUtil';
+import { TableUIDefinitionConfig } from './UIDefinitionConfig';
+import CollectionDataModelUtil, { CollectionDataModelType } from '../DataModel/CollectionDataModelUtil';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
 import ListDataModel from '../DataModel/ListDataModel';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
-
-export interface TableUIDefinitionConfig extends UIDefinitionConfig {
-  dataType?: CollectionDataModelTypeString;
-}
 
 export default class TableUIDefinition extends MultiContentsUIDefinition {
   private _dataType: CollectionDataModelType = CollectionDataModelType.List;
