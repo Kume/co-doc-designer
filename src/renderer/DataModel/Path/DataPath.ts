@@ -138,6 +138,10 @@ export default class DataPath extends DataPathRecord {
     return this.elements.size === 1;
   }
 
+  public get elementSize(): number {
+    return this.elements.size;
+  }
+
   public get isEmptyPath(): boolean {
     return this.elements.isEmpty();
   }

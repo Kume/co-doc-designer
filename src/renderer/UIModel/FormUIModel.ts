@@ -44,11 +44,15 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
         data
       });
     } else {
+      let childFocusedPath: DataPath | undefined;
+      if (focusedPath && focusedPath.isNotEmptyPath() && DataPathElement.isMatch(index, focusedPath.firstElement)) {
+        childFocusedPath = focusedPath.shift();
+      }
       return new UIModelProps({
         stateNode: this.childStateAt(index),
         dataPath: dataPath.push(index),
         modelPath: modelPath.push(index),
-        focusedPath: focusedPath && focusedPath.shift(),
+        focusedPath: childFocusedPath,
         data: this.childDataAt(index)
       });
     }

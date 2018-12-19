@@ -69,6 +69,27 @@ class DataPathElement extends Record(defaultValue) {
     return new DataPathElement(path, DataPathElement.Type.Variable);
   }
 
+  public static isMatch(index: number | string | symbol, element: DataPathElement | undefined): boolean {
+    if (!element) { return false; }
+    if (typeof index === 'number') {
+      if (element.canBeListIndex) {
+        return index === element.asListIndex;
+      } else if (element.canBeMapKey) {
+        return index.toString() === element.asMapKey;
+      } else {
+        return false;
+      }
+    } else if (typeof index === 'string') {
+      if (element.canBeMapKey) {
+        return index === element.asMapKey;
+      } else {
+        return false;
+      }
+    } else {
+      return index === DataPathElement.keySymbol && element.isKey;
+    }
+  }
+
   public constructor(value: any, type: DataPathElement.Type) {
     super({ _value: value, _type: type });
   }
