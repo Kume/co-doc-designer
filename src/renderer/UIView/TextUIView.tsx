@@ -17,6 +17,7 @@ export default class TextUIView extends UIViewBase<TextUIModel, UIViewBaseProps<
 
   componentWillReceiveProps(props: UIViewBaseProps<TextUIModel>) {
     if (this._referenceTextEditor) {
+      this._referenceTextEditor.props = this.referenceTextEditorProps(props);
       this._referenceTextEditor.setText(props.model.text);
     }
   }
@@ -53,15 +54,19 @@ export default class TextUIView extends UIViewBase<TextUIModel, UIViewBaseProps<
 
   private initTextArea(ref: HTMLTextAreaElement | null): void {
     if (!ref || this._textArea) { return; }
-    const { collectValue, model, applyAction, focus } = this.props;
     this._textArea = ref;
-    this._referenceTextEditor = new ReferenceTextEditor(ref, {
+    this._referenceTextEditor = new ReferenceTextEditor(ref, this.referenceTextEditorProps(this.props));
+    this._referenceTextEditor.applyCodeMirror();
+  }
+
+  private referenceTextEditorProps(props: UIViewBaseProps<TextUIModel>) {
+    const { collectValue, model, applyAction, focus } = props;
+    return {
       collectValue,
       dataPath: model.props.dataPath,
       references: model.definition.references,
-      onChange: (text) => applyAction(model.input(text)),
+      onChange: (text: string) => applyAction(model.input(text)),
       focus
-    });
-    this._referenceTextEditor.applyCodeMirror();
+    };
   }
 }

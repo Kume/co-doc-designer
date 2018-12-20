@@ -1,12 +1,13 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="DEV" type="js.build_tools.npm" factoryName="npm">
+  <configuration default="false" name="DEV" type="js.build_tools.npm">
     <package-json value="$PROJECT_DIR$/package.json" />
     <command value="run" />
     <scripts>
       <script value="dev" />
     </scripts>
     <node-interpreter value="project" />
+    <package-manager value="$USER_HOME$/.nodenv/versions/8.12.0/lib/node_modules/npm/bin" />
     <envs />
-    <method />
+    <method v="2" />
   </configuration>
 </component>
