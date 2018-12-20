@@ -59,7 +59,9 @@ export class TableUIModelCommon {
       } else {
         return {
           type: 'dropdown',
-          source: SelectUIModel.options(collectValue, definition, dataPath).map((option) => option.label)
+          source: SelectUIModel
+            .options(collectValue, definition, dataPath.push(column))
+            .map((option) => option.label)
         };
       }
     } else if (definition instanceof NumberUIDefinition) {
