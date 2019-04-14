@@ -24,6 +24,11 @@ export default class ContentListUIDefinition extends SingleContentUIDefinition {
         this.itemLabel = dataSchema.item.dataLabel === undefined ?
           undefined : new TemplateLine(dataSchema.item.dataLabel);
         this.content = UIDefinitionFactory.create(config.content!, dataSchema.item);
+      } else if (dataSchema.type === 'list') {
+        this._dataType = CollectionDataModelType.List;
+        this.itemLabel = dataSchema.item.dataLabel === undefined ?
+          undefined : new TemplateLine(dataSchema.item.dataLabel);
+        this.content = UIDefinitionFactory.create(config.content!, dataSchema.item);
       } else {
         throw new ConfigError('invalid type of data schema for ContentListUIDefinition');
       }
