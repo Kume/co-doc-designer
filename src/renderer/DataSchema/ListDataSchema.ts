@@ -1,7 +1,6 @@
 import DataSchema, { DataSchemaConfig } from './DataSchema';
 import { DataSchemaFactory } from './DataSchemaFactory';
 import { AnyDataSchema } from './index';
-import { SelectDynamicOption, SelectStaticOption } from '../common/commonConfig';
 
 export interface ListDataSchemaConfig extends DataSchemaConfig {
   type: 'list';
