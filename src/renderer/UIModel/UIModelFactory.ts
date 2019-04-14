@@ -28,7 +28,7 @@ export class UIModelFactory {
       return new TextUIModel(definition, props);
     }
     if (definition instanceof TabUIDefinition) {
-      return new TabUIModel(definition, props);
+      return new TabUIModel(definition, props, oldModel instanceof TabUIModel ? oldModel : undefined);
     }
     if (definition instanceof CheckBoxUIDefinition) {
       return new CheckBoxUIModel(definition, props);
@@ -37,16 +37,16 @@ export class UIModelFactory {
       return new SelectUIModel(definition, props);
     }
     if (definition instanceof ContentListUIDefinition) {
-      return new ContentListUIModel(definition, props);
+      return new ContentListUIModel(definition, props, oldModel instanceof ContentListUIModel ? oldModel : undefined);
     }
     if (definition instanceof TableUIDefinition) {
-      return new TableUIModel(definition, props);
+      return new TableUIModel(definition, props, oldModel instanceof TableUIModel ? oldModel : undefined);
     }
     if (definition instanceof NumberUIDefinition) {
       return new NumberUIModel(definition, props);
     }
     if (definition instanceof MappingTableUIDefinition) {
-      return new MappingTableUIModel(definition, props);
+      return new MappingTableUIModel(definition, props, oldModel instanceof MappingTableUIModel ? oldModel : undefined);
     }
     throw new Error('Invalid ui definition.');
   }

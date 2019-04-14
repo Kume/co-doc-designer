@@ -8,6 +8,7 @@ import { HandsonTableSettings } from '../View/HandsonTable/ReferenceTextCellEdit
 import '../View/HandsonTable/ReferenceTextCellRenderer';
 import '../View/HandsonTable/SelectCellEditor';
 import '../View/HandsonTable/SelectCellRenderer';
+import { TableCellSettingsCache } from '../UIModel/TableUIModelCommon';
 
 require('../View/HandsonTable/ReferenceTextCellEditor');
 
@@ -79,9 +80,31 @@ export default class TableUIView extends UIViewBase<TableUIModel, UIViewBaseProp
     applyAction(model.inputChanges(collectValue, changes));
   }
 
+  private cellSettingsCache: TableCellSettingsCache[][] = [];
+
+  private getCellSettingsCache(row: number, col: number): TableCellSettingsCache | undefined {
+    const settingRow = this.cellSettingsCache[row];
+    return settingRow && settingRow[col];
+  }
+
+  private setCellSettingsCache(row: number, col: number, cache: TableCellSettingsCache): void {
+    if (!this.cellSettingsCache[row]) {
+      this.cellSettingsCache[row] = [];
+    }
+    this.cellSettingsCache[row][col] = cache;
+  }
+
   private getCellSettings = (row?: number, col?: number, prop?: object) => {
     const { model, collectValue } = this.props;
-    return model.cellSettings(collectValue, row, col) as GridSettings;
+    const cache = this.getCellSettingsCache(row!, col!);
+    const now = (new Date()).getTime();
+    if (!cache || !cache.lastCached || cache.lastModel !== model || now - cache.lastCached > 10000) {
+      const result = model.cellSettings(collectValue, row, col) as GridSettings;
+      this.setCellSettingsCache(row!, col!, { settings: result, lastCached: now, lastModel: model });
+      return result;
+    } else {
+      return cache.settings!;
+    }
   }
 
   private get columnHeaders(): Array<string> {

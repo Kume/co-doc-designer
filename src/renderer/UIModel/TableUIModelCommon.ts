@@ -13,6 +13,13 @@ import TextUIModel from './TextUIModel';
 import CheckBoxUIModel from './CheckBoxUIModel';
 import NumberUIModel from './NumberUIModel';
 import { List } from 'immutable';
+import { GridSettings } from 'handsontable';
+
+export interface TableCellSettingsCache {
+  settings?: GridSettings;
+  lastCached?: number;
+  lastModel?: any;
+}
 
 export class TableUIModelCommon {
   public static cellSetting(

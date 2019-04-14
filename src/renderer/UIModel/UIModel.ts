@@ -115,12 +115,12 @@ export abstract class SingleContentUIModel<D extends UIDefinitionBase> extends C
     if (!newProps || !newDefinition) { return undefined; }
     if (oldModel && oldModel.child) {
       if (oldModel.child.definition !== newDefinition || !oldModel.child.props.fastEquals(newProps)) {
-        return this._factory(newDefinition, newProps);
+        return this._factory(newDefinition, newProps, oldModel.child);
       } else {
         return oldModel.child;
       }
     } else {
-      return this._factory(newDefinition, newProps);
+      return this._factory(newDefinition, newProps, oldModel && oldModel.child);
     }
   }
 

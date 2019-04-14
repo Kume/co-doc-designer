@@ -26,4 +26,4 @@ export default class UIViewBase<
   T extends UIModel<any>,
   P extends UIViewBaseProps<T>,
   S extends UIViewBaseState
-  > extends React.Component<P, S> {}
+  > extends React.PureComponent<P, S> {}
