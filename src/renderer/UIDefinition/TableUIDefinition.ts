@@ -25,6 +25,16 @@ export default class TableUIDefinition extends MultiContentsUIDefinition {
         } else {
           throw new ConfigError('invalid type of data schema for TableUIDefinition children');
         }
+      } else if (dataSchema.type === 'list') {
+        this._dataType = CollectionDataModelType.List;
+        const { item } = dataSchema;
+        if (item.type === 'fixed_map') {
+          for (const child of config.contents || []) {
+            this.addContent(UIDefinitionFactory.create(child, item.items.get(child.key!)));
+          }
+        } else {
+          throw new ConfigError('invalid type of data schema for TableUIDefinition');
+        }
       } else {
         throw new ConfigError('invalid type of data schema for TableUIDefinition');
       }

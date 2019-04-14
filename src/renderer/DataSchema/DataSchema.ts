@@ -1,4 +1,5 @@
 export type DataSchemaType =
+  'list' |
   'map' |
   'fixed_map' |
   'string' |
