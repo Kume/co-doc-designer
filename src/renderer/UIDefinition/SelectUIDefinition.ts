@@ -6,16 +6,16 @@ import { UIDefinitionFactory } from './UIDefinitionFactory';
 import ConfigError from '../../common/Error/ConfigError';
 
 export default class SelectUIDefinition extends UIDefinitionBase {
-  private static configsForItemSchema(schema: AnyDataSchema) {
-    let options: ReadonlyArray<SelectStaticOption | SelectDynamicOption> | undefined;
-    if (schema.type === 'string') {
-      options = schema.in;
-    } else if (schema.type === 'number' || schema.type === 'boolean') {
-      // 今の所特になにもしない
-    } else {
-      throw new ConfigError(`Type ${schema.type} is invalid for select`);
-    }
-  }
+//  private static configsForItemSchema(schema: AnyDataSchema) {
+//    let options: ReadonlyArray<SelectStaticOption | SelectDynamicOption> | undefined;
+//    if (schema.type === 'string') {
+//      options = schema.in;
+//    } else if (schema.type === 'number' || schema.type === 'boolean') {
+//      // 今の所特になにもしない
+//    } else {
+//      throw new ConfigError(`Type ${schema.type} is invalid for select`);
+//    }
+//  }
 
   public readonly isMulti: boolean;
   public readonly options: ReadonlyArray<SelectStaticOption | SelectDynamicOption>;
