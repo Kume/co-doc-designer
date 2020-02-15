@@ -10,7 +10,7 @@ describe('Integration tests for DataModel', () => {
     it('Can insert deeply for ListDataModel', () => {
       const model = DataModelFactory.create([{}, {a: 1, b: ['c', 'd']}, []]);
       const inserted = model.applyAction(
-        DataPath.parse('1/b'),
+        DataPath.parse('1/b', []),
         <InsertDataAction> {type: 'Insert', targetIndex: 1, data: insertData});
       expect(inserted.toJsonObject()).toEqual([{}, {a: 1, b: ['c', '***', 'd']}, []]);
     });
@@ -18,7 +18,7 @@ describe('Integration tests for DataModel', () => {
     it('Can insert deeply for MapDataModel', () => {
       const model = DataModelFactory.create({a: 1, b: [{}, {d: 11, e: 17}, {}], c: 7});
       const inserted = model.applyAction(
-        DataPath.parse('b/1'),
+        DataPath.parse('b/1', []),
         <InsertDataAction> {type: 'Insert', targetIndex: 'e', data: insertData, key: 'i'});
       expect(inserted.toJsonObject()).toEqual({a: 1, b: [{}, {d: 11, i: '***', e: 17}, {}], c: 7});
     });
@@ -28,7 +28,7 @@ describe('Integration tests for DataModel', () => {
     it('Can delete deeply for ListDataModel', () => {
       const model = DataModelFactory.create([{}, {a: 1, b: ['c', 'd', 'e']}, []]);
       const inserted = model.applyAction(
-        DataPath.parse('1/b'),
+        DataPath.parse('1/b', []),
         <DeleteDataAction> {type: 'Delete', targetIndex: 1});
       expect(inserted.toJsonObject()).toEqual([{}, {a: 1, b: ['c', 'e']}, []]);
     });
@@ -36,7 +36,7 @@ describe('Integration tests for DataModel', () => {
     it('Can delete deeply for MapDataModel', () => {
       const model = DataModelFactory.create({a: 1, b: [{}, {d: 11, e: 17, f: 99}, {}], c: 7});
       const inserted = model.applyAction(
-        DataPath.parse('b/1'),
+        DataPath.parse('b/1', []),
         <DeleteDataAction> {type: 'Delete', targetIndex: 'e'});
       expect(inserted.toJsonObject()).toEqual({a: 1, b: [{}, {d: 11, f: 99}, {}], c: 7});
     });
@@ -48,7 +48,7 @@ describe('Integration tests for DataModel', () => {
     it('Can set deeply for ListDataModel', () => {
       const model = DataModelFactory.create([{}, {a: 1, b: ['c', 'd', 'e']}, []]);
       const deleted = model.applyAction(
-        DataPath.parse('1/b/1'),
+        DataPath.parse('1/b/1', []),
         <SetDataAction> {type: 'Set', data: setData});
       expect(deleted.toJsonObject()).toEqual([{}, {a: 1, b: ['c', '***', 'e']}, []]);
     });
@@ -56,7 +56,7 @@ describe('Integration tests for DataModel', () => {
     it('Can set deeply for MapDataModel', () => {
       const model = DataModelFactory.create({a: 1, b: [{}, {d: 11, e: 17, f: 99}, {}], c: 7});
       const updated = model.applyAction(
-        DataPath.parse('b/1/e'),
+        DataPath.parse('b/1/e', []),
         <SetDataAction> {type: 'Se' +
           't', data: setData});
       expect(updated.toJsonObject()).toEqual({a: 1, b: [{}, {d: 11, e: '***', f: 99}, {}], c: 7});

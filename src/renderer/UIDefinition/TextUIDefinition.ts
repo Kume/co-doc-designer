@@ -20,8 +20,8 @@ export interface TemplateReferencePath {
 
 function pathItemConfigToDefinition(config: TemplateReferencePathConfig): TemplateReferencePath {
   return {
-    path: DataPath.parse(config.path),
-    keyPath: DataPath.parse(config.keyPath),
+    path: DataPath.parse(config.path, []),
+    keyPath: DataPath.parse(config.keyPath, []),
     description: config.description === undefined ? undefined : new TemplateLine(config.description)
   };
 }

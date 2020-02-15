@@ -7,9 +7,12 @@ AbsolutePath
   }
 
 JoinedPath
-  = head:(ReversePath "/")? tail:ForwardPath {
-    head = Array.isArray(head) ? head[0] : []
-    return head.concat(tail || [])
+  = context:(ContextWord "/")? head:(ReversePath "/")? tail:ForwardPath {
+    head = Array.isArray(head) ? head[0] : [];
+    if (context) {
+      head = [context[0]].concat(head);
+    }
+    return head.concat(tail || []);
   }
 
 ReversePath
@@ -57,6 +60,11 @@ WildWord
 ReverseWord
   = ".." {
     return { type: 'parent' }
+  }
+
+ContextWord
+  = ".." key:Word {
+    return { type: 'context', key }
   }
 
 Word

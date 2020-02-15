@@ -76,7 +76,7 @@ describe('Unit tests for MapDataModel', () => {
   describe('Unit tests for MapDataModel.collectValue', () => {
     it('Can collect single value', () => {
       const model = new MapDataModel({a: 1, b: 5});
-      const path = DataPath.parse('b');
+      const path = DataPath.parse('b', []);
       const collected = model.collectValue(path);
       expect(collected.length).toBe(1);
       expect((<NumberDataModel> collected[0].data).value).toBe(5);
@@ -84,7 +84,7 @@ describe('Unit tests for MapDataModel', () => {
 
     it('Can collect with single wild card', () => {
       const model = new MapDataModel({a: 1, b: 5});
-      const path = DataPath.parse('*');
+      const path = DataPath.parse('*', []);
       const collected = model.collectValue(path);
       expect(collected.length).toBe(2);
       expect((<NumberDataModel> collected[0].data).value).toBe(1);
@@ -93,7 +93,7 @@ describe('Unit tests for MapDataModel', () => {
 
     it('Can collect with wild card at deep layer', () => {
       const model = new MapDataModel({a: {b: {c: 1, d: 5}}});
-      const path = DataPath.parse('a/b/*');
+      const path = DataPath.parse('a/b/*', []);
       const collected = model.collectValue(path);
       expect(collected.length).toBe(2);
       expect((<NumberDataModel> collected[0].data).value).toBe(1);

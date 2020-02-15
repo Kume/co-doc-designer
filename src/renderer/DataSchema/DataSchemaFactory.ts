@@ -1,7 +1,8 @@
 import { DataSchemaConfig, DataSchemaType } from './DataSchema';
 import { AnyDataSchema } from './index';
+import { DataContext } from '../DataModel/DataContext';
 
-type SchemaConstructor = { new(config: DataSchemaConfig): AnyDataSchema };
+type SchemaConstructor = { new(config: DataSchemaConfig, context: readonly DataContext[]): AnyDataSchema };
 
 export class DataSchemaFactory {
   private static schemas: Map<DataSchemaType, SchemaConstructor> = new Map();
@@ -10,8 +11,8 @@ export class DataSchemaFactory {
     DataSchemaFactory.schemas.set(type, schemaConstructor);
   }
 
-  public static create(config: DataSchemaConfig): AnyDataSchema {
+  public static create(config: DataSchemaConfig, context: readonly DataContext[]): AnyDataSchema {
     const constructor = DataSchemaFactory.schemas.get(config.type)!;
-    return new constructor(config);
+    return new constructor(config, context);
   }
 }

@@ -95,7 +95,7 @@ export default abstract class UIModel<D extends UIDefinitionBase = any> {
 }
 
 export abstract class ContentUIModel<D extends UIDefinitionBase> extends UIModel<D> {
-  protected static _factory: (def: UIDefinitionBase, props: UIModelProps, oldModel?: UIModel<any>) => UIModel<any>;
+  protected static _factory?: (def: UIDefinitionBase, props: UIModelProps, oldModel?: UIModel<any>) => UIModel<any>;
 
   public static registerFactory(factory: (def: UIDefinitionBase, props: UIModelProps) => UIModel<any>): void {
     if (this._factory) { throw new Error('Factory is already registered.'); }
@@ -115,12 +115,12 @@ export abstract class SingleContentUIModel<D extends UIDefinitionBase> extends C
     if (!newProps || !newDefinition) { return undefined; }
     if (oldModel && oldModel.child) {
       if (oldModel.child.definition !== newDefinition || !oldModel.child.props.fastEquals(newProps)) {
-        return this._factory(newDefinition, newProps);
+        return this._factory!(newDefinition, newProps);
       } else {
         return oldModel.child;
       }
     } else {
-      return this._factory(newDefinition, newProps);
+      return this._factory!(newDefinition, newProps);
     }
   }
 
@@ -166,10 +166,10 @@ export abstract class MultiContentUIModel<D extends UIDefinitionBase, I> extends
     if (newProps) {
       if (oldChild) {
         if (oldChild.definition !== definition || !oldChild.props.fastEquals(newProps)) {
-          return MultiContentUIModel._factory(definition, newProps, oldChild);
+          return MultiContentUIModel._factory!(definition, newProps, oldChild);
         }
       } else {
-        return MultiContentUIModel._factory(definition, newProps);
+        return MultiContentUIModel._factory!(definition, newProps);
       }
     } else {
       throw new Error();

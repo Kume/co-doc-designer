@@ -2,6 +2,7 @@ import DataPathElement, { DataPathElementCompatible } from './DataPathElement';
 import { List, Record } from 'immutable';
 import * as PathParser from './PathParser';
 import InvalidCallError from '../../../common/Error/InvalidCallError';
+import { DataContext, depthForContextKey } from '../DataContext';
 
 const DataPathRecord = Record({
   elements: List<DataPathElement>(),
@@ -9,11 +10,13 @@ const DataPathRecord = Record({
   pointsKey: false
 });
 
-interface ParsedPathElement {
-  type: string;
-  words?: Array<string>;
-  path?: ParsedPath;
-}
+type ParsedPathElement =
+  { type: 'wildcard' } |
+  { type: 'variable', path: ParsedPath } |
+  { type: 'parent' } |
+  { type: 'absolute' } |
+  { type: 'key' } |
+  { type: 'context', key: string };
 
 interface DataPathOption {
   isAbsolute?: boolean;
@@ -32,12 +35,12 @@ export default class DataPath extends DataPathRecord {
   public readonly isAbsolute: boolean;
   public readonly pointsKey: boolean;
 
-  public static parse(value: string): DataPath {
+  public static parse(value: string, context: readonly DataContext[]): DataPath {
     if (value === DataPathElement.SpecialName.Key) {
       return new DataPath(DataPathElement.key);
     }
     const parsed = PathParser.parse(value) as ParsedPath;
-    return this._parse(parsed);
+    return this._parse(parsed, context);
   }
 
   public static join(head: DataPath, tail: DataPath) {
@@ -54,14 +57,25 @@ export default class DataPath extends DataPathRecord {
       .set('pointsKey', tail.pointsKey);
   }
 
-  private static _parse(parsed: ParsedPath): DataPath {
+  private static _parse(parsed: ParsedPath, context: readonly DataContext[]): DataPath {
     parsed = [...parsed];
     const option: DataPathOption = {};
     if (parsed.length > 0) {
       const first = parsed[0];
-      if (typeof first === 'object' && first.type === 'absolute') {
-        option.isAbsolute = true;
-        parsed.shift();
+      if (typeof first === 'object') {
+        if (first.type === 'absolute') {
+          parsed.shift();
+          option.isAbsolute = true;
+        } else if (first.type === 'context') {
+          parsed.shift();
+          const depth = depthForContextKey(first.key, context);
+          if (depth === undefined) {
+            throw new Error(`Data context key '${first.key}' not found.`);
+          }
+          for (let i = 0; i < depth; i++) {
+            parsed.unshift({ type: 'parent' });
+          }
+        }
       }
     }
     if (parsed.length > 0) {
@@ -77,7 +91,7 @@ export default class DataPath extends DataPathRecord {
       } else if (parsedElement.type === 'wildcard') {
         return DataPathElement.wildCard;
       } else if (parsedElement.type === 'variable') {
-        return DataPathElement.variable(this._parse(parsedElement.path!));
+        return DataPathElement.variable(this._parse(parsedElement.path, context));
       } else if (parsedElement.type === 'parent') {
         return DataPathElement.reverse;
       } else {

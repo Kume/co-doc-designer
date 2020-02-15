@@ -6,6 +6,7 @@ import {
 } from '../common/commonConfig';
 import { DataSchemaFactory } from './DataSchemaFactory';
 import { SelectOptionConfig } from '../UIDefinition/UIDefinitionConfig';
+import { DataContext } from '../DataModel/DataContext';
 
 type dataType = 'string';
 
@@ -18,9 +19,9 @@ export class StringDataSchema extends DataSchema {
   public readonly type: dataType;
   public readonly in?: Array<SelectStaticOption | SelectDynamicOption>;
 
-  public constructor(config: StringDataSchemaConfig) {
-    super(config);
-    if (config.in) { this.in = parseOptionsConfig(config.in); }
+  public constructor(config: StringDataSchemaConfig, context: readonly DataContext[]) {
+    super(config, context);
+    if (config.in) { this.in = parseOptionsConfig(config.in, this.context); }
   }
 }
 

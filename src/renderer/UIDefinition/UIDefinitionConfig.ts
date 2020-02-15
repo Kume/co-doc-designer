@@ -9,6 +9,10 @@ export type UIDefinitionType =
   'tab' |
   'number';
 
+export interface UIDefinitionConfigCondition {
+  path: string;
+}
+
 export default interface UIDefinitionConfig {
   type: UIDefinitionType;
   label?: string;
@@ -16,6 +20,7 @@ export default interface UIDefinitionConfig {
   keyFlatten?: boolean;
   contents?: Array<UIDefinitionConfig>;
   content?: UIDefinitionConfig;
+  condition?: UIDefinitionConfigCondition;
 }
 
 export interface MappingTableUIDefinitionConfig extends UIDefinitionConfig {

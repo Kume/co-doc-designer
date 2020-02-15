@@ -49,7 +49,7 @@ export default class SelectUIDefinition extends UIDefinitionBase {
     }
 
     if (config.options) {
-      options = parseOptionsConfig(config.options);
+      options = parseOptionsConfig(config.options, []);
     } else {
       if (dataSchema) {
         if (dataSchema.type === 'string' && dataSchema.in) {

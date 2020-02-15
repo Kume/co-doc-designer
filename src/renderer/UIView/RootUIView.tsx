@@ -84,7 +84,7 @@ export default class RootUIView extends React.Component<Props, State> {
       if (!fileNames) { return; }
       fs.readFile(fileNames[0], async (err, data) => {
         const schema = Yaml.safeLoad(data.toString()) as any;
-        const dataSchema = DataSchemaFactory.create(schema.dataSchema);
+        const dataSchema = DataSchemaFactory.create(schema.dataSchema, []);
         this.dataMapper = DataMapper.build(schema && schema.fileMap, new FileDataStorage(path.dirname(fileNames[0])));
         const loaded = await this.dataMapper.loadAsync();
         const model = UIDefinitionFactory.create(schema!.uiRoot as UIDefinitionConfig, dataSchema);

@@ -43,7 +43,7 @@ describe('Unit tests for FormUIModel', () => {
   });
   it('Can update children', () => {
     const updateAction = <SetDataAction> { type: 'Set', data: StringDataModel.create('***')};
-    const updatedData = basicModel.props.data!.applyAction(DataPath.parse('a'), updateAction);
+    const updatedData = basicModel.props.data!.applyAction(DataPath.parse('a', []), updateAction);
     const updatedProps = createBasicProps(updatedData);
     const updatedModel = new FormUIModel(basicModel.definition, updatedProps, basicModel);
     expect((<TextUIModel> updatedModel.children.get('a')).text).toBe('***');

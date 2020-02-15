@@ -45,7 +45,7 @@ describe('Unit tests for ListDataModel', () => {
   describe('Unit tests for ListDataModel.collectValue', () => {
     it('Can collect single value', () => {
       const model = DataModelFactory.create(['first', 'second', 'third']) as ListDataModel;
-      const path = DataPath.parse('1');
+      const path = DataPath.parse('1', []);
       const collected = model.collectValue(path);
       expect(collected.length).toBe(1);
       expect((<StringDataModel> collected[0].data).value).toBe('second');
@@ -53,7 +53,7 @@ describe('Unit tests for ListDataModel', () => {
 
     it('Can collect with single wild card', () => {
       const model = DataModelFactory.create(['first', 'second', 'third']) as ListDataModel;
-      const path = DataPath.parse('*');
+      const path = DataPath.parse('*', []);
       const collected = model.collectValue(path);
       expect(collected.length).toBe(3);
       expect((<StringDataModel> collected[1].data).value).toBe('second');

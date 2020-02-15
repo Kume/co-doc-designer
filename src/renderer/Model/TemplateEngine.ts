@@ -29,7 +29,7 @@ export class TemplateLine {
       let path: DataPath | undefined;
       const key = line.substr(start + 2, nextEnd - start - 2);
       try {
-        path = DataPath.parse(key);
+        path = DataPath.parse(key, []);
       } catch (error) {
         // console.log(error);
       }

@@ -12,7 +12,7 @@ export default class MappingTableUIDefinition extends MultiContentsUIDefinition 
 
   public constructor(config: MappingTableUIDefinitionConfig, dataSchema?: AnyDataSchema) {
     super(config, dataSchema);
-    this.sourcePath = DataPath.parse(config.sourcePath);
+    this.sourcePath = DataPath.parse(config.sourcePath, []);
     if (dataSchema) {
       if (dataSchema.type === 'map') {
         const { item } = dataSchema;
