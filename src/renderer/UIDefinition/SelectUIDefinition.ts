@@ -1,9 +1,10 @@
 import UIDefinitionBase from './UIDefinitionBase';
-import { SelectUIDefinitionConfig } from './UIDefinitionConfig';
+import UIDefinitionConfig, { SelectUIDefinitionConfig } from './UIDefinitionConfig';
 import { parseOptionsConfig, SelectDynamicOption, SelectStaticOption } from '../common/commonConfig';
 import { AnyDataSchema } from '../DataSchema';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import ConfigError from '../../common/Error/ConfigError';
+import { NamedItemManager } from '../DataModel/Storage/NamedItemManager';
 
 export default class SelectUIDefinition extends UIDefinitionBase {
 //  private static configsForItemSchema(schema: AnyDataSchema) {
@@ -20,8 +21,12 @@ export default class SelectUIDefinition extends UIDefinitionBase {
   public readonly isMulti: boolean;
   public readonly options: ReadonlyArray<SelectStaticOption | SelectDynamicOption>;
 
-  public constructor(config: SelectUIDefinitionConfig, dataSchema?: AnyDataSchema) {
-    super(config, dataSchema);
+  public constructor(
+    config: SelectUIDefinitionConfig,
+    namedConfig: NamedItemManager<UIDefinitionConfig>,
+    dataSchema?: AnyDataSchema
+  ) {
+    super(config, namedConfig, dataSchema);
 
     let options: ReadonlyArray<SelectStaticOption | SelectDynamicOption> | undefined;
     if (dataSchema) {

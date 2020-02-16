@@ -18,8 +18,8 @@ export default interface UIDefinitionConfig {
   label?: string;
   key?: string;
   keyFlatten?: boolean;
-  contents?: Array<UIDefinitionConfig>;
-  content?: UIDefinitionConfig;
+  contents?: Array<UIDefinitionConfig | string>;
+  content?: UIDefinitionConfig | string;
   condition?: UIDefinitionConfigCondition;
 }
 

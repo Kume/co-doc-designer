@@ -1,32 +1,38 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
 import DataPathElement from '../DataModel/Path/DataPathElement';
-import { TabUIDefinitionConfig } from './UIDefinitionConfig';
+import UIDefinitionConfig, { TabUIDefinitionConfig } from './UIDefinitionConfig';
 import MapDataModel from '../DataModel/MapDataModel';
 import { StrictKeyedUIDefinition } from './UIDefinitionBase';
 import { List } from 'immutable';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
+import { NamedItemManager } from '../DataModel/Storage/NamedItemManager';
 
 export default class TabUIDefinition extends MultiContentsUIDefinition {
   public readonly keyFlatten: boolean;
   public readonly contents: List<StrictKeyedUIDefinition>;
   private _keyOrder?: string[];
 
-  public constructor(config: TabUIDefinitionConfig, dataSchema?: AnyDataSchema) {
-    super(config, dataSchema);
+  public constructor(
+    config: TabUIDefinitionConfig,
+    namedConfig: NamedItemManager<UIDefinitionConfig>,
+    dataSchema?: AnyDataSchema
+  ) {
+    super(config, namedConfig, dataSchema);
     this.keyFlatten = !!config.keyFlatten;
     if (dataSchema) {
       if (dataSchema.type === 'fixed_map') {
-        for (const child of config.contents || []) {
-          this.addContent(UIDefinitionFactory.create(child, dataSchema.items.get(child.key!)));
+        for (const content of config.contents || []) {
+          const [child, childNamedConfig] = namedConfig.resolve(content);
+          this.addContent(UIDefinitionFactory.create(child, childNamedConfig, dataSchema.items.get(child.key!)));
         }
       } else {
         throw new ConfigError('invalid type of data schema for TabUIDefinitionConfig');
       }
     } else {
       for (const child of config.contents || []) {
-        this.addContent(UIDefinitionFactory.create(child));
+        this.addContent(UIDefinitionFactory.create(...namedConfig.resolve(child)));
       }
     }
   }

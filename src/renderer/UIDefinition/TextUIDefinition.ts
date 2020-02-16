@@ -1,10 +1,11 @@
 import UIDefinitionBase from './UIDefinitionBase';
-import { TemplateReferencePathConfig, TextUIDefinitionConfig } from './UIDefinitionConfig';
+import UIDefinitionConfig, { TemplateReferencePathConfig, TextUIDefinitionConfig } from './UIDefinitionConfig';
 import DataPath from '../DataModel/Path/DataPath';
 import { TemplateLine } from '../Model/TemplateEngine';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
+import { NamedItemManager } from '../DataModel/Storage/NamedItemManager';
 
 export interface TemplateReference {
   readonly key: string;
@@ -31,8 +32,12 @@ export default class TextUIDefinition extends UIDefinitionBase {
   public readonly options?: ReadonlyArray<string>;
   public readonly references?: ReadonlyArray<TemplateReference>;
 
-  public constructor(config: TextUIDefinitionConfig, dataSchema?: AnyDataSchema) {
-    super(config, dataSchema);
+  public constructor(
+    config: TextUIDefinitionConfig,
+    namedConfig: NamedItemManager<UIDefinitionConfig>,
+    dataSchema?: AnyDataSchema
+  ) {
+    super(config, namedConfig, dataSchema);
     this.multiline = !!config.multiline;
     if (dataSchema) {
       if (dataSchema.type === 'string') {

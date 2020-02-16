@@ -3,7 +3,8 @@ import {
   SelectDynamicOptionConfig,
   SelectOptionConfig,
   SelectStaticOptionConfig
-} from '../UIDefinition/UIDefinitionConfig';
+} from '../UIDefinition';
+import { DataContext } from '../DataModel/DataContext';
 
 export interface SelectOption<T = number | string> {
   label: string;
@@ -31,7 +32,10 @@ export function isDynamicOption(option: SelectStaticOption | SelectDynamicOption
   return option.hasOwnProperty('path');
 }
 
-export function parseOptionsConfig(config: SelectOptionConfig): Array<SelectStaticOption | SelectDynamicOption> {
+export function parseOptionsConfig(
+  config: SelectOptionConfig,
+  context: readonly DataContext[]
+): Array<SelectStaticOption | SelectDynamicOption> {
   if (Array.isArray(config)) {
     const options: Array<SelectStaticOption | SelectDynamicOption> = [];
     for (const option of config) {
@@ -39,9 +43,9 @@ export function parseOptionsConfig(config: SelectOptionConfig): Array<SelectStat
         options.push({ label: option, value: option });
       } else if (isDynamicOptionConfig(option)) {
         options.push({
-          path: DataPath.parse(option.path),
-          labelPath: option.labelPath ? DataPath.parse(option.labelPath) : undefined,
-          valuePath: option.valuePath ? DataPath.parse(option.valuePath) : undefined,
+          path: DataPath.parse(option.path, context),
+          labelPath: option.labelPath ? DataPath.parse(option.labelPath, context) : undefined,
+          valuePath: option.valuePath ? DataPath.parse(option.valuePath, context) : undefined,
         });
       } else {
         options.push(option);
@@ -50,9 +54,9 @@ export function parseOptionsConfig(config: SelectOptionConfig): Array<SelectStat
     return options;
   } else {
     return [{
-      path: DataPath.parse(config.path),
-      labelPath: config.labelPath ? DataPath.parse(config.labelPath) : undefined,
-      valuePath: config.valuePath ? DataPath.parse(config.valuePath) : undefined,
+      path: DataPath.parse(config.path, context),
+      labelPath: config.labelPath ? DataPath.parse(config.labelPath, context) : undefined,
+      valuePath: config.valuePath ? DataPath.parse(config.valuePath, context) : undefined,
     }];
   }
 }

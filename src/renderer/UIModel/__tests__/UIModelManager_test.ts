@@ -5,7 +5,8 @@ import { UIModelState } from '../types';
 import { stateKey } from '../UIModel';
 import { default as TabUIDefinition} from '../../UIDefinition/TabUIDefinition';
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
-import { TabUIDefinitionConfig } from '../../UIDefinition/UIDefinitionConfig';
+import UIDefinitionConfig, { TabUIDefinitionConfig } from '../../UIDefinition/UIDefinitionConfig';
+import { NamedItemManager } from '../../DataModel/Storage/NamedItemManager';
 
 require('../UIModelFactory');
 
@@ -19,7 +20,8 @@ const basicDefinitionConfig: TabUIDefinitionConfig = {
     { type: 'text', key: 'c', label: 'C' },
   ]
 };
-const basicDefinition = UIDefinitionFactory.create(basicDefinitionConfig) as TabUIDefinition;
+const basicDefinition = UIDefinitionFactory.create(
+  basicDefinitionConfig, new NamedItemManager<UIDefinitionConfig>({})) as TabUIDefinition;
 
 describe('Unit tests for UIModelManager', () => {
   describe('Unit tests for UIModelManager.applyAction', () => {

@@ -1,5 +1,5 @@
 import SingleContentUIDefinition from './SingleContentUIDefinition';
-import { ContentListUIDefinitionConfig } from './UIDefinitionConfig';
+import UIDefinitionConfig, { ContentListUIDefinitionConfig } from './UIDefinitionConfig';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import { CollectionDataModel } from '../DataModel/DataModelBase';
 import MapDataModel from '../DataModel/MapDataModel';
@@ -9,32 +9,36 @@ import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
 import { TemplateLine } from '../Model/TemplateEngine';
+import { NamedItemManager } from '../DataModel/Storage/NamedItemManager';
 
 export default class ContentListUIDefinition extends SingleContentUIDefinition {
   public readonly itemLabel?: TemplateLine;
   private readonly _listIndexKey?: DataPathElement;
   private readonly _dataType: CollectionDataModelType;
 
-  public constructor(config: ContentListUIDefinitionConfig, dataSchema?: AnyDataSchema) {
-    super(config, dataSchema);
+  public constructor(
+    config: ContentListUIDefinitionConfig,
+    namedConfig: NamedItemManager<UIDefinitionConfig>,
+    dataSchema?: AnyDataSchema
+  ) {
+    super(config, namedConfig, dataSchema);
     this._listIndexKey = config.listIndexKey === undefined ? undefined : DataPathElement.parse(config.listIndexKey);
     if (dataSchema) {
       if (dataSchema.type === 'map') {
         this._dataType = CollectionDataModelType.Map;
-        this.itemLabel = dataSchema.item.dataLabel === undefined ?
-          undefined : new TemplateLine(dataSchema.item.dataLabel);
-        this.content = UIDefinitionFactory.create(config.content!, dataSchema.item);
       } else if (dataSchema.type === 'list') {
         this._dataType = CollectionDataModelType.List;
-        this.itemLabel = dataSchema.item.dataLabel === undefined ?
-          undefined : new TemplateLine(dataSchema.item.dataLabel);
-        this.content = UIDefinitionFactory.create(config.content!, dataSchema.item);
       } else {
         throw new ConfigError('invalid type of data schema for ContentListUIDefinition');
       }
+      this.itemLabel = dataSchema.item.dataLabel === undefined ?
+        undefined : new TemplateLine(dataSchema.item.dataLabel);
+      const [child, childNamedConfig] = namedConfig.resolve(config.content!);
+      this.content = UIDefinitionFactory.create(child, childNamedConfig, dataSchema.item);
     } else {
       this._dataType = CollectionDataModelUtil.parseModelType(config.dataType);
-      this.content = UIDefinitionFactory.create(config.content!);
+      const [child, childNamedConfig] = namedConfig.resolve(config.content!);
+      this.content = UIDefinitionFactory.create(child, childNamedConfig);
     }
   }
 

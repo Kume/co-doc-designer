@@ -9,7 +9,8 @@ import { SetDataAction } from '../../DataModel/DataAction';
 import TextUIModel from '../TextUIModel';
 import { UIDefinitionFactory } from '../../UIDefinition/UIDefinitionFactory';
 import { List } from 'immutable';
-import { FormUIDefinitionConfig } from '../../UIDefinition/UIDefinitionConfig';
+import UIDefinitionConfig, { FormUIDefinitionConfig } from '../../UIDefinition/UIDefinitionConfig';
+import { NamedItemManager } from '../../DataModel/Storage/NamedItemManager';
 
 require('../UIModelFactory');
 
@@ -31,8 +32,10 @@ function createBasicProps(data: DataModelBase): UIModelProps {
     stateNode: undefined
   });
 }
+
 const basicProps = createBasicProps(MapDataModel.create({ a: 'foo', b: 'bar' }));
-const basicModel = new FormUIModel(UIDefinitionFactory.create(basicDefinition) as FormUIDefinition, basicProps);
+const basicModel = new FormUIModel(UIDefinitionFactory.create(
+  basicDefinition, new NamedItemManager<UIDefinitionConfig>({})) as FormUIDefinition, basicProps);
 
 describe('Unit tests for FormUIModel', () => {
   it ('Can get children', () => {

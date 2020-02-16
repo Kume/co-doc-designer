@@ -1,29 +1,35 @@
 import MultiContentsUIDefinition from './MultiContentsUIDefinition';
-import { FormUIDefinitionConfig } from './UIDefinitionConfig';
+import UIDefinitionConfig, { FormUIDefinitionConfig } from './UIDefinitionConfig';
 import DataPathElement from '../DataModel/Path/DataPathElement';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
+import { NamedItemManager } from '../DataModel/Storage/NamedItemManager';
 
 export default class FormUIDefinition extends MultiContentsUIDefinition {
   public readonly keyFlatten: boolean;
   private _keyOrder?: string[];
 
-  public constructor(config: FormUIDefinitionConfig, dataSchema?: AnyDataSchema) {
-    super(config, dataSchema);
+  public constructor(
+    config: FormUIDefinitionConfig,
+    namedConfig: NamedItemManager<UIDefinitionConfig>,
+    dataSchema?: AnyDataSchema
+  ) {
+    super(config, namedConfig, dataSchema);
     this.keyFlatten = !!config.keyFlatten;
     if (dataSchema) {
       if (dataSchema.type === 'fixed_map') {
-        for (const child of config.contents || []) {
+        for (const content of config.contents || []) {
+          const [child, childNamedConfig] = namedConfig.resolve(content);
           const childSchema = child.keyFlatten ? dataSchema : dataSchema.items.get(child.key!);
-          this.addContent(UIDefinitionFactory.create(child, childSchema));
+          this.addContent(UIDefinitionFactory.create(child, childNamedConfig, childSchema));
         }
       } else {
         throw new ConfigError('invalid type of data schema for FormUIDefinition');
       }
     } else {
       for (const child of config.contents || []) {
-        this.addContent(UIDefinitionFactory.create(child));
+        this.addContent(UIDefinitionFactory.create(...namedConfig.resolve(child)));
       }
     }
   }

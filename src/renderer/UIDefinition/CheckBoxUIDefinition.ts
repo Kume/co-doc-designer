@@ -1,12 +1,17 @@
 import UIDefinitionBase from './UIDefinitionBase';
-import { CheckBoxUIDefinitionConfig } from './UIDefinitionConfig';
+import UIDefinitionConfig, { CheckBoxUIDefinitionConfig } from './UIDefinitionConfig';
 import { UIDefinitionFactory } from './UIDefinitionFactory';
 import { AnyDataSchema } from '../DataSchema';
 import ConfigError from '../../common/Error/ConfigError';
+import { NamedItemManager } from '../DataModel/Storage/NamedItemManager';
 
 export default class CheckBoxUIDefinition extends UIDefinitionBase {
-  public constructor(config: CheckBoxUIDefinitionConfig, dataSchema?: AnyDataSchema) {
-    super(config, dataSchema);
+  public constructor(
+    config: CheckBoxUIDefinitionConfig,
+    namedConfig: NamedItemManager<UIDefinitionConfig>,
+    dataSchema?: AnyDataSchema
+  ) {
+    super(config, namedConfig, dataSchema);
     if (dataSchema) {
       if (dataSchema.type === 'boolean') {
         // 今の所何もしない

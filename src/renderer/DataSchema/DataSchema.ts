@@ -1,4 +1,5 @@
 import { DataContext, nextDataContext } from '../DataModel/DataContext';
+import { NamedItemManager } from '../DataModel/Storage/NamedItemManager';
 
 export type DataSchemaType =
   'list' |
@@ -23,7 +24,11 @@ export default class DataSchema {
   public readonly dataDescription?: string;
   public readonly context: readonly DataContext[];
 
-  constructor(config: DataSchemaConfig, context: readonly DataContext[]) {
+  constructor(
+    config: DataSchemaConfig,
+    namedSchemaManager: NamedItemManager<DataSchemaConfig>,
+    context: readonly DataContext[]
+  ) {
     this.type = config.type;
     this.label = config.label;
     this.dataLabel = config.dataLabel;

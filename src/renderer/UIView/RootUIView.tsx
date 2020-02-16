@@ -18,7 +18,9 @@ import * as fs from 'fs';
 import IconButton from '../View/IconButton';
 
 import '@fortawesome/react-fontawesome';
-import { DataSchemaFactory } from '../DataSchema';
+import { DataSchemaConfig, DataSchemaFactory } from '../DataSchema';
+import { loadNamedItem, NamedItemManager } from '../DataModel/Storage/NamedItemManager';
+import YamlDataFormatter from '../DataModel/Storage/YamlDataFormatter';
 
 interface Props {
 }
@@ -37,7 +39,7 @@ export default class RootUIView extends React.Component<Props, State> {
 
   constructor(props: Props, context?: any) {
     super(props, context);
-    const definition = UIDefinitionFactory.create(sampleUIConfig);
+    const definition = UIDefinitionFactory.create(sampleUIConfig, new NamedItemManager<UIDefinitionConfig>({}));
     this._manager = new UIModelManager(definition, DataModelFactory.create(sampleDataForUIConfig));
     this._manager.notifyModelChanged = () => {
       this.setState({model: this._manager.rootUIModel});
@@ -83,11 +85,18 @@ export default class RootUIView extends React.Component<Props, State> {
     dialog.showOpenDialog({}, (fileNames?: string[]) => {
       if (!fileNames) { return; }
       fs.readFile(fileNames[0], async (err, data) => {
+        const storage = new FileDataStorage(path.dirname(fileNames[0]));
         const schema = Yaml.safeLoad(data.toString()) as any;
-        const dataSchema = DataSchemaFactory.create(schema.dataSchema, []);
-        this.dataMapper = DataMapper.build(schema && schema.fileMap, new FileDataStorage(path.dirname(fileNames[0])));
+        const namedDataSchema =
+          await loadNamedItem<DataSchemaConfig>(storage, new YamlDataFormatter(), schema.namedDataSchema);
+        const dataSchema = DataSchemaFactory.create(
+          schema.dataSchema, new NamedItemManager<DataSchemaConfig>(namedDataSchema), []);
+        const namedUiSchema =
+          await loadNamedItem<UIDefinitionConfig>(storage, new YamlDataFormatter(), schema.namedUiSchema);
+        this.dataMapper = DataMapper.build(schema && schema.fileMap, storage);
         const loaded = await this.dataMapper.loadAsync();
-        const model = UIDefinitionFactory.create(schema!.uiRoot as UIDefinitionConfig, dataSchema);
+        const model = UIDefinitionFactory.create(
+          schema!.uiRoot as UIDefinitionConfig, new NamedItemManager<UIDefinitionConfig>(namedUiSchema), dataSchema);
         this.load(model, loaded);
         this.setState({isFileLoaded: true});
       });
