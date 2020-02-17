@@ -1,5 +1,6 @@
 import { DataContext, nextDataContext } from '../DataModel/DataContext';
 import { NamedItemManager } from '../DataModel/Storage/NamedItemManager';
+import DataPath from '../DataModel/Path/DataPath';
 
 export type DataSchemaType =
   'list' |
@@ -7,7 +8,27 @@ export type DataSchemaType =
   'fixed_map' |
   'string' |
   'number' |
-  'boolean';
+  'boolean' |
+  'conditional';
+
+type RawValueType = string | number | boolean | null;
+
+export type MatchConditionConfig<Path = string, Value = RawValueType>
+  = { path: Path, readonly match: Value };
+export type OrConditionConfig<Path = string, Value = RawValueType>
+  = { readonly or: readonly ConditionConfig<Path, Value>[] };
+export type AndConditionConfig<Path = string, Value = RawValueType>
+  = { readonly and: readonly ConditionConfig<Path, Value>[] };
+
+export type ConditionConfig<Path = string, Value = RawValueType> =
+  MatchConditionConfig<Path, Value> |
+  AndConditionConfig<Path, Value> |
+  OrConditionConfig<Path, Value>;
+
+export interface ConditionalSchemaItem<T, DataModel> {
+  condition: ConditionConfig<DataPath, DataModel>;
+  item: T;
+}
 
 export interface DataSchemaConfig {
   type: DataSchemaType;
@@ -33,6 +54,8 @@ export default class DataSchema {
     this.label = config.label;
     this.dataLabel = config.dataLabel;
     this.dataDescription = config.dataDescription;
-    this.context = nextDataContext(context, config.contextKey);
+    this.context = this.isVirtualNode ? context : nextDataContext(context, config.contextKey);
   }
+
+  protected get isVirtualNode(): boolean { return false; }
 }

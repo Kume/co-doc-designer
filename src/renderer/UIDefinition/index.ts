@@ -8,3 +8,4 @@ export * from './TableUIDefinition';
 export * from './TabUIDefinition';
 export * from './TextUIDefinition';
 export * from './UIDefinitionConfig';
+export * from './ConditionalUIDefinition';

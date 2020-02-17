@@ -4,6 +4,7 @@ import MapDataSchema from './MapDataSchema';
 import BooleanDataSchema from './BooleanDataSchema';
 import FixedMapDataSchema from './FixedMapDataSchema';
 import ListDataSchema from './ListDataSchema';
+import { ConditionalDataSchema } from './ConditionalDataSchema';
 
 export * from './DataSchema';
 export * from './DataSchemaFactory';
@@ -13,6 +14,7 @@ export * from './NumberDataSchema';
 export * from './BooleanDataSchema';
 export * from './StringDataSchema';
 export * from './ListDataSchema';
+export * from './ConditionalDataSchema';
 
 export type AnyDataSchema =
   StringDataSchema |
@@ -20,4 +22,5 @@ export type AnyDataSchema =
   BooleanDataSchema |
   MapDataSchema |
   FixedMapDataSchema |
-  ListDataSchema;
+  ListDataSchema |
+  ConditionalDataSchema;

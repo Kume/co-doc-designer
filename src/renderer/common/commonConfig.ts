@@ -11,7 +11,6 @@ export interface SelectOption<T = number | string> {
   value: T;
 }
 
-
 export interface SelectDynamicOption {
   path: DataPath;
   labelPath?: DataPath;

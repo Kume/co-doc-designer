@@ -18,6 +18,8 @@ import NumberUIDefinition from '../UIDefinition/NumberUIDefinition';
 import NumberUIModel from './NumberUIModel';
 import MappingTableUIDefinition from '../UIDefinition/MappingTableUIDefinition';
 import MappingTableUIModel from './MappingTableUIModel';
+import { ConditionalUIDefinition } from '../UIDefinition';
+import { ConditionalUIModel } from './ConditionalUIModel';
 
 export class UIModelFactory {
   public static create(definition: UIDefinitionBase, props: UIModelProps, oldModel?: UIModel<any>): UIModel<any> {
@@ -47,6 +49,9 @@ export class UIModelFactory {
     }
     if (definition instanceof MappingTableUIDefinition) {
       return new MappingTableUIModel(definition, props);
+    }
+    if (definition instanceof ConditionalUIDefinition) {
+      return new ConditionalUIModel(definition, props);
     }
     throw new Error('Invalid ui definition.');
   }

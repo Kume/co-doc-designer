@@ -19,6 +19,8 @@ import NumberUIModel from '../UIModel/NumberUIModel';
 import NumberUIView from './NumberUIView';
 import MappingTableUIModel from '../UIModel/MappingTableUIModel';
 import MappingTableUIView from './MappingTableUIView';
+import { ConditionalUIModel } from '../UIModel/ConditionalUIModel';
+import ConditionalUIView from './ConditionalUIView';
 
 export default class UIViewFactory {
   public static createUIView(model: UIModel): ComponentClass<UIViewBaseProps<UIModel>> {
@@ -48,6 +50,9 @@ export default class UIViewFactory {
     }
     if (model instanceof MappingTableUIModel) {
       return MappingTableUIView;
+    }
+    if (model instanceof ConditionalUIModel) {
+      return ConditionalUIView;
     }
     return UIViewBase;
   }

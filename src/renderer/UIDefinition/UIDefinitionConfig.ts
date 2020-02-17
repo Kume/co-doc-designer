@@ -7,11 +7,8 @@ export type UIDefinitionType =
   'select' |
   'form' |
   'tab' |
-  'number';
-
-export interface UIDefinitionConfigCondition {
-  path: string;
-}
+  'number' |
+  'conditional';
 
 export default interface UIDefinitionConfig {
   type: UIDefinitionType;
@@ -20,7 +17,6 @@ export default interface UIDefinitionConfig {
   keyFlatten?: boolean;
   contents?: Array<UIDefinitionConfig | string>;
   content?: UIDefinitionConfig | string;
-  condition?: UIDefinitionConfigCondition;
 }
 
 export interface MappingTableUIDefinitionConfig extends UIDefinitionConfig {
@@ -90,6 +86,10 @@ export interface ContentListUIDefinitionConfig extends UIDefinitionConfig {
 
 export interface CheckBoxUIDefinitionConfig extends UIDefinitionConfig {
 
+}
+
+export interface ConditionalUIDefinitionConfig extends UIDefinitionConfig {
+  conditionalContents: { [key: string]: UIDefinitionConfig | string };
 }
 
 export type AnyUIDefinitionConfig =
