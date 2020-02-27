@@ -7,17 +7,15 @@ export function nextDataContext(
   context: readonly DataContext[],
   currentKey: string | undefined
 ): readonly DataContext[] {
+  const nextContext = [...context];
+  if (nextContext.length > 0) {
+    const lastContext = context[context.length - 1];
+    nextContext[context.length - 1] = {...lastContext, depth: lastContext.depth + 1};
+  }
   if (currentKey !== undefined) {
-    return [...context, {key: currentKey, depth: 0}];
+    return [...nextContext, {key: currentKey, depth: 0}];
   } else {
-    if (context.length > 0) {
-      const nextContext = [...context];
-      const lastContext = context[context.length - 1];
-      nextContext[context.length - 1] = {...lastContext, depth: lastContext.depth + 1};
-      return nextContext;
-    } else {
-      return context;
-    }
+    return nextContext;
   }
 }
 

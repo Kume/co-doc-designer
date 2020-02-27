@@ -41,7 +41,7 @@ export async function loadNamedItem<T>(
       const splitPath = value.split('/');
       const loaded = await storage.loadAsync([...currentPath, ...splitPath]);
       const nextPath = [...currentPath, ...splitPath];
-      nextPath.splice(splitPath.length - 1, 1);
+      nextPath.splice(nextPath.length - 1, 1);
       const child = await loadNamedItem<T>(storage, dataFormatter, dataFormatter.parse(loaded), nextPath);
       // TODO バリデーション
       children.set(key, child);
