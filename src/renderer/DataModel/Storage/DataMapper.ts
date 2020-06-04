@@ -164,14 +164,16 @@ export class SingleMappingNode extends MappingNode {
     specifiedDirectory: Array<string>
   ): Promise<DataModelBase> {
     const path = parentPath.concat(this.path);
+    const directoryPath = parentDirectory.concat(this._directoryPath);
     data = await this.saveChildrenAsync(
-      data, storage, formatter, path, parentDirectory.concat(this._directoryPath), []);
+      data, storage, formatter, path, directoryPath, []);
     const value = data.getValue(path);
     if (value) {
       await storage.saveAsync(
-        parentDirectory.concat(this._directoryPath).concat([this._fileName]),
+        directoryPath.concat([this._fileName]),
         formatter.format(value.toJsonObject()));
-      const filePathData = StringDataModel.create(specifiedDirectory.concat([this._fileName]).join('/'));
+      const filePathData = StringDataModel.create(
+        specifiedDirectory.concat(this._directoryPath).concat([this._fileName]).join('/'));
       return data.applyAction(path, <SetDataAction> {type: 'Set', data: filePathData});
     } else {
       return data;
@@ -188,14 +190,14 @@ export class SingleMappingNode extends MappingNode {
     const path = parentPath.concat(this.path);
     const value = data.getValue(path);
     if (value) {
-      const source = await storage.loadAsync(
-        parentDirectory.concat(this._directoryPath).concat([this._fileName]));
+      const directoryPath = parentDirectory.concat(this._directoryPath);
+      const source = await storage.loadAsync(directoryPath.concat([this._fileName]));
       const formated = formatter.parse(source);
       const loaded = DataModelFactory.create(formated);
-      return data.applyAction(path, <SetDataAction> {type: 'Set', data: loaded});
-    } else {
-      return data;
+      data = data.applyAction(path, <SetDataAction> {type: 'Set', data: loaded});
+      data = await this.loadChildrenAsync(data, storage, formatter, path, directoryPath);
     }
+    return data;
   }
 }
 
@@ -226,7 +228,7 @@ export default class DataMapper extends MappingNodeBase {
         case 'single':
           const singleNode = new SingleMappingNode(
             new DataPath(config.path === '' ? [] : config.path.split('.')),
-            [],
+            config.directory ? [config.directory] : [],
             config.fileName!
           );
           this._build(config.children || [], singleNode);

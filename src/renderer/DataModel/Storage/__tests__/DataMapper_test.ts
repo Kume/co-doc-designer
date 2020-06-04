@@ -60,17 +60,17 @@ describe('Unit Test for DataMapper', () => {
       ['Map type under single type', {
         mapperConfig: {
           children: [
-            {type: 'single', path: 'a', directory: '', fileName: 'sub.yml', children: [
+            {type: 'single', path: 'a', directory: 'sub', fileName: 'index.yml', children: [
                 {type: 'map', path: 'c', directory: 'subdir'}
               ]}
           ]
         },
         data: {a: {c: {d: 20, e: 97}}, b: 5},
         file: {
-          'index.yml': 'a: sub.yml\nb: 5\n',
-          'sub.yml': 'c:\n  d: subdir/d.yml\n  e: subdir/e.yml\n',
-          'subdir/d.yml': '20\n',
-          'subdir/e.yml': '97\n',
+          'index.yml': 'a: sub/index.yml\nb: 5\n',
+          'sub/index.yml': 'c:\n  d: subdir/d.yml\n  e: subdir/e.yml\n',
+          'sub/subdir/d.yml': '20\n',
+          'sub/subdir/e.yml': '97\n',
         }
       }],
     ]);
