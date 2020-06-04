@@ -41,7 +41,8 @@ export default class FormUIModel extends MultiContentUIModel<FormUIDefinition, I
         dataPath,
         modelPath: modelPath.push(index),
         focusedPath,
-        data
+        data,
+        key: this.props.key,
       });
     } else {
       let childFocusedPath: DataPath | undefined;

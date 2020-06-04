@@ -35,7 +35,8 @@ export default class FormUIDefinition extends MultiContentsUIDefinition {
   }
 
   public get key(): DataPathElement | undefined {
-    return this.keyFlatten ? this.contents.first()!.key : this._key;
+    // TODO 複数のキーを返せるように基本機能を拡張するべき
+    return this.keyFlatten ? this.contents.find(content => !!content?.key?.canBeMapKey)!.key : this._key;
   }
 
   public get keyOrder(): string[] {

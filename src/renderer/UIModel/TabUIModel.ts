@@ -135,7 +135,8 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
         data,
         modelPath: modelPath.push(selectedTab),
         dataPath,
-        focusedPath
+        focusedPath,
+        key: this.props.key,
       });
     } else {
       return new UIModelProps({

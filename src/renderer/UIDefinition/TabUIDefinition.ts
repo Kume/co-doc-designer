@@ -25,7 +25,8 @@ export default class TabUIDefinition extends MultiContentsUIDefinition {
       if (dataSchema.type === 'fixed_map') {
         for (const content of config.contents || []) {
           const [child, childNamedConfig] = namedConfig.resolve(content);
-          this.addContent(UIDefinitionFactory.create(child, childNamedConfig, dataSchema.items.get(child.key!)));
+          const childSchema = child.keyFlatten ? dataSchema : dataSchema.items.get(child.key!);
+          this.addContent(UIDefinitionFactory.create(child, childNamedConfig, childSchema));
         }
       } else {
         throw new ConfigError('invalid type of data schema for TabUIDefinitionConfig');
