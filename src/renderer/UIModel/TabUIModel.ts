@@ -7,6 +7,7 @@ import DataPathElement from '../DataModel/Path/DataPathElement';
 import { UIModelAction, UIModelUpdateDataAction, UIModelUpdateStateAction } from './UIModelActions';
 import DataPath from '../DataModel/Path/DataPath';
 import DataModelBase from '../DataModel/DataModelBase';
+import FormUIDefinition from '../UIDefinition/FormUIDefinition';
 
 interface TabUIModelStateProperty {
   selectedTab: string | undefined;
@@ -25,6 +26,16 @@ interface Tab {
   label: string;
   path: DataPath;
   isSelected: boolean;
+}
+
+function uiDefinitionHasFlattenKey(definition: UIDefinitionBase, key: string): boolean {
+  if (!definition) {
+    return false;
+  }
+  if (definition.keyFlatten && (definition instanceof TabUIDefinition || definition instanceof FormUIDefinition)) {
+    return definition.contents.some(content => uiDefinitionHasFlattenKey(content, key));
+  }
+  return Boolean(definition.key?.canBeMapKey && definition.key?.asMapKey === key);
 }
 
 export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
@@ -59,10 +70,26 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
         }
       }
     }
-    if (key && this.isValidKey(key)) { return key; }
+    if (!key) {
+      return this.defaultTab;
+    }
+    let keyForFocusPath: string | undefined;
+    for (const content of this.definition.contents.toArray()) {
+      if (uiDefinitionHasFlattenKey(content, key)) {
+        keyForFocusPath = content.key!.asMapKey;
+        break;
+      }
+    }
+    if (keyForFocusPath) {
+      return keyForFocusPath;
+    }
     const state = this.state;
-    if (state && state.selectedTab && this.isValidKey(state.selectedTab)) {
-      return state.selectedTab;
+    if (state && state.selectedTab) {
+      for (const content of this.definition.contents.toArray()) {
+        if (uiDefinitionHasFlattenKey(content, state.selectedTab)) {
+          return content.key!.asMapKey;
+        }
+      }
     }
     return this.defaultTab;
   }
@@ -96,10 +123,6 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
       path: this.props.modelPath,
       state: nextState
     }];
-  }
-
-  private isValidKey(key: string): boolean {
-    return this.definition.contents.some(content => content!.key!.asMapKey === key);
   }
 
   private get defaultTab(): string {
@@ -139,12 +162,20 @@ export default class TabUIModel extends SingleContentUIModel<TabUIDefinition> {
         key: this.props.key,
       });
     } else {
+      let childFocusedPath: DataPath | undefined;
+      if (
+        focusedPath &&
+        focusedPath.isNotEmptyPath() &&
+        DataPathElement.isMatch(selectedTab, focusedPath.firstElement)
+      ) {
+        childFocusedPath = focusedPath.shift();
+      }
       return new UIModelProps({
         stateNode: stateNode && stateNode.get(selectedTab),
         data: this.mapData && this.mapData.valueForKey(selectedTab as string),
         modelPath: modelPath.push(selectedTab),
         dataPath: dataPath.push(selectedTab),
-        focusedPath: focusedPath && focusedPath.shift()
+        focusedPath: childFocusedPath,
       });
     }
   }

@@ -34,7 +34,7 @@ export default class MappingTableUIModel extends MultiContentUIModel<MappingTabl
 
     const data: CellData[][] = [];
 
-    const emptyRowData = new Array(this.definition.contents.size);
+    const emptyRowData = new Array(this.definition.contents.size).fill(null);
 
     sourceData.forEachData((rowData, index) => {
       const row = this.children.get(index as string) as TableRowUIModel;
